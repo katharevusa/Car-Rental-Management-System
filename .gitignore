@@ -1,0 +1,14 @@
+CarRentalManagementSystem/nbproject/private/
+CarRentalManagementSystem/CaRMSManagementClient/nbproject/private/
+CarRentalManagementSystem/CarRentalManagementSystem-ejb/nbproject/private/
+CarRentalManagementSystem/CaRMSReservationClient/nbproject/private/
+CarRentalManagementSystem/CaRMSManagementClient/build/
+CarRentalManagementSystem/CaRMSReservationClient/build/
+CarRentalManagementSystem/CarRentalManagementSystem-ejb/build/
+CarRentalManagementSystem/build/
+CarRentalManagementSystem/dist/
+CarRentalManagementSystem/CarRentalManagementSystem-ejb/dist/
+CarRentalManagementSystem/CarRentalManagementSystemLibrary/dist/
+CarRentalManagementSystem/CarRentalManagementSystemLibrary/build/
+CarRentalManagementSystem/CaRMSReservationClient/dist/
+CarRentalManagementSystem/CaRMSManagementClient/dist/
