@@ -1,7 +1,10 @@
 package ejb.session.stateless;
 
+import entity.CategoryEntity;
 import entity.RentalRateEntity;
+import java.time.DayOfWeek;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -9,9 +12,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import util.exception.CategoryNotFoundException;
 import util.exception.DeleteRentalRateException;
 import util.exception.InvalidFieldEnteredException;
+import util.exception.RentalRateExistException;
 import util.exception.RentalRateNotFoundException;
+import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRentalRateException;
 
 /**
@@ -27,38 +37,74 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
-
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    private CategoryEntitySessionBeanLocal categoryEntitySessionBeanLocal;
+    
     public RentalRateEntitySessionBean() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
-    
-    public Long createNewRentalRate(RentalRateEntity rentalRateEntity) throws InvalidFieldEnteredException{
-        
-        try {
-            em.persist(rentalRateEntity);
-            em.flush();
+    @Override
+    public RentalRateEntity createNewRentalRate(Long categoryId, RentalRateEntity rentalRateEntity)
+             throws InvalidFieldEnteredException, RentalRateExistException, UnknownPersistenceException, CategoryNotFoundException
+    {
+        Set<ConstraintViolation<RentalRateEntity>>constraintViolations = validator.validate(rentalRateEntity);
+  
+        if(constraintViolations.isEmpty())
+        {  
+            try
+            {   
+                CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
+                rentalRateEntity.setCategory(category);
+                category.getRentalRate().add(rentalRateEntity);
+                em.persist(rentalRateEntity);
+                em.flush();
+                return rentalRateEntity;
+            }
             
-            return rentalRateEntity.getRentalRateId();
-        } catch (PersistenceException ex){
-            throw new InvalidFieldEnteredException();
+            catch(PersistenceException ex)
+            {
+                if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
+                {
+                    if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
+                    {
+                        throw new RentalRateExistException();
+                    }
+                    else
+                    {
+                        throw new UnknownPersistenceException(ex.getMessage());
+                    }
+                }
+                else
+                {
+                    throw new UnknownPersistenceException(ex.getMessage());
+                }
+            }
+        }
+        else
+        {
+            throw new InvalidFieldEnteredException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
     
     public List<RentalRateEntity> retrieveAllRentalRates(){
-        Query query = em.createQuery("SELECT rr FROM RentalRateEntity");
-        
+        Query query = em.createQuery("SELECT rr FROM RentalRateEntity rr");
         return query.getResultList();
     }
     
-    public RentalRateEntity retrieveRentalRateByRentalId(Long rentalRateId) throws RentalRateNotFoundException{
+    public RentalRateEntity retrieveRentalRateByRentalId(Long rentalRateId) 
+            //throws RentalRateNotFoundException
+    {
         
         RentalRateEntity rentalRateEntity = em.find(RentalRateEntity.class,rentalRateId);
         
-        if (rentalRateEntity != null){
+       // if (rentalRateEntity != null){
             return rentalRateEntity;
-        } else {
+      /*  } else {
             throw new RentalRateNotFoundException("Rental Rate ID" + rentalRateId + "does not exist");
-        }
+        }*/
     }
     
     
@@ -96,4 +142,15 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
 //        }
 //        
 //    }
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RentalRateEntity>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
+    }
 }

@@ -32,8 +32,8 @@ public class RentalRateEntity implements Serializable {
     @Column(nullable = false,unique = true)
     private String rentalRateName;
     @Column(nullable = false, length = 12)
-    private BigDecimal ratePerDay;
-    private Date validityPeriod;
+    private String ratePerDay;
+    private String validityPeriod;
     //validity period i.e. monday-wednesday 1-3
     @ManyToOne
     private CategoryEntity category;
@@ -42,7 +42,7 @@ public class RentalRateEntity implements Serializable {
     }
 
 
-    public RentalRateEntity(String rentalRateName, BigDecimal ratePerDay, Date validityPeriod) {
+    public RentalRateEntity(String rentalRateName, String ratePerDay, String validityPeriod) {
         this.rentalRateName = rentalRateName;
         this.ratePerDay = ratePerDay;
         this.validityPeriod = validityPeriod;
@@ -103,11 +103,11 @@ public class RentalRateEntity implements Serializable {
         return category;
     }
 
-    public Date getValidityPeriod() {
+    public String getValidityPeriod() {
         return validityPeriod;
     }
 
-    public void setValidityPeriod(Date validityPeriod) {
+    public void setValidityPeriod(String validityPeriod) {
         this.validityPeriod = validityPeriod;
     }
 
@@ -115,11 +115,11 @@ public class RentalRateEntity implements Serializable {
         this.category = category;
     }
 
-    public BigDecimal getRatePerDay() {
+    public String getRatePerDay() {
         return ratePerDay;
     }
 
-    public void setRatePerDay(BigDecimal ratePerDay) {
+    public void setRatePerDay(String ratePerDay) {
         this.ratePerDay = ratePerDay;
     }
 

@@ -12,6 +12,7 @@
     <class>entity.ReservationRecordEntity</class>
     <class>entity.TransitDriverDispatchRecordEntity</class>
     <class>entity.EmployeeEntity</class>
+    <class>entity.RentalDayEntity</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="create"/>

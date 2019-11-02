@@ -34,9 +34,9 @@ public class OutletEntity implements Serializable {
     @Column(nullable = false, length = 128)
     private String address;
     @Column(nullable = false)
-    private Date openingTime;
+    private Integer openingTime;
     @Column(nullable = false)
-    private Date closingTime;
+    private Integer closingTime;
 
     @OneToMany
     private List<EmployeeEntity> employees;
@@ -45,7 +45,7 @@ public class OutletEntity implements Serializable {
         employees = new ArrayList<>();
     }
     
-    public OutletEntity(String name, String address,Date openingTime, Date closingTime) {
+    public OutletEntity(String name, String address,Integer openingTime, Integer closingTime) {
         this();
         this.name = name;
         this.address = address;
@@ -77,19 +77,19 @@ public class OutletEntity implements Serializable {
         this.address = address;
     }
 
-    public Date getOpeningTime() {
+    public Integer getOpeningTime() {
         return openingTime;
     }
 
-    public void setOpeningTime(Date openingTime) {
+    public void setOpeningTime(Integer openingTime) {
         this.openingTime = openingTime;
     }
 
-    public Date getClosingTime() {
+    public Integer getClosingTime() {
         return closingTime;
     }
 
-    public void setClosingTime(Date closingTime) {
+    public void setClosingTime(Integer closingTime) {
         this.closingTime = closingTime;
     }
     

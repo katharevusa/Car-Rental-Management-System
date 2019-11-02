@@ -16,6 +16,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.enumeration.AccessRightEnum;
 import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 
@@ -82,10 +83,10 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
         try
         {
             EmployeeEntity employeeEntity = retrieveEmployeeByUsername(username);
-            
+           
             if(employeeEntity.getPassword().equals(password))
             {
-                //employeeEntity.getSaleTransactionEntities().size();                
+                //also need to return the enum               
                 return employeeEntity;
             }
             else

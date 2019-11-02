@@ -14,7 +14,7 @@ public interface CategoryEntitySessionBeanLocal {
     
     public CategoryEntity retrieveCategoryByCategoryName(String categoryname) throws CategoryNotFoundException;
    
-            public CategoryEntity retrieveCategoryByCategoryId(Long categoryId);
+    public CategoryEntity retrieveCategoryByCategoryId(Long categoryId) throws CategoryNotFoundException;
     
     public void updateCategory(CategoryEntity category);
     

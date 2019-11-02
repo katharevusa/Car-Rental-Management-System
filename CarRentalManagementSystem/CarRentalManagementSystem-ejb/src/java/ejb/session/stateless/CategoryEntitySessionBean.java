@@ -38,9 +38,18 @@ public class CategoryEntitySessionBean implements CategoryEntitySessionBeanRemot
     }
     
     @Override
-    public CategoryEntity retrieveCategoryByCategoryId(Long categoryId) {
-        CategoryEntity category = em.find(CategoryEntity.class, categoryId);
-        return category;
+    public CategoryEntity retrieveCategoryByCategoryId(Long categoryId) throws CategoryNotFoundException
+    {
+          CategoryEntity category = em.find(CategoryEntity.class, categoryId);
+        
+        if(category != null)
+        {
+            return category;
+       }
+        else
+        {
+            throw new CategoryNotFoundException("Category ID " + categoryId + " does not exist!");
+        }
     }
     @Override
     public CategoryEntity retrieveCategoryByCategoryName(String categoryname) throws CategoryNotFoundException{
@@ -62,10 +71,10 @@ public class CategoryEntitySessionBean implements CategoryEntitySessionBeanRemot
         em.merge(category);
     }
     
-    @Override
+@Override
     public void deleteCategory(Long categoryId) {
-        CategoryEntity category = retrieveCategoryByCategoryId(categoryId);
-        em.remove(category);
+        //CategoryEntity category = retrieveCategoryByCategoryId(categoryId);
+       // em.remove(category);
     }
     
     

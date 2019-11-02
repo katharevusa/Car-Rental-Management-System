@@ -12,6 +12,13 @@ import ejb.session.stateless.PartnerEntitySessionBeanRemote;
 import ejb.session.stateless.RentalRateEntitySessionBeanRemote;
 import entity.EmployeeEntity;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import util.enumeration.AccessRightEnum;
+import static util.enumeration.AccessRightEnum.CUSTOMERSERVICEEXECUTIVE;
+import static util.enumeration.AccessRightEnum.OPERATIONSMANAGER;
+import static util.enumeration.AccessRightEnum.SALESMANAGER;
+import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
 
 /**
@@ -27,6 +34,7 @@ class MainApp {
     private CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
     private RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote;
     private EmployeeEntity currentEmployee;
+    private  AccessRightEnum currentAccessRight;
     private SalesManagerModule salesManagerModule;
     private OperationManagerModule operationManagerModule;
     private CustomerServiceExecutiveModule customerServiceExecutiveModule;
@@ -71,11 +79,31 @@ class MainApp {
                         doLogin();
                         System.out.println("Login successful!\n");
                         
-                     //   salesManagerModule = new SalesManagerModule(currentEmployee, rentalRateEntitySessionBeanRemote,categoryEntitySessionBeanRemote);
-                        operationManagerModule = new OperationManagerModule(/*missing parameters*/);
-                        customerServiceExecutiveModule = new CustomerServiceExecutiveModule(/*missing parameters*/);
+                        if(currentEmployee.getAccessRightEnum() == AccessRightEnum.SALESMANAGER){
+                        salesManagerModule = new SalesManagerModule(currentEmployee, rentalRateEntitySessionBeanRemote,categoryEntitySessionBeanRemote);
+                            try {
+                                salesManagerModule.menuSalesManagerModule();
+                            } catch (InvalidAccessRightException ex) {
+                                System.out.println("invalid access");
+                            }
+                        }
+                        else if(currentEmployee.getAccessRightEnum() == AccessRightEnum.OPERATIONSMANAGER){
+                        operationManagerModule = new OperationManagerModule(currentEmployee);
+                         try {
+                                operationManagerModule.menuOperationManagerModule();
+                            } catch (InvalidAccessRightException ex) {
+                                System.out.println("invalid access");
+                            }
+                        }
+                        else if(currentEmployee.getAccessRightEnum() == AccessRightEnum.CUSTOMERSERVICEEXECUTIVE){
+                        customerServiceExecutiveModule = new CustomerServiceExecutiveModule(currentEmployee);
+                        try {
+                                customerServiceExecutiveModule.menuCustomerServiceExecutiveModule();
+                            } catch (InvalidAccessRightException ex) {
+                                System.out.println("invalid access");
+                            }
+                        }
                         
-                        menuMain();
                     }
                     catch(InvalidLoginCredentialException ex) 
                     {
@@ -114,65 +142,17 @@ class MainApp {
         
         if(username.length() > 0 && password.length() > 0)
         {
-            currentEmployee = employeeEntitySessionBeanRemote.employeeLogin(username, password);      
+            currentEmployee = employeeEntitySessionBeanRemote.employeeLogin(username, password);
         }
         else
         {
             throw new InvalidLoginCredentialException("Missing login credential!");
         }
     }
-
-    private void menuMain() {
-        Scanner scanner = new Scanner(System.in);
-        Integer response = 0;
-        
-        while(true)
-        {
-            System.out.println("*** Car Rental Management System  ***\n");
-            System.out.println("You are login as " + currentEmployee.getFirstName() + " " + currentEmployee.getLastName() + " with " + currentEmployee.getAccessRightEnum().toString() + " rights\n");
-            System.out.println("1: Sales manager");
-            System.out.println("2: Operation manager");
-            System.out.println("3: Customer service executive");
-            System.out.println("4: Logout\n");
-            response = 0;
-            
-            while(response < 1 || response > 4)
-            {
-                System.out.print("> ");
-
-                response = scanner.nextInt();
-
-                if(response == 1)
-                {
-                   // salesManagerModule.menuSalesManagerModule();
-                }
-                else if(response == 2)
-                {
-                        operationManagerModule.menuOperationManager();
-                    }
-                else if(response == 3)
-                {
-                        customerServiceExecutiveModule.menuCustomerServiceExecutive();
-                    }
-                else if (response == 4)
-                {
-                    break;
-                }
-                else
-                {
-                    System.out.println("Invalid option, please try again!\n");                
-                }
-            }
-            
-            if(response == 4)
-            {
-                break;
-            }
-        }
     }
 
   
     
     
     
-}
+

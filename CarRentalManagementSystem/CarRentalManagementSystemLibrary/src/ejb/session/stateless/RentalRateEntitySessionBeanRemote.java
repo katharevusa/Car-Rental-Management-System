@@ -5,7 +5,12 @@
  */
 package ejb.session.stateless;
 
+import entity.RentalRateEntity;
 import javax.ejb.Remote;
+import util.exception.CategoryNotFoundException;
+import util.exception.InvalidFieldEnteredException;
+import util.exception.RentalRateExistException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -13,5 +18,6 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface RentalRateEntitySessionBeanRemote {
-    
+    public RentalRateEntity createNewRentalRate(Long categoryId, RentalRateEntity rentalRateEntity) 
+            throws InvalidFieldEnteredException, RentalRateExistException, UnknownPersistenceException,CategoryNotFoundException;
 }

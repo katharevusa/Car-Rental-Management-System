@@ -12,7 +12,7 @@ import util.exception.CategoryNotFoundException;
 public interface CategoryEntitySessionBeanRemote {
     public Long createCategory(CategoryEntity newCategory);
     
-    public CategoryEntity retrieveCategoryByCategoryId(Long categoryId);
+    public CategoryEntity retrieveCategoryByCategoryId(Long categoryId) throws CategoryNotFoundException;
     public CategoryEntity retrieveCategoryByCategoryName(String categoryname) throws CategoryNotFoundException;
     public void updateCategory(CategoryEntity category);
     
