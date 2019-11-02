@@ -24,13 +24,5 @@ public class Main {
         MainApp mainApp = new MainApp(reservationRecordEntitySessionBeanRemote,outletEntitySessionBeanRemote,customerEntitySessionBeanRemote,carEntitySessionBeanRemote);
         mainApp.runApp();
     }
-    
-    
-    //test
-    //test kaixin
-    //test kaixin2
-    //1
-//    2
-//    3
-    //abc
+   
 }
