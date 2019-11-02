@@ -6,11 +6,13 @@
 package ejb.session.stateless;
 
 import entity.OutletEntity;
+import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 
 @Local(OutletEntitySessionBeanLocal.class)
@@ -44,6 +46,12 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
         OutletEntity outlet = retrieveOutletByOutletId(outletId);
         em.remove(outlet);
     }
+    @Override
+    public List<OutletEntity> retrieveAllOutlet(){
+        
+        Query query = em.createQuery("SELECT o FROM OutletEntity o");
+        return query.getResultList();
+    }  
 }
 
     // Add business logic below. (Right-click in editor and choose

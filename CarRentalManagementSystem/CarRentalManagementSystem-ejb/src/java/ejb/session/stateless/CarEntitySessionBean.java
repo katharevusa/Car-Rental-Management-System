@@ -57,53 +57,58 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     }
     
     
+    @Override
     public List<CarEntity> retrieveAllCars()
     {
         Query query = em.createQuery("SELECT c FROM CarEntity s");
         
         return query.getResultList();
+         
     }
     
-    public void updateCar(CarEntity carEntity) throws CarNotFoundException,UpdateCarException{
-        
-        if (carEntity.getCarId() != null){
-            
-            CarEntity carEntityToUpdate = retrieveCarByCarId(carEntity.getCarId());
-            
-            if (carEntityToUpdate.getPlateNumber().equals(carEntity.getPlateNumber())) {
-                carEntityToUpdate.setOnRental(carEntity.isOnRental());
-                carEntityToUpdate.setColor(carEntity.getColor());
-                carEntityToUpdate.setLocation1(carEntity.getLocation1());
-                carEntityToUpdate.setLocation2(carEntity.getLocation2());
-            }else {
-                throw new UpdateCarException("License plate number of car record to be updated does not match the existing record");
-            }
-            
-        } else {
-            throw new CarNotFoundException("Car ID not provided for car to be updated");
-        }
-    }
+//    public void updateCar(CarEntity carEntity) throws CarNotFoundException,UpdateCarException{
+//        
+//        if (carEntity.getCarId() != null){
+//            
+//            CarEntity carEntityToUpdate = retrieveCarByCarId(carEntity.getCarId());
+//            
+//            if (carEntityToUpdate.getPlateNumber().equals(carEntity.getPlateNumber())) {
+//                carEntityToUpdate.setOnRental(carEntity.isOnRental());
+//                carEntityToUpdate.setColor(carEntity.getColor());
+//                carEntityToUpdate.setLocation1(carEntity.getLocation1());
+//                carEntityToUpdate.setLocation2(carEntity.getLocation2());
+//            }else {
+//                throw new UpdateCarException("License plate number of car record to be updated does not match the existing record");
+//            }
+//            
+//        } else {
+//            throw new CarNotFoundException("Car ID not provided for car to be updated");
+//        }
+//    }
     
-    public void deleteCar(Long carId) throws CarNotFoundException,DeleteCarException{
-        
-        CarEntity carEntityToRemove = retrieveCarByCarId(carId);
-       
-        if (carEntityToRemove != null) {
-            if (carEntityToRemove.isOnRental() == false) {
-                
-                carEntityToRemove.getModel().getCars().remove(carEntityToRemove);
-                em.remove(carEntityToRemove);
-                
-            } else {
-                
-                carEntityToRemove.setDisabled(true);
-                throw new DeleteCarException("The car is currently in usage, cannot be deleted.");
-            }
-        } else {
-            throw new CarNotFoundException("Car ID " + carId + " does not exist!");
-        }
-
-    }
+    
+    
+    
+//    public void deleteCar(Long carId) throws CarNotFoundException,DeleteCarException{
+//        
+//        CarEntity carEntityToRemove = retrieveCarByCarId(carId);
+//       
+//        if (carEntityToRemove != null) {
+//            if (carEntityToRemove.isOnRental() == false) {
+//                
+//                carEntityToRemove.getModel().getCars().remove(carEntityToRemove);
+//                em.remove(carEntityToRemove);
+//                
+//            } else {
+//                
+//                carEntityToRemove.setDisabled(true);
+//                throw new DeleteCarException("The car is currently in usage, cannot be deleted.");
+//            }
+//        } else {
+//            throw new CarNotFoundException("Car ID " + carId + " does not exist!");
+//        }
+//
+//    }
 
         
 }

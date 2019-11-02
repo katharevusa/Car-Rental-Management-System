@@ -5,6 +5,8 @@
  */
 package ejb.session.stateless;
 
+import entity.CarEntity;
+import java.util.List;
 import javax.ejb.Remote;
 
 /**
@@ -13,5 +15,5 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface CarEntitySessionBeanRemote {
-    
+     public List<CarEntity> retrieveAllCars();
 }

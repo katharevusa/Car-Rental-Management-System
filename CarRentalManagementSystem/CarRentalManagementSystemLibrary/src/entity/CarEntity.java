@@ -28,8 +28,12 @@ public class CarEntity implements Serializable {
     private OutletEntity location2;
     private boolean disabled;
     //Bidirectional
-    //@ManyToOne
+    @ManyToOne
     private ModelEntity model;
+       @OneToOne(mappedBy = "carEntity")
+    private ReservationRecordEntity reservationRecordEntity;
+    @ManyToOne
+    private OutletEntity outletEntity;
 
     public CarEntity() {
     }

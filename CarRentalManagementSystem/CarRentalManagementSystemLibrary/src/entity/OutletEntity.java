@@ -8,6 +8,7 @@ package entity;
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,9 +34,9 @@ public class OutletEntity implements Serializable {
     @Column(nullable = false, length = 128)
     private String address;
     @Column(nullable = false)
-    private LocalTime openingTime;
+    private Date openingTime;
     @Column(nullable = false)
-    private LocalTime closingTime;
+    private Date closingTime;
 
     @OneToMany
     private List<EmployeeEntity> employees;
@@ -44,7 +45,7 @@ public class OutletEntity implements Serializable {
         employees = new ArrayList<>();
     }
     
-    public OutletEntity(String name, String address,LocalTime openingTime, LocalTime closingTime) {
+    public OutletEntity(String name, String address,Date openingTime, Date closingTime) {
         this();
         this.name = name;
         this.address = address;
@@ -76,19 +77,19 @@ public class OutletEntity implements Serializable {
         this.address = address;
     }
 
-    public LocalTime getOpeningTime() {
+    public Date getOpeningTime() {
         return openingTime;
     }
 
-    public void setOpeningTime(LocalTime openingTime) {
+    public void setOpeningTime(Date openingTime) {
         this.openingTime = openingTime;
     }
 
-    public LocalTime getClosingTime() {
+    public Date getClosingTime() {
         return closingTime;
     }
 
-    public void setClosingTime(LocalTime closingTime) {
+    public void setClosingTime(Date closingTime) {
         this.closingTime = closingTime;
     }
     

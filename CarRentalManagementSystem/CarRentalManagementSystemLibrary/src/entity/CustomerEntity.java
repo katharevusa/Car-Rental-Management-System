@@ -21,22 +21,57 @@ public class CustomerEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
+    
+    
+    /*user input:
+    1. email
+    2.mobile phone
+    3.username
+    4.password
+    */
     @Column(unique = true,nullable = false)
-    private String mobileNumber;
-    @Column(unique = true,nullable = true)
-    private String email;
-    @Column(unique = true,nullable = false)
-    private String userName;
+    private String username;
     @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
+    private String mobileNumber;
+    @Column(nullable = false)
+    private String email;
     
-    //bidirectional
-    //@OneToMany(mappedBy = "customerEntity")
-    private List<ReservationRecordEntity> reservationRecords;
+    
+    
+    
+//    //-----------relationship fields------------------------
+//    //bidirectional
+//    @OneToMany(mappedBy = "customerEntity")
+//    private List<ReservationRecordEntity> reservationRecords;
 
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //constructor
     public CustomerEntity() {
-        reservationRecords = new ArrayList<>();
     }
+
+    //overloaded constructor
+    public CustomerEntity(String userName, String password, String mobileNumber, String email) {
+        
+        this();
+        
+        this.username = userName;
+        this.password = password;
+        this.mobileNumber = mobileNumber;
+        this.email = email;
+    }
+    
+    
     
     
     @Override
@@ -72,6 +107,22 @@ public class CustomerEntity implements Serializable {
         this.customerId = customerId;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getMobileNumber() {
         return mobileNumber;
     }
@@ -88,28 +139,5 @@ public class CustomerEntity implements Serializable {
         this.email = email;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public List<ReservationRecordEntity> getReservationRecords() {
-        return reservationRecords;
-    }
-
-    public void setReservationRecords(List<ReservationRecordEntity> reservationRecords) {
-        this.reservationRecords = reservationRecords;
-    }
     
 }

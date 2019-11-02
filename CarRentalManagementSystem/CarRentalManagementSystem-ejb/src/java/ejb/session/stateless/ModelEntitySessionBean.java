@@ -60,41 +60,45 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
             throw new ModelNotFoundException("Model ID " + modelId + "does not exist!");
         }
     }
+    
+    
 
-    public void updateModel(ModelEntity modelEntity) throws UpdateModelException,ModelNotFoundException{
-        
-        if (modelEntity.getModelId() != null){
-            
-            ModelEntity modelToUpdate = retrieveModelByModelId(modelEntity.getModelId());
-            if (modelToUpdate.getMake().equals(modelEntity.getMake()) && modelToUpdate.getModel().equals(modelEntity.getModel())){
-                modelToUpdate.setCategory(modelEntity.getCategory());
-                modelToUpdate.setMake(modelEntity.getMake());
-                modelToUpdate.setModel(modelEntity.getModel());
-            } else {
-                throw new UpdateModelException("Make and model of the model to be updated does not match the existing record");
-            }
-        } else {
-            throw new ModelNotFoundException("Model ID not provided for model to be updated");
-        }
-    }
+//    public void updateModel(ModelEntity modelEntity) throws UpdateModelException,ModelNotFoundException{
+//        
+//        if (modelEntity.getModelId() != null){
+//            
+//            ModelEntity modelToUpdate = retrieveModelByModelId(modelEntity.getModelId());
+//            if (modelToUpdate.getMake().equals(modelEntity.getMake()) && modelToUpdate.getModel().equals(modelEntity.getModel())){
+//                modelToUpdate.setCategory(modelEntity.getCategory());
+//                modelToUpdate.setMake(modelEntity.getMake());
+//                modelToUpdate.setModel(modelEntity.getModel());
+//            } else {
+//                throw new UpdateModelException("Make and model of the model to be updated does not match the existing record");
+//            }
+//        } else {
+//            throw new ModelNotFoundException("Model ID not provided for model to be updated");
+//        }
+//    }
     
-    public void deleteModel(Long modelId) throws DeleteModelException, ModelNotFoundException{
-        
-        
-        ModelEntity modelEntityToRemove = retrieveModelByModelId(modelId);
-        
-        if (modelEntityToRemove != null){
-            if (modelEntityToRemove.getCars().isEmpty()){
-                em.remove(modelEntityToRemove);
-            } else {
-                modelEntityToRemove.setDisabled(true);
-                throw new DeleteModelException("The model is currently in usage, thus cannot be deleted.");
-            } 
-        } else {
-            throw new ModelNotFoundException("Model ID " + modelId + "does not exist.");
-        }
-    }
     
+    
+//    public void deleteModel(Long modelId) throws DeleteModelException, ModelNotFoundException{
+//        
+//        
+//        ModelEntity modelEntityToRemove = retrieveModelByModelId(modelId);
+//        
+//        if (modelEntityToRemove != null){
+//            if (modelEntityToRemove.getCars().isEmpty()){
+//                em.remove(modelEntityToRemove);
+//            } else {
+//                modelEntityToRemove.setDisabled(true);
+//                throw new DeleteModelException("The model is currently in usage, thus cannot be deleted.");
+//            } 
+//        } else {
+//            throw new ModelNotFoundException("Model ID " + modelId + "does not exist.");
+//        }
+//    }
+//    
     
     
 }
