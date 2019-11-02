@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.RentalRateEntity;
 import javax.ejb.Local;
 import util.exception.CategoryNotFoundException;
+import util.exception.GeneralException;
 import util.exception.InvalidFieldEnteredException;
 import util.exception.RentalRateExistException;
 import util.exception.UnknownPersistenceException;
@@ -18,6 +19,6 @@ import util.exception.UnknownPersistenceException;
  */
 @Local
 public interface RentalRateEntitySessionBeanLocal {
-    public RentalRateEntity createNewRentalRate(Long categoryId, RentalRateEntity rentalRateEntity) 
-            throws InvalidFieldEnteredException,RentalRateExistException,UnknownPersistenceException, CategoryNotFoundException;
+    public RentalRateEntity createNewRentalRate(Long categoryId, RentalRateEntity newRentalRate)
+             throws  RentalRateExistException,CategoryNotFoundException, GeneralException;
 }

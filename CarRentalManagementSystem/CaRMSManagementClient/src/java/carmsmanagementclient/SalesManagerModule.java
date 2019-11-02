@@ -22,6 +22,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.enumeration.AccessRightEnum;
 import util.exception.CategoryNotFoundException;
+import util.exception.GeneralException;
 import util.exception.InvalidAccessRightException;
 import util.exception.InvalidFieldEnteredException;
 import util.exception.RentalRateExistException;
@@ -87,11 +88,9 @@ class SalesManagerModule {
                 
                 if(response == 1)
                 {
-                  /*  try {*/
+
                         doCreateNewRentalRate();
-          /*          } catch (CategoryNotFoundException ex) {
-                        Logger.getLogger(SalesManagerModule.class.getName()).log(Level.SEVERE, null, ex);
-                    }*/
+  
                 }
                 else if(response == 2)
                 {
@@ -119,7 +118,7 @@ class SalesManagerModule {
         }
     }
 
-    private void doCreateNewRentalRate()  
+   /* private void doCreateNewRentalRate()  
 
     {
         
@@ -251,7 +250,44 @@ class SalesManagerModule {
         System.out.println("\nPlease try again......\n");
     }
 
+*/
+    private void doCreateNewRentalRate()   {
+         try
+        {
+            
+            Scanner scanner = new Scanner(System.in);
+            
+            System.out.println("*** CaRMS :: create new rental rate ***\n\n");
+            System.out.print("Enter Category ID> ");
+            Long categoryId = scanner.nextLong();
+            CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(categoryId);
+            System.out.println("Set rental rate for " + category.getName() + " "+"\n");
+            scanner.nextLine();
 
+                RentalRateEntity newRentalRate = new RentalRateEntity();
+                System.out.print("Enter name> ");
+                newRentalRate.setRentalRateName(scanner.nextLine().trim());
+                System.out.print("Enter rate per day> ");
+                newRentalRate.setRatePerDay(scanner.nextDouble());
+                System.out.print("Enter validity period> ");
+                newRentalRate.setValidityPeriod(scanner.nextLine().trim());
+      
+//need to initialise rental day
+                   
+              newRentalRate = rentalRateEntitySessionBeanRemote.createNewRentalRate(categoryId, newRentalRate);
+              System.out.println("New rental rate created successfully!: " + newRentalRate.getRentalRateId() + "\n");
+                   
+        }
+        catch(CategoryNotFoundException ex)
+        {
+            System.out.println("category not found!\n");
+        }
+        catch(RentalRateExistException | GeneralException ex)
+        {
+            System.out.println("An error has occurred while creating the new rentalRate: " + ex.getMessage() + "!\n");
+        }
+    
+    }
 }
 
 

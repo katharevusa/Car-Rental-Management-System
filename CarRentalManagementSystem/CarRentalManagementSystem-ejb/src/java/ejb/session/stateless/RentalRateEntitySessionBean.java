@@ -18,6 +18,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.CategoryNotFoundException;
 import util.exception.DeleteRentalRateException;
+import util.exception.GeneralException;
 import util.exception.InvalidFieldEnteredException;
 import util.exception.RentalRateExistException;
 import util.exception.RentalRateNotFoundException;
@@ -47,10 +48,10 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
     }
 
     @Override
-    public RentalRateEntity createNewRentalRate(Long categoryId, RentalRateEntity rentalRateEntity)
-             throws InvalidFieldEnteredException, RentalRateExistException, UnknownPersistenceException, CategoryNotFoundException
+    public RentalRateEntity createNewRentalRate(Long categoryId, RentalRateEntity newRentalRate)
+             throws  RentalRateExistException,CategoryNotFoundException, GeneralException
     {
-        Set<ConstraintViolation<RentalRateEntity>>constraintViolations = validator.validate(rentalRateEntity);
+        /*Set<ConstraintViolation<RentalRateEntity>>constraintViolations = validator.validate(rentalRateEntity);
   
         if(constraintViolations.isEmpty())
         {  
@@ -86,8 +87,43 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
         else
         {
             throw new InvalidFieldEnteredException(prepareInputDataValidationErrorsMessage(constraintViolations));
+        }*/
+         
+        try
+        {
+            CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
+            
+            em.persist(newRentalRate);
+            
+             newRentalRate.setCategory(category);
+             category.getRentalRate().add(newRentalRate);
+            
+  
+            em.flush();
+            em.refresh(newRentalRate);
+
+            return newRentalRate;
+        }
+        catch(CategoryNotFoundException ex)
+        {
+            throw new CategoryNotFoundException("Unable to create new ATM card as the customer record does not exist");
+        }
+       
+        catch(PersistenceException ex)
+        {
+            if(ex.getCause() != null && 
+                    ex.getCause().getCause() != null &&
+                    ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException"))
+            {
+                throw new RentalRateExistException("Atm card with same card number already exist");
+            }
+            else
+            {
+                throw new GeneralException("An unexpected error has occurred: " + ex.getMessage());
+            }
         }
     }
+    
     
     public List<RentalRateEntity> retrieveAllRentalRates(){
         Query query = em.createQuery("SELECT rr FROM RentalRateEntity rr");

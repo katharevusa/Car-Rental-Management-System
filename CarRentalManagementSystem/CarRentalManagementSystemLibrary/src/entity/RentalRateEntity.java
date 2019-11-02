@@ -32,7 +32,7 @@ public class RentalRateEntity implements Serializable {
     @Column(nullable = false,unique = true)
     private String rentalRateName;
     @Column(nullable = false, length = 12)
-    private String ratePerDay;
+    private Double ratePerDay;
     private String validityPeriod;
     //validity period i.e. monday-wednesday 1-3
     @ManyToOne
@@ -42,7 +42,7 @@ public class RentalRateEntity implements Serializable {
     }
 
 
-    public RentalRateEntity(String rentalRateName, String ratePerDay, String validityPeriod) {
+    public RentalRateEntity(String rentalRateName, Double ratePerDay, String validityPeriod) {
         this.rentalRateName = rentalRateName;
         this.ratePerDay = ratePerDay;
         this.validityPeriod = validityPeriod;
@@ -115,11 +115,11 @@ public class RentalRateEntity implements Serializable {
         this.category = category;
     }
 
-    public String getRatePerDay() {
+    public Double getRatePerDay() {
         return ratePerDay;
     }
 
-    public void setRatePerDay(String ratePerDay) {
+    public void setRatePerDay(Double ratePerDay) {
         this.ratePerDay = ratePerDay;
     }
 
