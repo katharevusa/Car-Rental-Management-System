@@ -5,8 +5,10 @@
  */
 package carmsmanagementclient;
 
+import ejb.session.stateless.CarEntitySessionBeanRemote;
 import ejb.session.stateless.CategoryEntitySessionBeanRemote;
 import ejb.session.stateless.EmployeeEntitySessionBeanRemote;
+import ejb.session.stateless.ModelEntitySessionBeanRemote;
 import ejb.session.stateless.OutletEntitySessionBeanRemote;
 import ejb.session.stateless.PartnerEntitySessionBeanRemote;
 import ejb.session.stateless.RentalRateEntitySessionBeanRemote;
@@ -29,6 +31,7 @@ class MainApp {
 
    
     private OutletEntitySessionBeanRemote outletEntitySessionBeanRemote;
+    private CarEntitySessionBeanRemote carEntitySessionBeanRemote;
     private EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote;
     private PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote;
     private CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
@@ -38,19 +41,24 @@ class MainApp {
     private SalesManagerModule salesManagerModule;
     private OperationManagerModule operationManagerModule;
     private CustomerServiceExecutiveModule customerServiceExecutiveModule;
-
+    private ModelEntitySessionBeanRemote modelEntitySessionBeanRemote;
 
     
-    public MainApp(){
+    public MainApp() {
     }
-    
-    public MainApp(OutletEntitySessionBeanRemote outletEntitySessionBeanRemote, EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote, 
-            CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote, RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote) {
-    this.outletEntitySessionBeanRemote = outletEntitySessionBeanRemote;
-    this.employeeEntitySessionBeanRemote = employeeEntitySessionBeanRemote;
-    this.partnerEntitySessionBeanRemote = partnerEntitySessionBeanRemote;
-    this.categoryEntitySessionBeanRemote = categoryEntitySessionBeanRemote;
-    this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
+
+    public MainApp(OutletEntitySessionBeanRemote outletEntitySessionBeanRemote, EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote,
+            CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote, ModelEntitySessionBeanRemote modelEntitySessionBeanRemote, RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote, CarEntitySessionBeanRemote carEntitySessionBeanRemote) {
+        
+        this();
+        
+        this.modelEntitySessionBeanRemote = modelEntitySessionBeanRemote;
+        this.outletEntitySessionBeanRemote = outletEntitySessionBeanRemote;
+        this.employeeEntitySessionBeanRemote = employeeEntitySessionBeanRemote;
+        this.partnerEntitySessionBeanRemote = partnerEntitySessionBeanRemote;
+        this.categoryEntitySessionBeanRemote = categoryEntitySessionBeanRemote;
+        this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
+        this.carEntitySessionBeanRemote = carEntitySessionBeanRemote;
 
     }
 
@@ -88,7 +96,7 @@ class MainApp {
                             }
                         }
                         else if(currentEmployee.getAccessRightEnum() == AccessRightEnum.OPERATIONSMANAGER){
-                        operationManagerModule = new OperationManagerModule(currentEmployee);
+                        operationManagerModule = new OperationManagerModule(currentEmployee,modelEntitySessionBeanRemote,outletEntitySessionBeanRemote,carEntitySessionBeanRemote);
                          try {
                                 operationManagerModule.menuOperationManagerModule();
                             } catch (InvalidAccessRightException ex) {

@@ -38,11 +38,25 @@ public class OutletEntity implements Serializable {
     @Column(nullable = false)
     private Integer closingTime;
 
+    
+    /*******relationship field********/
+    //bidirectional
+    @OneToMany(mappedBy = "outletEntity")
+    private List<CarEntity> cars;
+    
+    
     @OneToMany
     private List<EmployeeEntity> employees;
     
+    
+    
+    
+    
+    
+    
     public OutletEntity(){
         employees = new ArrayList<>();
+        cars = new ArrayList<>();
     }
     
     public OutletEntity(String name, String address,Integer openingTime, Integer closingTime) {
@@ -53,14 +67,39 @@ public class OutletEntity implements Serializable {
         this.closingTime = closingTime;
     }
 
-    public List<EmployeeEntity> getEmployees() {
-        return employees;
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getOutletId() != null ? getOutletId().hashCode() : 0);
+        return hash;
     }
 
-    public void setEmployees(List<EmployeeEntity> employees) {
-        this.employees = employees;
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the outletId fields are not set
+        if (!(object instanceof OutletEntity)) {
+            return false;
+        }
+        OutletEntity other = (OutletEntity) object;
+        if ((this.getOutletId() == null && other.getOutletId() != null) || (this.getOutletId() != null && !this.outletId.equals(other.outletId))) {
+            return false;
+        }
+        return true;
     }
-    
+
+    @Override
+    public String toString() {
+        return "entity.Outlet[ id=" + getOutletId() + " ]";
+    }
+
+    public Long getOutletId() {
+        return outletId;
+    }
+
+    public void setOutletId(Long outletId) {
+        this.outletId = outletId;
+    }
+
     public String getName() {
         return name;
     }
@@ -92,38 +131,21 @@ public class OutletEntity implements Serializable {
     public void setClosingTime(Integer closingTime) {
         this.closingTime = closingTime;
     }
-    
-    public Long getOutletId() {
-        return outletId;
+
+    public List<CarEntity> getCars() {
+        return cars;
     }
 
-    public void setOutletId(Long outletId) {
-        this.outletId = outletId;
+    public void setCars(List<CarEntity> cars) {
+        this.cars = cars;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (outletId != null ? outletId.hashCode() : 0);
-        return hash;
+    public List<EmployeeEntity> getEmployees() {
+        return employees;
     }
 
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the outletId fields are not set
-        if (!(object instanceof OutletEntity)) {
-            return false;
-        }
-        OutletEntity other = (OutletEntity) object;
-        if ((this.outletId == null && other.outletId != null) || (this.outletId != null && !this.outletId.equals(other.outletId))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "entity.Outlet[ id=" + outletId + " ]";
+    public void setEmployees(List<EmployeeEntity> employees) {
+        this.employees = employees;
     }
     
 }

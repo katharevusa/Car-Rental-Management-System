@@ -5,10 +5,31 @@
  */
 package carmsmanagementclient;
 
+import ejb.session.stateless.CarEntitySessionBeanRemote;
+import ejb.session.stateless.ModelEntitySessionBeanRemote;
+import ejb.session.stateless.OutletEntitySessionBeanRemote;
+import entity.CarEntity;
 import entity.EmployeeEntity;
+import entity.ModelEntity;
+import entity.OutletEntity;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.AccessRightEnum;
+import util.exception.CarNotFoundException;
 import util.exception.InvalidAccessRightException;
+import util.exception.InvalidFieldEnteredException;
+import util.exception.ModelNotFoundException;
+import util.exception.OutletNotFoundException;
 
 /**
  *
@@ -16,10 +37,29 @@ import util.exception.InvalidAccessRightException;
  */
 class OperationManagerModule {
     
-    private EmployeeEntity currentEmployee;
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
     
-    public OperationManagerModule(EmployeeEntity currentEmployee) {
+    private EmployeeEntity currentEmployee;
+    private ModelEntitySessionBeanRemote modelEntitySessionBeanRemote;
+    private OutletEntitySessionBeanRemote outletEntitySessionBeanRemote;
+    private CarEntitySessionBeanRemote carEntitySessionBeanRemote;
+    
+    
+    public OperationManagerModule() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+    
+    
+    
+    public OperationManagerModule(EmployeeEntity currentEmployee,ModelEntitySessionBeanRemote modelEntitySessionBeanRemote,OutletEntitySessionBeanRemote outletEntitySessionBeanRemote,CarEntitySessionBeanRemote carEntitySessionBeanRemote) {
+        this();
+        
         this.currentEmployee = currentEmployee;
+        this.modelEntitySessionBeanRemote = modelEntitySessionBeanRemote;
+        this.outletEntitySessionBeanRemote = outletEntitySessionBeanRemote;
+        this.carEntitySessionBeanRemote = carEntitySessionBeanRemote;
     }
 
     
@@ -129,17 +169,7 @@ class OperationManagerModule {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private void doCreateNewCar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
-    private void doViewAllCars() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    private void doViewCarDetails() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     private void doViewTDDR() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -152,5 +182,117 @@ class OperationManagerModule {
     private void doUpdateTransitAsComplete() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    
+    private void doCreateNewCar() {
+        
+        Scanner sc = new Scanner(System.in);
+        CarEntity newCarEntity = new CarEntity();
+
+        try {
+            System.out.print("Enter Model name> ");
+            String modelName = sc.nextLine().trim();
+            ModelEntity modelEntity = modelEntitySessionBeanRemote.retrieveModelByName(modelName);
+            System.out.print("Enter license plate number> ");
+            String plateNumber = sc.nextLine().trim();
+            newCarEntity.setPlateNumber(plateNumber);
+            System.out.print("Enter color> ");
+            String color = sc.nextLine().trim();
+            newCarEntity.setColor(color);
+            System.out.print("Enter outlet ID> ");
+            Long outletId = sc.nextLong();
+            OutletEntity outletEntity = outletEntitySessionBeanRemote.retrieveOutletByOutletId(outletId);
+            
+            Set<ConstraintViolation<CarEntity>> constraintViolations = validator.validate(newCarEntity);
+            
+            if (constraintViolations.isEmpty()){
+                
+                try{
+                    newCarEntity = carEntitySessionBeanRemote.createNewCar(newCarEntity,modelEntity.getModelId(),outletEntity.getOutletId());
+                    System.out.println("New car created successfully!: " + newCarEntity.getCarId() + "\n");
+                }
+                catch(InvalidFieldEnteredException ex){
+                    System.out.println(ex.getMessage());
+                }
+                
+            } else {
+                showInputDataValidationErrorsForCarEntity(constraintViolations);
+            }
+
+
+        } catch (ModelNotFoundException modelNotFoundException){
+            System.out.println(modelNotFoundException.getMessage());
+            System.out.print("Press any key to continue...> ");
+            sc.nextLine();
+        } catch (OutletNotFoundException outletNotFoundException){
+            System.out.println(outletNotFoundException.getMessage());
+            System.out.print("Press any key to continue...> ");
+            sc.nextLine();
+        }
+
+    }
+    
+    private void doViewAllCars() {
+        
+        Scanner sc = new Scanner(System.in);
+        
+        System.out.println("*** CaRMS System ::  View All Cars ***\n");
+        
+        List<CarEntity> allCars = carEntitySessionBeanRemote.retrieveAllCars();
+        
+        for (CarEntity carEntity : allCars){
+            System.out.println(carEntity);
+        }
+        
+        System.out.print("Press any key to continue...> ");
+        sc.nextLine();
+    }
+    
+    private void doViewCarDetails() {
+        
+        Scanner sc = new Scanner(System.in);
+        Integer response = 0;
+        
+        System.out.print("Enter Car ID> ");
+        Long carId = sc.nextLong();
+        
+        try {
+            
+            CarEntity carEntity = carEntitySessionBeanRemote.retrieveCarByCarId(carId);
+            System.out.println(carEntity);
+            System.out.println("------------------------");
+            System.out.println("1: Update Car");
+            System.out.println("2: Delete Car");
+            System.out.println("3: Back\n");
+            System.out.print("> ");
+            response = sc.nextInt();
+            
+            if (response == 1){
+//                doUpdateCar(carEntity);
+            } else if(response == 2){
+//                doDeleteCar(carEntity);
+            }
+       
+        } catch (CarNotFoundException ex) {
+            System.out.println("An error has occurred while retrieving car: " + ex.getMessage() + "\n");
+            System.out.print("Press any key to continue...> ");
+            sc.nextLine();
+        }
+    }
+
+    
+    
+
+    private void showInputDataValidationErrorsForCarEntity(Set<ConstraintViolation<CarEntity>>constraintViolations)
+    {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }  
     
 }

@@ -4,10 +4,12 @@
  * and open the template in the editor.
  */
 package carmsmanagementclient;
+import ejb.session.stateless.CarEntitySessionBeanRemote;
 import ejb.session.stateless.OutletEntitySessionBeanRemote;
 import ejb.session.stateless.EmployeeEntitySessionBeanRemote;
 import ejb.session.stateless.PartnerEntitySessionBeanRemote;
 import ejb.session.stateless.CategoryEntitySessionBeanRemote;
+import ejb.session.stateless.ModelEntitySessionBeanRemote;
 import ejb.session.stateless.RentalRateEntitySessionBeanRemote;
 import javax.ejb.EJB;
 
@@ -27,10 +29,16 @@ public class Main {
     private static CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
     @EJB
     private static RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote;
+    @EJB
+    private static ModelEntitySessionBeanRemote modelEntitySessionBeanRemote;
+    @EJB
+    private static CarEntitySessionBeanRemote carEntitySessionBeanRemote;
+    
+    
     
     public static void main(String[] args) {
     MainApp mainApp = new MainApp(outletEntitySessionBeanRemote, employeeEntitySessionBeanRemote, partnerEntitySessionBeanRemote, 
-            categoryEntitySessionBeanRemote, rentalRateEntitySessionBeanRemote);
+            categoryEntitySessionBeanRemote, modelEntitySessionBeanRemote, rentalRateEntitySessionBeanRemote,carEntitySessionBeanRemote);
         mainApp.runApp();
     }
     

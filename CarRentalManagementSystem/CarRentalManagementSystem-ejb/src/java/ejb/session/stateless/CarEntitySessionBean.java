@@ -1,7 +1,10 @@
 package ejb.session.stateless;
 
 import entity.CarEntity;
+import entity.ModelEntity;
+import entity.OutletEntity;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -12,6 +15,8 @@ import javax.persistence.Query;
 import util.exception.CarNotFoundException;
 import util.exception.DeleteCarException;
 import util.exception.InvalidFieldEnteredException;
+import util.exception.ModelNotFoundException;
+import util.exception.OutletNotFoundException;
 import util.exception.UpdateCarException;
 
 /**
@@ -23,28 +28,47 @@ import util.exception.UpdateCarException;
 @Remote(CarEntitySessionBeanRemote.class)
 
 public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEntitySessionBeanLocal {
+    
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
+    
+    @EJB(name = "OutletEntitySessionBeanLocal")
+    private OutletEntitySessionBeanLocal outletEntitySessionBeanLocal;
+    @EJB(name = "ModelEntitySessionBeanLocal")
+    private ModelEntitySessionBeanLocal modelEntitySessionBeanLocal;
+    
 
     public CarEntitySessionBean() {
     }
 
-    public Long createNewCar(CarEntity carEntity) throws InvalidFieldEnteredException{
+    @Override
+    public CarEntity createNewCar(CarEntity newCarEntity,Long modelId,Long outletId) throws InvalidFieldEnteredException{
         
         try
         {
-            em.persist(carEntity);
-            em.flush();
+            em.persist(newCarEntity);
+            OutletEntity outletEntity = outletEntitySessionBeanLocal.retrieveOutletByOutletId(outletId);
+            ModelEntity modelEntity = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
             
-            return carEntity.getCarId();
+            newCarEntity.setModelEntity(modelEntity);
+            modelEntity.getCars().add(newCarEntity);
+            
+            newCarEntity.setOutletEntity(outletEntity);
+            outletEntity.getCars().add(newCarEntity);
+            
+            em.flush();
+            em.refresh(newCarEntity);
+            
+            return newCarEntity;
         }
-        catch (PersistenceException ex){
-            throw new InvalidFieldEnteredException();
+        catch (PersistenceException | OutletNotFoundException | ModelNotFoundException ex){
+            throw new InvalidFieldEnteredException("Invalid field values entered!");
         }
         
     }
     
+    @Override
     public CarEntity retrieveCarByCarId(Long carId) throws CarNotFoundException{
         
         CarEntity carEntity = em.find(CarEntity.class,carId);
@@ -60,7 +84,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     @Override
     public List<CarEntity> retrieveAllCars()
     {
-        Query query = em.createQuery("SELECT c FROM CarEntity s");
+        Query query = em.createQuery("SELECT c FROM CarEntity c");
         
         return query.getResultList();
          

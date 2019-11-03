@@ -19,6 +19,7 @@ import javax.persistence.Query;
 import util.enumeration.AccessRightEnum;
 import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.OutletNotFoundException;
 
 /**
  *
@@ -33,16 +34,23 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
     private EntityManager em;
     @EJB
     private OutletEntitySessionBeanLocal outletEntitySessionBeanLocal;
+    
+    
     @Override
-    public Long createEmployee(Long outletId, EmployeeEntity newEmployee) {
+    public Long createEmployee(Long outletId, EmployeeEntity newEmployee) throws OutletNotFoundException{
         
-        em.persist(newEmployee);
-        OutletEntity outlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(outletId);
-        newEmployee.setOutlet(outlet);
-        outlet.getEmployees().add(newEmployee);
-        em.flush();
-        em.refresh(newEmployee);
-        return newEmployee.getEmployeeId();
+        try {
+            em.persist(newEmployee);
+            OutletEntity outlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(outletId);
+            newEmployee.setOutlet(outlet);
+            outlet.getEmployees().add(newEmployee);
+            em.flush();
+            em.refresh(newEmployee);
+            return newEmployee.getEmployeeId();
+        } catch (OutletNotFoundException outletNotFoundException) {
+            throw new OutletNotFoundException("Outlet ID " + outletId + "does not exist!");
+        }
+        
     }
 
     @Override

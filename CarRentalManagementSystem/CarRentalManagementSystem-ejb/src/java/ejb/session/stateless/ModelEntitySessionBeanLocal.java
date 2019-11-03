@@ -5,7 +5,9 @@
  */
 package ejb.session.stateless;
 
+import entity.ModelEntity;
 import javax.ejb.Local;
+import util.exception.ModelNotFoundException;
 
 /**
  *
@@ -13,5 +15,9 @@ import javax.ejb.Local;
  */
 @Local
 public interface ModelEntitySessionBeanLocal {
+
+    public ModelEntity retrieveModelByName(String modelName) throws ModelNotFoundException;
+
+    public ModelEntity retrieveModelByModelId(Long modelId) throws ModelNotFoundException;
     
 }

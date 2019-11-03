@@ -24,18 +24,28 @@ public class CarEntity implements Serializable {
     private String plateNumber;
     private String color;
     private boolean onRental;
-    private CustomerEntity location1;
-    private OutletEntity location2;
     private boolean disabled;
-    //Bidirectional
+    
+    
+    
+    /*==========relationship field==========*/
+    //bidirectional
     @ManyToOne
-    private ModelEntity model;
-       @OneToOne(mappedBy = "carEntity")
-    private ReservationRecordEntity reservationRecordEntity;
+    private ModelEntity modelEntity;
+    //bidirectional
     @ManyToOne
     private OutletEntity outletEntity;
+    //bidirectional
+    //reservation
 
+    
+    
+    
+    
+    
     public CarEntity() {
+        onRental = false;
+        disabled = false;
     }
     
 
@@ -96,30 +106,6 @@ public class CarEntity implements Serializable {
         this.onRental = onRental;
     }
 
-    public CustomerEntity getLocation1() {
-        return location1;
-    }
-
-    public void setLocation1(CustomerEntity location1) {
-        this.location1 = location1;
-    }
-
-    public OutletEntity getLocation2() {
-        return location2;
-    }
-
-    public void setLocation2(OutletEntity location2) {
-        this.location2 = location2;
-    }
-
-    public ModelEntity getModel() {
-        return model;
-    }
-
-    public void setModel(ModelEntity model) {
-        this.model = model;
-    }
-
     public boolean isDisabled() {
         return disabled;
     }
@@ -127,5 +113,22 @@ public class CarEntity implements Serializable {
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
     }
-    
+
+    public ModelEntity getModelEntity() {
+        return modelEntity;
+    }
+
+    public void setModelEntity(ModelEntity modelEntity) {
+        this.modelEntity = modelEntity;
+    }
+
+    public OutletEntity getOutletEntity() {
+        return outletEntity;
+    }
+
+    public void setOutletEntity(OutletEntity outletEntity) {
+        this.outletEntity = outletEntity;
+    }
+
+   
 }

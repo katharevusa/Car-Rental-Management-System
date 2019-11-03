@@ -28,18 +28,21 @@ public class ModelEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long modelId;
     @Column(unique = true,nullable = false)
-    private String make;
-    @Column(unique = true,nullable = false)
-    private String model;
+    private String modelName;
     private boolean disabled;
     
+    
+    
+    /**********relationship field********/
     //bidirdctional
-    //@OneToMany(mappedBy = "modelEntity")
+    @OneToMany(mappedBy = "modelEntity")
     private List<CarEntity> cars;
 
     //bidirctional
    // @ManyToOne
     private CategoryEntity category;
+    
+    
     
     public ModelEntity() {
         cars = new ArrayList<>();
@@ -72,14 +75,6 @@ public class ModelEntity implements Serializable {
         return "entity.ModelEntity[ id=" + getModelId() + " ]";
     }
 
-    public List<CarEntity> getCars() {
-        return cars;
-    }
-
-    public void setCars(List<CarEntity> cars) {
-        this.cars = cars;
-    }
-
     public Long getModelId() {
         return modelId;
     }
@@ -88,20 +83,28 @@ public class ModelEntity implements Serializable {
         this.modelId = modelId;
     }
 
-    public String getMake() {
-        return make;
+    public String getModelName() {
+        return modelName;
     }
 
-    public void setMake(String make) {
-        this.make = make;
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 
-    public String getModel() {
-        return model;
+    public boolean isDisabled() {
+        return disabled;
     }
 
-    public void setModel(String model) {
-        this.model = model;
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    public List<CarEntity> getCars() {
+        return cars;
+    }
+
+    public void setCars(List<CarEntity> cars) {
+        this.cars = cars;
     }
 
     public CategoryEntity getCategory() {
@@ -112,12 +115,5 @@ public class ModelEntity implements Serializable {
         this.category = category;
     }
 
-    public boolean isDisabled() {
-        return disabled;
-    }
-
-    public void setDisabled(boolean disabled) {
-        this.disabled = disabled;
-    }
     
 }

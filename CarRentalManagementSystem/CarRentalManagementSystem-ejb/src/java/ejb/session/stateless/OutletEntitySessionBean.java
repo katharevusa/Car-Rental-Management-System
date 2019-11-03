@@ -13,6 +13,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.OutletNotFoundException;
 
 
 @Local(OutletEntitySessionBeanLocal.class)
@@ -23,7 +24,8 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
 
-     @Override
+    
+    @Override
     public Long createOutlet(OutletEntity newOutlet) {
         em.persist(newOutlet);
         em.flush();       
@@ -31,9 +33,15 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
     }
 
     @Override
-    public OutletEntity retrieveOutletByOutletId(Long outletId) {
+    public OutletEntity retrieveOutletByOutletId(Long outletId) throws OutletNotFoundException{
+        
         OutletEntity outlet = em.find(OutletEntity.class, outletId);
-        return outlet;
+        
+        if (outlet != null){
+            return outlet;
+        } else {
+            throw new OutletNotFoundException("Outlet ID " + outletId + " does not exist!");
+        }
     }
 
     @Override
@@ -42,9 +50,15 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
     }
 
     @Override
-    public void deleteOutlet(Long outletId) {
-        OutletEntity outlet = retrieveOutletByOutletId(outletId);
-        em.remove(outlet);
+    public void deleteOutlet(Long outletId) throws OutletNotFoundException{
+        
+        try {
+            OutletEntity outlet = retrieveOutletByOutletId(outletId);
+            em.remove(outlet);
+        } catch (OutletNotFoundException ex) {
+            throw new OutletNotFoundException("Outlet ID " + outletId + " does not exist!");
+        }
+        
     }
     @Override
     public List<OutletEntity> retrieveAllOutlet(){
