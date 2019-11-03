@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -42,7 +43,7 @@ public class RentalRateEntity implements Serializable {
     private CategoryEntity category;
     //setting up uni directional for RENTALDAY AND RENTALRATE
     //RENTALRATE -> RENTALDAY
-    @OneToMany
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval=true)
     private List<RentalDayEntity> rentalDay;
 
 

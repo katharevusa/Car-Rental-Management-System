@@ -112,40 +112,53 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
     }
     
     
-    /* public void updateRentalRate(RentalRateEntity rentalRateEntity) throws RentalRateNotFoundException,UpdateRentalRateException{
+ /*   @Override
+    public void updateRentalRate(ProductEntity productEntity) throws ProductNotFoundException, UpdateProductException, InputDataValidationException
+    {
+        if(productEntity != null && productEntity.getProductId()!= null)
+        {
+            Set<ConstraintViolation<ProductEntity>>constraintViolations = validator.validate(productEntity);
+        
+            if(constraintViolations.isEmpty())
+            {
+                ProductEntity productEntityToUpdate = retrieveProductByProductId(productEntity.getProductId());
+
+                if(productEntityToUpdate.getSkuCode().equals(productEntity.getSkuCode()))
+                {
+                    productEntityToUpdate.setName(productEntity.getName());
+                    productEntityToUpdate.setDescription(productEntity.getDescription());
+                    productEntityToUpdate.setQuantityOnHand(productEntity.getQuantityOnHand());
+                    productEntityToUpdate.setReorderQuantity(productEntity.getReorderQuantity());
+                    productEntityToUpdate.setUnitPrice(productEntity.getUnitPrice());
+                    productEntityToUpdate.setCategory(productEntity.getCategory());
+                }
+                else
+                {
+                    throw new UpdateProductException("SKU Code of product record to be updated does not match the existing record");
+                }
+            }
+            else
+            {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        }
+        else
+        {
+            throw new ProductNotFoundException("Product ID not provided for product to be updated");
+        }
+    }
+    */
     
-    if (rentalRateEntity.getRentalRateId() != null){
-    
-    RentalRateEntity rentalRateToUpdate = retrieveRentalRateByRentalRateId(rentalRateEntity.getRentalRateId());
-    
-    if (rentalRateToUpdate.getRentalRateName().equals(rentalRateEntity.getRentalRateName())){
-    //update
-    } else {
-    throw new UpdateRentalRateException();
+    @Override
+    public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException
+    {
+        RentalRateEntity rentalRateEntityToRemove = retrieveRentalRateByRentalId(rentalRateId);
+        rentalRateEntityToRemove.getCategory().getRentalRate().remove(rentalRateEntityToRemove);
+        //set category to null, is this automated?
+        //remove rental day need to cascade the remove operation
+        em.remove(rentalRateEntityToRemove);
     }
     
-    } else {
-    throw new RentalRateNotFoundException();
-    }
-    }*/
-    
-    //    public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException,DeleteRentalRateException{
-    //
-    //        RentalRateEntity rentalEntityToRemove = retrieveRentalRateByRentalId(rentalRateId);
-    //
-    //        if (rentalEntityToRemove != null) {
-    //            if () {
-    //
-    //            } else {
-    //
-    //                rentalEntityToRemove.setDisabled(true);
-    //                throw new DeleteRentalRateException();
-    //            }
-    //        } else {
-    //            throw new RentalRateNotFoundException("Rental rate" + rentalRateId + "does not exist");
-    //        }
-    //
-    //    }
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RentalRateEntity>>constraintViolations)
     {
         String msg = "Input data validation error!:";

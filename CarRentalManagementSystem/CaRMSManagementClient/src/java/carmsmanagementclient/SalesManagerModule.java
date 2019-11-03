@@ -2,7 +2,7 @@
 * To change this license header, choose License Headers in Project Properties.
 * To change this template file, choose Tools | Templates
 * and open the template in the editor.
-*/
+ */
 package carmsmanagementclient;
 
 import ejb.session.stateless.CategoryEntitySessionBeanRemote;
@@ -40,11 +40,9 @@ import util.exception.RentalRateNotFoundException;
  */
 class SalesManagerModule {
 
-
-    
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
-    
+
     private EmployeeEntity currentEmployee;
     private CategoryEntity enteredCategory;
     private CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
@@ -54,84 +52,67 @@ class SalesManagerModule {
     public SalesManagerModule() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
-        dateFormatter =  new SimpleDateFormat();
+        dateFormatter = new SimpleDateFormat();
         this.enteredCategory = enteredCategory;
     }
 
     public SalesManagerModule(EmployeeEntity currentEmployee, RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote,
-        CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote) {
+            CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote) {
         this();
         this.currentEmployee = currentEmployee;
         this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
         this.categoryEntitySessionBeanRemote = categoryEntitySessionBeanRemote;
-        
+
     }
-            
-    
-    public void menuSalesManagerModule() throws InvalidAccessRightException{
-        
-        if(currentEmployee.getAccessRightEnum() != AccessRightEnum.SALESMANAGER)
-        {
+
+    public void menuSalesManagerModule() throws InvalidAccessRightException {
+
+        if (currentEmployee.getAccessRightEnum() != AccessRightEnum.SALESMANAGER) {
             throw new InvalidAccessRightException("You don't have EMPLOYEE rights to access the sales manager module.");
         }
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
-        
-        while(true)
-        {
+
+        while (true) {
             System.out.println("*** Car Rental Management System :: Sales manager module ***\n");
             System.out.println("1: Create Rental Rate");
             System.out.println("2: View Rental Rate Details");
             System.out.println("3: View All Rental Rate");
             System.out.println("4: Log out\n");
             response = 0;
-            
-            while(response < 1 || response > 4)
-            {
-                System.out.print("> ");
-                
-                response = scanner.nextInt();
-                
-                if(response == 1)
-                {
 
-                        doCreateNewRentalRate();
-  
-                }
-                else if(response == 2)
-                {
+            while (response < 1 || response > 4) {
+                System.out.print("> ");
+
+                response = scanner.nextInt();
+
+                if (response == 1) {
+
+                    doCreateNewRentalRate();
+
+                } else if (response == 2) {
                     doViewRentalRateDetails();
                     //update and delete be inside View Rental Rate details
-                }
-                else if(response == 3)
-                {
+                } else if (response == 3) {
                     doViewAllRentalRate();
-                }
-                else if(response == 4)
-                {
+                } else if (response == 4) {
                     break;
-                }
-                else
-                {
+                } else {
                     System.out.println("Invalid option, please try again!\n");
                 }
             }
-            
-            if(response == 4)
-            {
+
+            if (response == 4) {
                 break;
             }
         }
     }
 
-    private void doCreateNewRentalRate()  
+    private void doCreateNewRentalRate() {
 
-    {
-        
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
-        while(true)
-        {
+        while (true) {
             System.out.println("*** CaRMS :: Sales manager :: Create New Rental Rate ***\n");
             System.out.println("Choose Car Category> \n");
             System.out.println("1. Luxury Sedan");
@@ -140,68 +121,57 @@ class SalesManagerModule {
             System.out.println("4. SUV/Minivan Sedan");
             System.out.println("5. Back\n");
             response = 0;
-            
-            while(response < 1 || response > 5)
-            {
+
+            while (response < 1 || response > 5) {
                 System.out.print("> ");
-                
+
                 response = scanner.nextInt();
-                
-                if(response == 1)
-                {
+
+                if (response == 1) {
                     try {
                         enteredCategory = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(Long.valueOf(1));
                     } catch (CategoryNotFoundException ex) {
                         System.out.println("category cannot be found");
                     }
-                enterRentalRateDetails(enteredCategory);
-                }
-                else if(response == 2)
-                {
-                    try {  
+                    enterRentalRateDetails(enteredCategory);
+                } else if (response == 2) {
+                    try {
                         enteredCategory = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(Long.valueOf(2));
                     } catch (CategoryNotFoundException ex) {
                         System.out.println("category cannot be found");
                     }
-                enterRentalRateDetails(enteredCategory);
-                }
-                else if(response == 3)
-                {
-                    try {  
+                    enterRentalRateDetails(enteredCategory);
+                } else if (response == 3) {
+                    try {
                         enteredCategory = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(Long.valueOf(3));
                     } catch (CategoryNotFoundException ex) {
                         System.out.println("category cannot be found");
                     }
-                enterRentalRateDetails(enteredCategory);
-                }
-                else if(response == 4){
-                    try {  
+                    enterRentalRateDetails(enteredCategory);
+                } else if (response == 4) {
+                    try {
                         enteredCategory = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(Long.valueOf(4));
                     } catch (CategoryNotFoundException ex) {
                         System.out.println("category cannot be found");
                     }
-                enterRentalRateDetails(enteredCategory);
-                }
-                else if(response == 5)
-                {
+                    enterRentalRateDetails(enteredCategory);
+                } else if (response == 5) {
                     break;
-                }
-                else
-                {
+                } else {
                     System.out.println("Invalid option, please try again!\n");
                 }
             }
-            
-            if(response == 5)
-            {
+
+            if (response == 5) {
                 break;
             }
-        } 
+        }
     }
-        private void enterRentalRateDetails(CategoryEntity enteredCategory) {
+
+    private void enterRentalRateDetails(CategoryEntity enteredCategory) {
         Scanner scanner = new Scanner(System.in);
         RentalRateEntity newRentalRateEntity = new RentalRateEntity();
-        System.out.println("*** CaRMS sales manager terminal :: Create rental rate under "+enteredCategory.getName()+" ***\n\n");
+        System.out.println("*** CaRMS sales manager terminal :: Create rental rate under " + enteredCategory.getName() + " ***\n\n");
         System.out.print("Enter name of rental rate> ");
         newRentalRateEntity.setRentalRateName(scanner.nextLine().trim());
         System.out.print("Enter rental rate per day> ");
@@ -223,44 +193,32 @@ class SalesManagerModule {
 //            System.out.println("New rental day of "+ newRentalDay.getDow().toString()+"is created");
 //        }
         newRentalRateEntity.setValidityPeriod(scanner.nextLine().trim());
-        
-        Set<ConstraintViolation<RentalRateEntity>>constraintViolations = validator.validate(newRentalRateEntity);
-        
-        if(constraintViolations.isEmpty())
-        {
-            
-            try
-            {
-                
+
+        Set<ConstraintViolation<RentalRateEntity>> constraintViolations = validator.validate(newRentalRateEntity);
+
+        if (constraintViolations.isEmpty()) {
+
+            try {
+
                 newRentalRateEntity = rentalRateEntitySessionBeanRemote.createNewRentalRate(enteredCategory.getCategoryId(), newRentalRateEntity);
-                System.out.println("New rental rate of"+newRentalRateEntity.getRatePerDay()+" is created under "+ newRentalRateEntity.getCategory().getName()  + "\n");
-           }
-            catch(CategoryNotFoundException ex){
+                System.out.println("New rental rate of" + newRentalRateEntity.getRatePerDay() + " is created under " + newRentalRateEntity.getCategory().getName() + "\n");
+            } catch (CategoryNotFoundException ex) {
                 System.out.println("Category not found!\n");
-            }
-            catch(RentalRateExistException ex)
-            {
+            } catch (RentalRateExistException ex) {
                 System.out.println("An error has occurred while creating the rental rate!: The rental rate already exist\n");
-            }
-            catch(GeneralException ex)
-            {
+            } catch (GeneralException ex) {
                 System.out.println("An unknown error has occurred while creating the new rental rate!: " + ex.getMessage() + "\n");
             }
 
-        }
-        else
-        {
+        } else {
             showInputDataValidationErrorsForRentalRateEntity(constraintViolations);
         }
     }
-  
-    
-    private void showInputDataValidationErrorsForRentalRateEntity(Set<ConstraintViolation<RentalRateEntity>>constraintViolations)
-    {
+
+    private void showInputDataValidationErrorsForRentalRateEntity(Set<ConstraintViolation<RentalRateEntity>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
-            
-        for(ConstraintViolation constraintViolation:constraintViolations)
-        {
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
             System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
         }
 
@@ -269,18 +227,17 @@ class SalesManagerModule {
 
     private void doViewAllRentalRate() {
         Scanner scanner = new Scanner(System.in);
-        
-        System.out.println("*** :: View All Rental Rate ***\n");
-        
-        List<RentalRateEntity> rentalRateEntities = rentalRateEntitySessionBeanRemote.retrieveAllRentalRates();
-        System.out.printf("%20s%20s%20s%20s%20s\n", "Rental rate id", "name", "rate per day", "validity period","category");
 
-        for(RentalRateEntity rentalRateEntity:rentalRateEntities)
-        {
-            System.out.printf("%20s%20s%20f%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(), 
-                    rentalRateEntity.getRatePerDay(), rentalRateEntity.getValidityPeriod(),rentalRateEntity.getCategory().getName());
+        System.out.println("*** :: View All Rental Rate ***\n");
+
+        List<RentalRateEntity> rentalRateEntities = rentalRateEntitySessionBeanRemote.retrieveAllRentalRates();
+        System.out.printf("%20s%20s%20s%20s%20s\n", "Rental rate id", "name", "rate per day", "validity period", "category");
+
+        for (RentalRateEntity rentalRateEntity : rentalRateEntities) {
+            System.out.printf("%20s%20s%20f%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(),
+                    rentalRateEntity.getRatePerDay(), rentalRateEntity.getValidityPeriod(), rentalRateEntity.getCategory().getName());
         }
-        
+
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
     }
@@ -288,13 +245,12 @@ class SalesManagerModule {
     private void doViewRentalRateDetails() {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
-        
+
         System.out.println("*** :: View RentalRate Details ***\n");
         System.out.print("Enter Rental Rate ID> ");
         Long rentalRateId = scanner.nextLong();
-        
-        try
-        {
+
+        try {
             RentalRateEntity rentalRateEntity = rentalRateEntitySessionBeanRemote.retrieveRentalRateByRentalId(rentalRateId);
             System.out.printf("%10s%20s%20s%20s%20s\n", "Rental Rate ID", "Name", "Rate per day", "Validity period", "Category");
             System.out.printf("%10s%20s%20f%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(), rentalRateEntity.getRatePerDay(),
@@ -306,28 +262,43 @@ class SalesManagerModule {
             System.out.print("> ");
             response = scanner.nextInt();
 
-            if(response == 1)
-            {
+            if (response == 1) {
                 doUpdateRentalRate(rentalRateEntity);
-            }
-            else if(response == 2)
-            {
+            } else if (response == 2) {
                 doDeleteRentalRate(rentalRateEntity);
             }
-        }
-        catch(RentalRateNotFoundException ex)
-        {
+        } catch (RentalRateNotFoundException ex) {
             System.out.println("An error has occurred while retrieving rental ratet: " + ex.getMessage() + "\n");
         }
     }
 
     private void doUpdateRentalRate(RentalRateEntity rentalRateEntity) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
     private void doDeleteRentalRate(RentalRateEntity rentalRateEntity) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Scanner scanner = new Scanner(System.in);     
+        String input;
+        
+        System.out.println("*** :: View Rental Rate Details :: Delete Rental Rate ***\n");
+        System.out.printf("Confirm Delete Rental Rate %s ID %s) (Enter 'Y' to Delete)> ", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName());
+        input = scanner.nextLine().trim();
+        
+        if(input.equals("Y"))
+        {
+            try 
+            {
+                rentalRateEntitySessionBeanRemote.deleteRentalRate(rentalRateEntity.getRentalRateId());
+                System.out.println("Product deleted successfully!\n");
+            } 
+            catch (RentalRateNotFoundException ex) 
+            {
+                System.out.println("An error has occurred while deleting rental rate: " + ex.getMessage() + "\n");
+            }
+        }
+        else
+        {
+            System.out.println("Rental rate NOT deleted!\n");
+        }
     }
 }
-
-
