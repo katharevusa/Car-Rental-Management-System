@@ -46,6 +46,8 @@ public class DataInitializationSessionBean {
         dateFormatter =  new SimpleDateFormat();
 
     }
+    
+    
     @PostConstruct
     public void postConstruct()
     {
@@ -101,6 +103,6 @@ public class DataInitializationSessionBean {
                  //invalidFieldEnteredException is being remobed
             ex.printStackTrace();
         }*/
-    }
+}
 
  
