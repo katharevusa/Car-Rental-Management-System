@@ -32,13 +32,12 @@ public class RentalDayEntity implements Serializable {
     @Column(nullable = false)
     private DayOfWeek dow;
     
-    @ManyToMany
-    @JoinTable(name = "Uni_ManyRentalDay_ManyRentalRate")
-    private List<RentalRateEntity> rentalRate;
+    @ManyToOne
+    private RentalRateEntity rentalRate;
 
 
     public RentalDayEntity() {
-        rentalRate = new ArrayList<>();
+        
     }
 
     public RentalDayEntity(DayOfWeek dow) {
@@ -53,11 +52,11 @@ public class RentalDayEntity implements Serializable {
         this.dow = dow;
     }
 
-    public List<RentalRateEntity> getRentalRate() {
+    public RentalRateEntity getRentalRate() {
         return rentalRate;
     }
 
-    public void setRentalRate(List<RentalRateEntity> rentalRate) {
+    public void setRentalRate(RentalRateEntity rentalRate) {
         this.rentalRate = rentalRate;
     }
     

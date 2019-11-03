@@ -89,9 +89,10 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
     }
     }
     
-    
+    @Override
     public List<RentalRateEntity> retrieveAllRentalRates(){
         Query query = em.createQuery("SELECT rr FROM RentalRateEntity rr");
+        
         return query.getResultList();
     }
     /*

@@ -30,6 +30,7 @@ import util.exception.InvalidFieldEnteredException;
 import util.exception.RentalRateExistException;
 import util.exception.UnknownPersistenceException;
 import java.lang.String;
+import java.util.List;
 
 /**
  *
@@ -202,15 +203,23 @@ class SalesManagerModule {
         System.out.print("Enter name of rental rate> ");
         newRentalRateEntity.setRentalRateName(scanner.nextLine().trim());
         System.out.print("Enter rental rate per day> ");
-        newRentalRateEntity.setRatePerDay(scanner.nextLine().trim());
+        newRentalRateEntity.setRatePerDay(scanner.nextDouble());
+        scanner.nextLine();
         System.out.print("Enter validity period> ");
-        /*RentalDayEntity newRentalDay = new RentalDayEntity();
-        while(scanner.hasNextLine()){
-            String inputdow = scanner.nextLine();
-            String inputDOW = inputdow.toUpperCase() ; 
-            DayOfWeek dow = DayOfWeek.valueOf(inputDOW);
-            newRentalDay.setDow(dow);
-        }*/
+//         RentalDayEntity newRentalDay = new RentalDayEntity();
+//         while(scanner.hasNextLine()){
+//            String inputdow = scanner.nextLine();
+//            String inputDOW = inputdow.toUpperCase() ; 
+//            DayOfWeek dow = DayOfWeek.valueOf(inputDOW);
+//            newRentalDay.setDow(dow);
+//            
+//            //set up the relationship btween rental day and rental rate
+//            
+//            newRentalDay.setRentalRate(newRentalRateEntity);
+//            newRentalRateEntity.getRentalDay().add(newRentalDay);
+//            rentalDayEntitySessionBeanRemote.createNewRentalDay(newRentalDay);
+//            System.out.println("New rental day of "+ newRentalDay.getDow().toString()+"is created");
+//        }
         newRentalRateEntity.setValidityPeriod(scanner.nextLine().trim());
         
         Set<ConstraintViolation<RentalRateEntity>>constraintViolations = validator.validate(newRentalRateEntity);
@@ -256,47 +265,22 @@ class SalesManagerModule {
         System.out.println("\nPlease try again......\n");
     }
 
-
-   /* private void doCreateNewRentalRate()   {
-         try
-        {
-            
-            Scanner scanner = new Scanner(System.in);
-            
-            System.out.println("*** CaRMS :: create new rental rate ***\n\n");
-            System.out.print("Enter Category ID> ");
-            Long categoryId = scanner.nextLong();
-            CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(categoryId);
-            System.out.println("Set rental rate for " + category.getName() + " "+"\n");
-            scanner.nextLine();
-
-                RentalRateEntity newRentalRate = new RentalRateEntity();
-                System.out.print("Enter name> ");
-                newRentalRate.setRentalRateName(scanner.nextLine().trim());
-                System.out.print("Enter rate per day> ");
-                newRentalRate.setRatePerDay(scanner.nextLine().trim());
-                System.out.print("Enter validity period> ");
-                newRentalRate.setValidityPeriod(scanner.nextLine().trim());
-      
-//need to initialise rental day
-                   
-              newRentalRate = rentalRateEntitySessionBeanRemote.createNewRentalRate(categoryId, newRentalRate);
-              System.out.println("New rental rate created successfully!: " + newRentalRate.getRentalRateId() + "\n");
-                   
-        }
-        catch(CategoryNotFoundException ex)
-        {
-            System.out.println("category not found!\n");
-        }
-        catch(RentalRateExistException | GeneralException ex)
-        {
-            System.out.println("An error has occurred while creating the new rentalRate: " + ex.getMessage() + "!\n");
-        }
-    
-    }*/
-
     private void doViewAllRentalRate() {
-       
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** :: View All Rental Rate ***\n");
+        
+        List<RentalRateEntity> rentalRateEntities = rentalRateEntitySessionBeanRemote.retrieveAllRentalRates();
+        System.out.printf("%20s%20s%20s%20s%20s\n", "Rental rate id", "name", "rate per day", "validity period","category");
+
+        for(RentalRateEntity rentalRateEntity:rentalRateEntities)
+        {
+            System.out.printf("%20s%20s%20f%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(), 
+                    rentalRateEntity.getRatePerDay(), rentalRateEntity.getValidityPeriod(),rentalRateEntity.getCategory().getName());
+        }
+        
+        System.out.print("Press any key to continue...> ");
+        scanner.nextLine();
     }
 }
 

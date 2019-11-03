@@ -17,9 +17,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import util.enumeration.AccessRightEnum;
-import static util.enumeration.AccessRightEnum.CUSTOMERSERVICEEXECUTIVE;
-import static util.enumeration.AccessRightEnum.OPERATIONSMANAGER;
-import static util.enumeration.AccessRightEnum.SALESMANAGER;
+
 import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
 
