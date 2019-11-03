@@ -30,7 +30,9 @@ import util.exception.InvalidFieldEnteredException;
 import util.exception.RentalRateExistException;
 import util.exception.UnknownPersistenceException;
 import java.lang.String;
+import java.text.NumberFormat;
 import java.util.List;
+import util.exception.RentalRateNotFoundException;
 
 /**
  *
@@ -98,7 +100,7 @@ class SalesManagerModule {
                 }
                 else if(response == 2)
                 {
-                    //doViewRentalRateDetails();
+                    doViewRentalRateDetails();
                     //update and delete be inside View Rental Rate details
                 }
                 else if(response == 3)
@@ -281,6 +283,50 @@ class SalesManagerModule {
         
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
+    }
+
+    private void doViewRentalRateDetails() {
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
+        
+        System.out.println("*** :: View RentalRate Details ***\n");
+        System.out.print("Enter Rental Rate ID> ");
+        Long rentalRateId = scanner.nextLong();
+        
+        try
+        {
+            RentalRateEntity rentalRateEntity = rentalRateEntitySessionBeanRemote.retrieveRentalRateByRentalId(rentalRateId);
+            System.out.printf("%10s%20s%20s%20s%20s\n", "Rental Rate ID", "Name", "Rate per day", "Validity period", "Category");
+            System.out.printf("%10s%20s%20f%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(), rentalRateEntity.getRatePerDay(),
+                    rentalRateEntity.getValidityPeriod(), rentalRateEntity.getCategory().getName());
+            System.out.println("------------------------");
+            System.out.println("1: Update Rental Rate");
+            System.out.println("2: Delete Rental Rate");
+            System.out.println("3: Back\n");
+            System.out.print("> ");
+            response = scanner.nextInt();
+
+            if(response == 1)
+            {
+                doUpdateRentalRate(rentalRateEntity);
+            }
+            else if(response == 2)
+            {
+                doDeleteRentalRate(rentalRateEntity);
+            }
+        }
+        catch(RentalRateNotFoundException ex)
+        {
+            System.out.println("An error has occurred while retrieving rental ratet: " + ex.getMessage() + "\n");
+        }
+    }
+
+    private void doUpdateRentalRate(RentalRateEntity rentalRateEntity) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doDeleteRentalRate(RentalRateEntity rentalRateEntity) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
 

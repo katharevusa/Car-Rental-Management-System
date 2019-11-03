@@ -95,19 +95,21 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
         
         return query.getResultList();
     }
-    /*
-    public RentalRateEntity retrieveRentalRateByRentalId(Long rentalRateId)
-    //throws RentalRateNotFoundException
+    @Override
+    public RentalRateEntity retrieveRentalRateByRentalId(Long rentalRateId) throws RentalRateNotFoundException
     {
     
-    RentalRateEntity rentalRateEntity = em.find(RentalRateEntity.class,rentalRateId);
-    
-    if (rentalRateEntity != null){
-    return rentalRateEntity;
-    } else {
-    throw new RentalRateNotFoundException("Rental Rate ID" + rentalRateId + "does not exist");
+    RentalRateEntity rentalRateEntity = em.find(RentalRateEntity.class, rentalRateId);
+        
+        if(rentalRateEntity != null)
+        {
+            return rentalRateEntity;
+        }
+        else
+        {
+            throw new RentalRateNotFoundException("Rental Rate ID " + rentalRateId + " does not exist!");
+        }               
     }
-    }*/
     
     
     /* public void updateRentalRate(RentalRateEntity rentalRateEntity) throws RentalRateNotFoundException,UpdateRentalRateException{
