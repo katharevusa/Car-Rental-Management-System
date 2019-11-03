@@ -112,29 +112,26 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
     }
     
     
- /*   @Override
-    public void updateRentalRate(ProductEntity productEntity) throws ProductNotFoundException, UpdateProductException, InputDataValidationException
+    @Override
+    public void updateRentalRate(RentalRateEntity rentalRate) throws RentalRateNotFoundException, UpdateRentalRateException, InputDataValidationException
     {
-        if(productEntity != null && productEntity.getProductId()!= null)
+        if(rentalRate != null && rentalRate.getRentalRateId()!= null)
         {
-            Set<ConstraintViolation<ProductEntity>>constraintViolations = validator.validate(productEntity);
+            Set<ConstraintViolation<RentalRateEntity>>constraintViolations = validator.validate(rentalRate);
         
             if(constraintViolations.isEmpty())
             {
-                ProductEntity productEntityToUpdate = retrieveProductByProductId(productEntity.getProductId());
+                RentalRateEntity rentalRateEntityToUpdate = retrieveRentalRateByRentalId(rentalRate.getRentalRateId());
 
-                if(productEntityToUpdate.getSkuCode().equals(productEntity.getSkuCode()))
+                if(rentalRateEntityToUpdate.getRentalRateId().equals(rentalRate.getRentalRateId()))
                 {
-                    productEntityToUpdate.setName(productEntity.getName());
-                    productEntityToUpdate.setDescription(productEntity.getDescription());
-                    productEntityToUpdate.setQuantityOnHand(productEntity.getQuantityOnHand());
-                    productEntityToUpdate.setReorderQuantity(productEntity.getReorderQuantity());
-                    productEntityToUpdate.setUnitPrice(productEntity.getUnitPrice());
-                    productEntityToUpdate.setCategory(productEntity.getCategory());
+                    rentalRateEntityToUpdate.setRentalRateName(rentalRate.getRentalRateName());
+                    rentalRateEntityToUpdate.setRatePerDay(rentalRate.getRatePerDay());
+                    rentalRateEntityToUpdate.setValidityPeriod(rentalRate.getValidityPeriod());
                 }
                 else
                 {
-                    throw new UpdateProductException("SKU Code of product record to be updated does not match the existing record");
+                    throw new UpdateRentalRateException("ID of rental rate to be updated does not match the existing rental rate");
                 }
             }
             else
@@ -144,10 +141,10 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
         }
         else
         {
-            throw new ProductNotFoundException("Product ID not provided for product to be updated");
+            throw new RentalRateNotFoundException("Rental rate ID not provided for product to be updated");
         }
     }
-    */
+    
     
     @Override
     public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException

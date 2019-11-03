@@ -32,7 +32,9 @@ import util.exception.UnknownPersistenceException;
 import java.lang.String;
 import java.text.NumberFormat;
 import java.util.List;
+import util.exception.InputDataValidationException;
 import util.exception.RentalRateNotFoundException;
+import util.exception.UpdateRentalRateException;
 
 /**
  *
@@ -268,11 +270,61 @@ class SalesManagerModule {
                 doDeleteRentalRate(rentalRateEntity);
             }
         } catch (RentalRateNotFoundException ex) {
-            System.out.println("An error has occurred while retrieving rental ratet: " + ex.getMessage() + "\n");
+            System.out.println("An error has occurred while retrieving rental rate: " + ex.getMessage() + "\n");
         }
     }
 
     private void doUpdateRentalRate(RentalRateEntity rentalRateEntity) {
+        Scanner scanner = new Scanner(System.in);        
+        String input;
+
+        
+        System.out.println("*** :: View Rental Rate Details :: Update Rental Rate ***\n");
+        System.out.print("Enter Rental Rate Name (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if(input.length() > 0)
+        {
+            rentalRateEntity.setRentalRateName(input);
+        }
+        
+        System.out.print("Enter Rate Per Day (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if(input.length() > 0)
+        {
+            rentalRateEntity.setRatePerDay(Double.valueOf(input));
+        }
+        
+        System.out.print("Enter validity period (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if(input.length() > 0)
+        {
+            rentalRateEntity.setValidityPeriod(input);
+        }
+        
+        //should i allow user to change the category as well?
+        
+        Set<ConstraintViolation<RentalRateEntity>>constraintViolations = validator.validate(rentalRateEntity);
+        
+        if(constraintViolations.isEmpty())
+        {
+            try
+            {
+                rentalRateEntitySessionBeanRemote.updateRentalRate(rentalRateEntity);
+                System.out.println("Product updated successfully!\n");
+            }
+            catch (RentalRateNotFoundException | UpdateRentalRateException ex) 
+            {
+                System.out.println("An error has occurred while updating rental rate: " + ex.getMessage() + "\n");
+            }
+            catch(InputDataValidationException ex)
+            {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        }
+        else
+        {
+            showInputDataValidationErrorsForRentalRateEntity(constraintViolations);
+        }
         
     }
 
