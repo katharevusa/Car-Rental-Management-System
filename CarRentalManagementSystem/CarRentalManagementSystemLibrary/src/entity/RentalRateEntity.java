@@ -15,6 +15,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
@@ -32,20 +34,26 @@ public class RentalRateEntity implements Serializable {
     @Column(nullable = false,unique = true)
     private String rentalRateName;
     @Column(nullable = false, length = 12)
-    private Double ratePerDay;
+    private String ratePerDay;
     private String validityPeriod;
     //validity period i.e. monday-wednesday 1-3
     @ManyToOne
     private CategoryEntity category;
+    //setting up uni directional for RENTALDAY AND RENTALRATE
+    //RENTALRATE -> RENTALDAY
+    /*@ManyToMany
+    @JoinTable(name = "Uni_ManyRentalRate_ManyRentalDay")
+    private List<RentalDayEntity> rentalDay;
 
+*/
     public RentalRateEntity() {
+      //  rentalDay = new ArrayList<>();
     }
 
-
-    public RentalRateEntity(String rentalRateName, Double ratePerDay, String validityPeriod) {
+    public RentalRateEntity(String rentalRateName, String ratePerDay, String validityPeriod) {
         this.rentalRateName = rentalRateName;
         this.ratePerDay = ratePerDay;
-        this.validityPeriod = validityPeriod;
+       // this.validityPeriod = validityPeriod;
     }
     
     
@@ -103,6 +111,14 @@ public class RentalRateEntity implements Serializable {
         return category;
     }
 
+  /*  public List<RentalDayEntity> getRentalDay() {
+        return rentalDay;
+    }
+
+    public void setRentalDay(List<RentalDayEntity> rentalDay) {
+        this.rentalDay = rentalDay;
+    }
+*/
     public String getValidityPeriod() {
         return validityPeriod;
     }
@@ -111,15 +127,16 @@ public class RentalRateEntity implements Serializable {
         this.validityPeriod = validityPeriod;
     }
 
+
     public void setCategory(CategoryEntity category) {
         this.category = category;
     }
 
-    public Double getRatePerDay() {
+    public String getRatePerDay() {
         return ratePerDay;
     }
 
-    public void setRatePerDay(Double ratePerDay) {
+    public void setRatePerDay(String ratePerDay) {
         this.ratePerDay = ratePerDay;
     }
 

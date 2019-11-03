@@ -114,7 +114,7 @@ class OperationManagerModule {
     }
 
     private void doCreateNewModel() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       
     }
 
     private void doViewAllModels() {

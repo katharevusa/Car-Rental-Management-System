@@ -9,9 +9,11 @@ import ejb.session.stateless.CategoryEntitySessionBeanRemote;
 import ejb.session.stateless.RentalRateEntitySessionBeanRemote;
 import entity.CategoryEntity;
 import entity.EmployeeEntity;
+import entity.RentalDayEntity;
 import entity.RentalRateEntity;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
@@ -27,6 +29,7 @@ import util.exception.InvalidAccessRightException;
 import util.exception.InvalidFieldEnteredException;
 import util.exception.RentalRateExistException;
 import util.exception.UnknownPersistenceException;
+import java.lang.String;
 
 /**
  *
@@ -95,11 +98,11 @@ class SalesManagerModule {
                 else if(response == 2)
                 {
                     //doViewRentalRateDetails();
-                    //update and delete be inside View Rental Rate details?
+                    //update and delete be inside View Rental Rate details
                 }
                 else if(response == 3)
                 {
-                    //doViewAllRentalRate();
+                    doViewAllRentalRate();
                 }
                 else if(response == 4)
                 {
@@ -118,7 +121,7 @@ class SalesManagerModule {
         }
     }
 
-   /* private void doCreateNewRentalRate()  
+    private void doCreateNewRentalRate()  
 
     {
         
@@ -201,16 +204,22 @@ class SalesManagerModule {
         System.out.print("Enter rental rate per day> ");
         newRentalRateEntity.setRatePerDay(scanner.nextLine().trim());
         System.out.print("Enter validity period> ");
+        /*RentalDayEntity newRentalDay = new RentalDayEntity();
+        while(scanner.hasNextLine()){
+            String inputdow = scanner.nextLine();
+            String inputDOW = inputdow.toUpperCase() ; 
+            DayOfWeek dow = DayOfWeek.valueOf(inputDOW);
+            newRentalDay.setDow(dow);
+        }*/
         newRentalRateEntity.setValidityPeriod(scanner.nextLine().trim());
         
         Set<ConstraintViolation<RentalRateEntity>>constraintViolations = validator.validate(newRentalRateEntity);
         
         if(constraintViolations.isEmpty())
         {
-            System.out.println("there is no constraint violation");
+            
             try
             {
-                System.out.println("enter the try block"+enteredCategory.getCategoryId());
                 
                 newRentalRateEntity = rentalRateEntitySessionBeanRemote.createNewRentalRate(enteredCategory.getCategoryId(), newRentalRateEntity);
                 System.out.println("New rental rate of"+newRentalRateEntity.getRatePerDay()+" is created under "+ newRentalRateEntity.getCategory().getName()  + "\n");
@@ -222,14 +231,11 @@ class SalesManagerModule {
             {
                 System.out.println("An error has occurred while creating the rental rate!: The rental rate already exist\n");
             }
-            catch(UnknownPersistenceException ex)
+            catch(GeneralException ex)
             {
                 System.out.println("An unknown error has occurred while creating the new rental rate!: " + ex.getMessage() + "\n");
             }
-            catch(InvalidFieldEnteredException ex)
-            {
-                System.out.println(ex.getMessage() + "\n");
-            }
+
         }
         else
         {
@@ -250,8 +256,8 @@ class SalesManagerModule {
         System.out.println("\nPlease try again......\n");
     }
 
-*/
-    private void doCreateNewRentalRate()   {
+
+   /* private void doCreateNewRentalRate()   {
          try
         {
             
@@ -268,7 +274,7 @@ class SalesManagerModule {
                 System.out.print("Enter name> ");
                 newRentalRate.setRentalRateName(scanner.nextLine().trim());
                 System.out.print("Enter rate per day> ");
-                newRentalRate.setRatePerDay(scanner.nextDouble());
+                newRentalRate.setRatePerDay(scanner.nextLine().trim());
                 System.out.print("Enter validity period> ");
                 newRentalRate.setValidityPeriod(scanner.nextLine().trim());
       
@@ -287,6 +293,10 @@ class SalesManagerModule {
             System.out.println("An error has occurred while creating the new rentalRate: " + ex.getMessage() + "!\n");
         }
     
+    }*/
+
+    private void doViewAllRentalRate() {
+       
     }
 }
 

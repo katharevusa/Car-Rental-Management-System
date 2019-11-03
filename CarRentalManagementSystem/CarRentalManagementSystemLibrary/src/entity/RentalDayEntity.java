@@ -6,10 +6,16 @@
 package entity;
 
 import java.io.Serializable;
+import java.time.DayOfWeek;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 /**
@@ -23,6 +29,38 @@ public class RentalDayEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalDayId;
+    @Column(nullable = false)
+    private DayOfWeek dow;
+    
+    @ManyToMany
+    @JoinTable(name = "Uni_ManyRentalDay_ManyRentalRate")
+    private List<RentalRateEntity> rentalRate;
+
+
+    public RentalDayEntity() {
+        rentalRate = new ArrayList<>();
+    }
+
+    public RentalDayEntity(DayOfWeek dow) {
+        this.dow = dow;
+    }
+
+    public DayOfWeek getDow() {
+        return dow;
+    }
+
+    public void setDow(DayOfWeek dow) {
+        this.dow = dow;
+    }
+
+    public List<RentalRateEntity> getRentalRate() {
+        return rentalRate;
+    }
+
+    public void setRentalRate(List<RentalRateEntity> rentalRate) {
+        this.rentalRate = rentalRate;
+    }
+    
     
     
     
