@@ -206,7 +206,7 @@ class SalesManagerModule {
                 newRentalRateEntity = rentalRateEntitySessionBeanRemote.createNewRentalRate(enteredCategory.getCategoryId(), newRentalRateEntity);
                 System.out.println("New rental rate of " + newRentalRateEntity.getRatePerDay() + " is created under " + newRentalRateEntity.getCategory().getName() + "\n");
             } catch (CategoryNotFoundException ex) {
-                System.out.println("Category not found!\n");
+                System.out.println(ex.getMessage());
             } catch (RentalRateExistException ex) {
                 System.out.println("An error has occurred while creating the rental rate!: The rental rate already exist\n");
             } catch (GeneralException ex) {

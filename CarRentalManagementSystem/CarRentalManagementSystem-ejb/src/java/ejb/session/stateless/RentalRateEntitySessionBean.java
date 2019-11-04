@@ -72,13 +72,12 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
         
         em.flush();
         em.refresh(newRentalRate);
-        
         return newRentalRate;
     }
-    catch(CategoryNotFoundException ex)
+   /* catch(CategoryNotFoundException ex)
     {
         throw new CategoryNotFoundException("Unable to create new rental rate as the categroy does not exist");
-    }
+    }*/
     
     catch(PersistenceException ex)
     {

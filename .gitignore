@@ -23,21 +23,21 @@
 nbproject/private/
 build/
 dist/
-CarRentalManagementSystem-ejb/nbproject/private/
-CarRentalManagementSystem-ejb/build/
-CarRentalManagementSystem-ejb/dist/
+CarRentalManagementSystem/CarRentalManagementSystem-ejb/nbproject/private/
+CarRentalManagementSystem/CarRentalManagementSystem-ejb/build/
+CarRentalManagementSystem/CarRentalManagementSystem-ejb/dist/
 
-EnterpriseApplication1-war/nbproject/private/
-EnterpriseApplication1-war/build/
-EnterpriseApplication1-war/dist/
+CarRentalManagementSystem/CaRMSManagementClient/nbproject/private/
+CarRentalManagementSystem/CaRMSManagementClient/build/
+CarRentalManagementSystem/CaRMSManagementClient/dist/
 
-CaRMSManagementClient/nbproject/private/
-CaRMSManagementClient/build/
-CaRMSManagementClient/dist/
+CarRentalManagementSystem/CaRMSReservationClient/nbproject/private/
+CarRentalManagementSystem/CaRMSReservationClient/build/
+CarRentalManagementSystem/CaRMSReservationClient/dist/
 
-CarRentalManagementSystemLibrary/nbproject/private/
-CarRentalManagementSystemLibrary/build/
-CarRentalManagementSystemLibrary/dist/
+CarRentalManagementSystem/CarRentalManagementSystemLibrary/nbproject/private/
+CarRentalManagementSystem/CarRentalManagementSystemLibrary/build/
+CarRentalManagementSystem/CarRentalManagementSystemLibrary/dist/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
