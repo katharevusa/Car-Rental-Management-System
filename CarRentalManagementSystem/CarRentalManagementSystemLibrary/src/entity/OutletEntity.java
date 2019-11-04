@@ -34,9 +34,9 @@ public class OutletEntity implements Serializable {
     @Column(nullable = false, length = 128)
     private String address;
     @Column(nullable = false)
-    private Integer openingTime;
+    private LocalTime openingTime;
     @Column(nullable = false)
-    private Integer closingTime;
+    private LocalTime closingTime;
 
     
     /*******relationship field********/
@@ -59,7 +59,7 @@ public class OutletEntity implements Serializable {
         cars = new ArrayList<>();
     }
     
-    public OutletEntity(String name, String address,Integer openingTime, Integer closingTime) {
+    public OutletEntity(String name, String address,LocalTime openingTime, LocalTime closingTime) {
         this();
         this.name = name;
         this.address = address;
@@ -116,19 +116,19 @@ public class OutletEntity implements Serializable {
         this.address = address;
     }
 
-    public Integer getOpeningTime() {
+    public LocalTime getOpeningTime() {
         return openingTime;
     }
 
-    public void setOpeningTime(Integer openingTime) {
+    public void setOpeningTime(LocalTime openingTime) {
         this.openingTime = openingTime;
     }
 
-    public Integer getClosingTime() {
+    public LocalTime getClosingTime() {
         return closingTime;
     }
 
-    public void setClosingTime(Integer closingTime) {
+    public void setClosingTime(LocalTime closingTime) {
         this.closingTime = closingTime;
     }
 

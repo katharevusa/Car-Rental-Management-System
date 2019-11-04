@@ -97,7 +97,7 @@ class SalesManagerModule {
 
                 } else if (response == 2) {
                     doViewRentalRateDetails();
-                    //update and delete be inside View Rental Rate details
+
                 } else if (response == 3) {
                     doViewAllRentalRate();
                 } else if (response == 4) {
@@ -315,31 +315,26 @@ class SalesManagerModule {
         } catch (ParseException ex) {
             System.out.println("input error");
         }
-    
 
-    //should i allow user to change the category as well?
-    Set<ConstraintViolation<RentalRateEntity>> constraintViolations = validator.validate(rentalRateEntity);
+        //should i allow user to change the category as well?
+        Set<ConstraintViolation<RentalRateEntity>> constraintViolations = validator.validate(rentalRateEntity);
 
-    if (constraintViolations.isEmpty () 
-        ) {
+        if (constraintViolations.isEmpty()) {
             try {
-            rentalRateEntitySessionBeanRemote.updateRentalRate(rentalRateEntity);
-            System.out.println("Product updated successfully!\n");
-        } catch (RentalRateNotFoundException | UpdateRentalRateException ex) {
-            System.out.println("An error has occurred while updating rental rate: " + ex.getMessage() + "\n");
-        } catch (InputDataValidationException ex) {
-            System.out.println(ex.getMessage() + "\n");
-        }
-    }
-
-    
-        else {
+                rentalRateEntitySessionBeanRemote.updateRentalRate(rentalRateEntity);
+                System.out.println("Product updated successfully!\n");
+            } catch (RentalRateNotFoundException | UpdateRentalRateException ex) {
+                System.out.println("An error has occurred while updating rental rate: " + ex.getMessage() + "\n");
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        } else {
             showInputDataValidationErrorsForRentalRateEntity(constraintViolations);
+        }
+
     }
 
-}
-
-private void doDeleteRentalRate(RentalRateEntity rentalRateEntity) {
+    private void doDeleteRentalRate(RentalRateEntity rentalRateEntity) {
         Scanner scanner = new Scanner(System.in);
         String input;
 
@@ -358,7 +353,5 @@ private void doDeleteRentalRate(RentalRateEntity rentalRateEntity) {
             System.out.println("Rental rate NOT deleted!\n");
         }
     }
-
-
 
 }
