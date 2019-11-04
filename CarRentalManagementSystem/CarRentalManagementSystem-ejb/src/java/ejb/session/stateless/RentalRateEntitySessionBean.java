@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.CategoryEntity;
+import entity.RentalDayEntity;
 import entity.RentalRateEntity;
 import java.time.DayOfWeek;
 import java.util.List;
@@ -37,6 +38,8 @@ import util.exception.InputDataValidationException;
 
 
 public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanRemote, RentalRateEntitySessionBeanLocal {
+
+    
     
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
@@ -44,6 +47,8 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
     private final Validator validator;
     @EJB
     private CategoryEntitySessionBeanLocal categoryEntitySessionBeanLocal;
+    @EJB
+    private RentalDayEntitySessionBeanLocal rentalDayEntitySessionBeanLocal;
     
     public RentalRateEntitySessionBean() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
@@ -54,14 +59,16 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
     @Override
     public RentalRateEntity createNewRentalRate(Long categoryId, RentalRateEntity newRentalRate)
             throws  RentalRateExistException,CategoryNotFoundException, GeneralException
-    { try
+    { 
+        try
     {
         CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
         
         em.persist(newRentalRate);
-        
         newRentalRate.setCategory(category);
         category.getRentalRate().add(newRentalRate);
+        
+        rentalDayEntitySessionBeanLocal.createNewRentalDay(newRentalRate, newRentalRate.getStartDate(), newRentalRate.getEndDate());
         
         em.flush();
         em.refresh(newRentalRate);
@@ -127,7 +134,8 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
                 {
                     rentalRateEntityToUpdate.setRentalRateName(rentalRate.getRentalRateName());
                     rentalRateEntityToUpdate.setRatePerDay(rentalRate.getRatePerDay());
-                    rentalRateEntityToUpdate.setValidityPeriod(rentalRate.getValidityPeriod());
+                    rentalRateEntityToUpdate.setStartDate(rentalRate.getStartDate());
+                    rentalRateEntityToUpdate.setEndDate(rentalRate.getEndDate());
                 }
                 else
                 {
@@ -146,15 +154,15 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
     }
     
     
-    @Override
+   @Override
     public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException
     {
         RentalRateEntity rentalRateEntityToRemove = retrieveRentalRateByRentalId(rentalRateId);
         rentalRateEntityToRemove.getCategory().getRentalRate().remove(rentalRateEntityToRemove);
-        //set category to null, is this automated?
-        //remove rental day need to cascade the remove operation
+        rentalRateEntityToRemove.getRentalDay().clear();
         em.remove(rentalRateEntityToRemove);
     }
+
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RentalRateEntity>>constraintViolations)
     {

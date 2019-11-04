@@ -8,6 +8,7 @@ package entity;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,7 +31,8 @@ public class RentalDayEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalDayId;
     @Column(nullable = false)
-    private DayOfWeek dow;
+    private Date start;
+    private Date end;
     
     @ManyToOne
     private RentalRateEntity rentalRate;
@@ -40,17 +42,28 @@ public class RentalDayEntity implements Serializable {
         
     }
 
-    public RentalDayEntity(DayOfWeek dow) {
-        this.dow = dow;
+    public RentalDayEntity(Date start, Date end) {
+        this.start = start;
+        this.end = end;
     }
 
-    public DayOfWeek getDow() {
-        return dow;
+    public Date getStart() {
+        return start;
     }
 
-    public void setDow(DayOfWeek dow) {
-        this.dow = dow;
+    public void setStart(Date start) {
+        this.start = start;
     }
+
+    public Date getEnd() {
+        return end;
+    }
+
+    public void setEnd(Date end) {
+        this.end = end;
+    }
+
+  
 
     public RentalRateEntity getRentalRate() {
         return rentalRate;

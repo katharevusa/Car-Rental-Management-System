@@ -37,34 +37,33 @@ public class RentalRateEntity implements Serializable {
     private String rentalRateName;
     @Column(nullable = false, length = 12)
     private Double ratePerDay;
-    private String validityPeriod;
+   // private String validityPeriod;
+    private Date startDate;
+    private Date endDate;
     //validity period i.e. monday-wednesday 1-3
     @ManyToOne
     private CategoryEntity category;
     //setting up uni directional for RENTALDAY AND RENTALRATE
     //RENTALRATE -> RENTALDAY
-    @OneToMany(cascade=CascadeType.ALL, orphanRemoval=true)
+    @OneToMany
+     (cascade=CascadeType.ALL, orphanRemoval=true)
     private List<RentalDayEntity> rentalDay;
 
 
     public RentalRateEntity() {
-
+        rentalDay = new ArrayList<>();
     }
 
-    public RentalRateEntity(String rentalRateName, Double ratePerDay, String validityPeriod) {
+    public RentalRateEntity(String rentalRateName, Double ratePerDay, Date startDate, Date endDate)
+    {
+        this();
         this.rentalRateName = rentalRateName;
         this.ratePerDay = ratePerDay;
-       // this.validityPeriod = validityPeriod;
+        this.endDate = endDate;
+        this.startDate = startDate;
     }
     
-    
-    
-//    how to deal with validity period
-//    Date now = new Date();
-//    Calendar calendar = Calendar.getInstance();
-//    calendar.setTime(now);
-//    System.out.println(calendar.get(Calendar.DAY_OF_WEEK)); ---output 2
-    
+
 
     
     @Override
@@ -112,21 +111,14 @@ public class RentalRateEntity implements Serializable {
         return category;
     }
 
-  /*  public List<RentalDayEntity> getRentalDay() {
+    public List<RentalDayEntity> getRentalDay() {
         return rentalDay;
     }
 
     public void setRentalDay(List<RentalDayEntity> rentalDay) {
         this.rentalDay = rentalDay;
     }
-*/
-    public String getValidityPeriod() {
-        return validityPeriod;
-    }
 
-    public void setValidityPeriod(String validityPeriod) {
-        this.validityPeriod = validityPeriod;
-    }
 
 
     public void setCategory(CategoryEntity category) {
@@ -139,6 +131,22 @@ public class RentalRateEntity implements Serializable {
 
     public void setRatePerDay(Double ratePerDay) {
         this.ratePerDay = ratePerDay;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
 

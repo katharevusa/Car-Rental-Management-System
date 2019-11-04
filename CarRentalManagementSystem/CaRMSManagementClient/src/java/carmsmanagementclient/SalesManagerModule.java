@@ -31,7 +31,10 @@ import util.exception.RentalRateExistException;
 import util.exception.UnknownPersistenceException;
 import java.lang.String;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import util.exception.InputDataValidationException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.UpdateRentalRateException;
@@ -171,6 +174,7 @@ class SalesManagerModule {
     }
 
     private void enterRentalRateDetails(CategoryEntity enteredCategory) {
+
         Scanner scanner = new Scanner(System.in);
         RentalRateEntity newRentalRateEntity = new RentalRateEntity();
         System.out.println("*** CaRMS sales manager terminal :: Create rental rate under " + enteredCategory.getName() + " ***\n\n");
@@ -179,22 +183,19 @@ class SalesManagerModule {
         System.out.print("Enter rental rate per day> ");
         newRentalRateEntity.setRatePerDay(scanner.nextDouble());
         scanner.nextLine();
-        System.out.print("Enter validity period> ");
-//         RentalDayEntity newRentalDay = new RentalDayEntity();
-//         while(scanner.hasNextLine()){
-//            String inputdow = scanner.nextLine();
-//            String inputDOW = inputdow.toUpperCase() ; 
-//            DayOfWeek dow = DayOfWeek.valueOf(inputDOW);
-//            newRentalDay.setDow(dow);
-//            
-//            //set up the relationship btween rental day and rental rate
-//            
-//            newRentalDay.setRentalRate(newRentalRateEntity);
-//            newRentalRateEntity.getRentalDay().add(newRentalDay);
-//            rentalDayEntitySessionBeanRemote.createNewRentalDay(newRentalDay);
-//            System.out.println("New rental day of "+ newRentalDay.getDow().toString()+"is created");
-//        }
-        newRentalRateEntity.setValidityPeriod(scanner.nextLine().trim());
+
+        try {
+            System.out.print("Enter validity period: enter starting date (dd/mm/yyyy) > ");
+            String startDate = scanner.nextLine().trim();
+            Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(startDate);
+            newRentalRateEntity.setStartDate(date1);
+            System.out.print("Enter validity period: enter ending date (dd/mm/yyyy) > ");
+            String endDate = scanner.nextLine().trim();
+            Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(endDate);
+            newRentalRateEntity.setEndDate(date2);
+        } catch (ParseException ex) {
+            System.out.println("error with date input");
+        }
 
         Set<ConstraintViolation<RentalRateEntity>> constraintViolations = validator.validate(newRentalRateEntity);
 
@@ -203,7 +204,7 @@ class SalesManagerModule {
             try {
 
                 newRentalRateEntity = rentalRateEntitySessionBeanRemote.createNewRentalRate(enteredCategory.getCategoryId(), newRentalRateEntity);
-                System.out.println("New rental rate of" + newRentalRateEntity.getRatePerDay() + " is created under " + newRentalRateEntity.getCategory().getName() + "\n");
+                System.out.println("New rental rate of " + newRentalRateEntity.getRatePerDay() + " is created under " + newRentalRateEntity.getCategory().getName() + "\n");
             } catch (CategoryNotFoundException ex) {
                 System.out.println("Category not found!\n");
             } catch (RentalRateExistException ex) {
@@ -229,15 +230,19 @@ class SalesManagerModule {
 
     private void doViewAllRentalRate() {
         Scanner scanner = new Scanner(System.in);
+        // SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
 
         System.out.println("*** :: View All Rental Rate ***\n");
 
         List<RentalRateEntity> rentalRateEntities = rentalRateEntitySessionBeanRemote.retrieveAllRentalRates();
-        System.out.printf("%20s%20s%20s%20s%20s\n", "Rental rate id", "name", "rate per day", "validity period", "category");
+        System.out.printf("%10s%20s%20s%20s%20s%20s\n", "Rental rate id", "name", "rate per day", "start date", "end date", "category");
 
         for (RentalRateEntity rentalRateEntity : rentalRateEntities) {
-            System.out.printf("%20s%20s%20f%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(),
-                    rentalRateEntity.getRatePerDay(), rentalRateEntity.getValidityPeriod(), rentalRateEntity.getCategory().getName());
+            System.out.printf("%10s%20s%20f%20s%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(),
+                    rentalRateEntity.getRatePerDay(),
+                    rentalRateEntity.getStartDate(),
+                    rentalRateEntity.getEndDate(),
+                    rentalRateEntity.getCategory().getName());
         }
 
         System.out.print("Press any key to continue...> ");
@@ -254,9 +259,12 @@ class SalesManagerModule {
 
         try {
             RentalRateEntity rentalRateEntity = rentalRateEntitySessionBeanRemote.retrieveRentalRateByRentalId(rentalRateId);
-            System.out.printf("%10s%20s%20s%20s%20s\n", "Rental Rate ID", "Name", "Rate per day", "Validity period", "Category");
-            System.out.printf("%10s%20s%20f%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(), rentalRateEntity.getRatePerDay(),
-                    rentalRateEntity.getValidityPeriod(), rentalRateEntity.getCategory().getName());
+            System.out.printf("%10s%20s%20s%20s%20s%20s\n", "Rental rate id", "name", "rate per day", "start date", "end date", "category");
+            System.out.printf("%10s%20s%20f%20s%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(),
+                    rentalRateEntity.getRatePerDay(),
+                    rentalRateEntity.getStartDate(),
+                    rentalRateEntity.getEndDate(),
+                    rentalRateEntity.getCategory().getName());
             System.out.println("------------------------");
             System.out.println("1: Update Rental Rate");
             System.out.println("2: Delete Rental Rate");
@@ -275,82 +283,82 @@ class SalesManagerModule {
     }
 
     private void doUpdateRentalRate(RentalRateEntity rentalRateEntity) {
-        Scanner scanner = new Scanner(System.in);        
+        Scanner scanner = new Scanner(System.in);
         String input;
 
-        
         System.out.println("*** :: View Rental Rate Details :: Update Rental Rate ***\n");
         System.out.print("Enter Rental Rate Name (blank if no change)> ");
         input = scanner.nextLine().trim();
-        if(input.length() > 0)
-        {
+        if (input.length() > 0) {
             rentalRateEntity.setRentalRateName(input);
         }
-        
+
         System.out.print("Enter Rate Per Day (blank if no change)> ");
         input = scanner.nextLine().trim();
-        if(input.length() > 0)
-        {
+        if (input.length() > 0) {
             rentalRateEntity.setRatePerDay(Double.valueOf(input));
         }
-        
-        System.out.print("Enter validity period (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if(input.length() > 0)
-        {
-            rentalRateEntity.setValidityPeriod(input);
-        }
-        
-        //should i allow user to change the category as well?
-        
-        Set<ConstraintViolation<RentalRateEntity>>constraintViolations = validator.validate(rentalRateEntity);
-        
-        if(constraintViolations.isEmpty())
-        {
-            try
-            {
-                rentalRateEntitySessionBeanRemote.updateRentalRate(rentalRateEntity);
-                System.out.println("Product updated successfully!\n");
+        try {
+            System.out.print("Enter Starting date (blank if no change)> ");
+            input = scanner.nextLine().trim();
+            if (input.length() > 0) {
+                Date date1;
+                date1 = new SimpleDateFormat("dd/MM/yyyy").parse(input);
+                rentalRateEntity.setStartDate(date1);
             }
-            catch (RentalRateNotFoundException | UpdateRentalRateException ex) 
-            {
-                System.out.println("An error has occurred while updating rental rate: " + ex.getMessage() + "\n");
+            System.out.print("Enter Ending date (blank if no change)> ");
+            input = scanner.nextLine().trim();
+            if (input.length() > 0) {
+                Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(input);
+                rentalRateEntity.setEndDate(date2);
             }
-            catch(InputDataValidationException ex)
-            {
-                System.out.println(ex.getMessage() + "\n");
-            }
+        } catch (ParseException ex) {
+            System.out.println("input error");
         }
-        else
-        {
-            showInputDataValidationErrorsForRentalRateEntity(constraintViolations);
+    
+
+    //should i allow user to change the category as well?
+    Set<ConstraintViolation<RentalRateEntity>> constraintViolations = validator.validate(rentalRateEntity);
+
+    if (constraintViolations.isEmpty () 
+        ) {
+            try {
+            rentalRateEntitySessionBeanRemote.updateRentalRate(rentalRateEntity);
+            System.out.println("Product updated successfully!\n");
+        } catch (RentalRateNotFoundException | UpdateRentalRateException ex) {
+            System.out.println("An error has occurred while updating rental rate: " + ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
-        
     }
 
-    private void doDeleteRentalRate(RentalRateEntity rentalRateEntity) {
-        Scanner scanner = new Scanner(System.in);     
+    
+        else {
+            showInputDataValidationErrorsForRentalRateEntity(constraintViolations);
+    }
+
+}
+
+private void doDeleteRentalRate(RentalRateEntity rentalRateEntity) {
+        Scanner scanner = new Scanner(System.in);
         String input;
-        
+
         System.out.println("*** :: View Rental Rate Details :: Delete Rental Rate ***\n");
         System.out.printf("Confirm Delete Rental Rate %s ID %s) (Enter 'Y' to Delete)> ", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName());
         input = scanner.nextLine().trim();
-        
-        if(input.equals("Y"))
-        {
-            try 
-            {
+
+        if (input.equals("Y")) {
+            try {
                 rentalRateEntitySessionBeanRemote.deleteRentalRate(rentalRateEntity.getRentalRateId());
                 System.out.println("Product deleted successfully!\n");
-            } 
-            catch (RentalRateNotFoundException ex) 
-            {
+            } catch (RentalRateNotFoundException ex) {
                 System.out.println("An error has occurred while deleting rental rate: " + ex.getMessage() + "\n");
             }
-        }
-        else
-        {
+        } else {
             System.out.println("Rental rate NOT deleted!\n");
         }
     }
+
+
+
 }
