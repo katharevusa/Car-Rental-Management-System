@@ -23,21 +23,21 @@
 nbproject/private/
 build/
 dist/
-EnterpriseApplication1-ejb/nbproject/private/
-EnterpriseApplication1-ejb/build/
-EnterpriseApplication1-ejb/dist/
+CarRentalManagementSystem-ejb/nbproject/private/
+CarRentalManagementSystem-ejb/build/
+CarRentalManagementSystem-ejb/dist/
 
 EnterpriseApplication1-war/nbproject/private/
 EnterpriseApplication1-war/build/
 EnterpriseApplication1-war/dist/
 
-EnterpriseApplication1Client/nbproject/private/
-EnterpriseApplication1Client/build/
-EnterpriseApplication1Client/dist/
+CaRMSManagementClient/nbproject/private/
+CaRMSManagementClient/build/
+CaRMSManagementClient/dist/
 
-EnterpriseApplication1Library/nbproject/private/
-EnterpriseApplication1Library/build/
-EnterpriseApplication1Library/dist/
+CarRentalManagementSystemLibrary/nbproject/private/
+CarRentalManagementSystemLibrary/build/
+CarRentalManagementSystemLibrary/dist/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
