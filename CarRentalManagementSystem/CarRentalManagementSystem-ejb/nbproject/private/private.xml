@@ -3,11 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/admin/Desktop/backup/CaRMS/CarRentalManagementSystem/CarRentalManagementSystem-ejb/src/java/ejb/session/stateless/CategoryEntitySessionBean.java</file>
-            <file>file:/Users/admin/Desktop/backup/CaRMS/CarRentalManagementSystem/CarRentalManagementSystem-ejb/src/java/ejb/session/stateless/CarEntitySessionBean.java</file>
-            <file>file:/Users/admin/Desktop/backup/CaRMS/CarRentalManagementSystem/CarRentalManagementSystem-ejb/src/conf/persistence.xml</file>
-            <file>file:/Users/admin/Desktop/backup/CaRMS/CarRentalManagementSystem/CarRentalManagementSystem-ejb/src/java/ejb/session/stateless/ModelEntitySessionBean.java</file>
             <file>file:/Users/admin/Desktop/backup/CaRMS/CarRentalManagementSystem/CarRentalManagementSystem-ejb/src/java/ejb/session/stateless/RentalRateEntitySessionBean.java</file>
+            <file>file:/Users/admin/Desktop/backup/CaRMS/CarRentalManagementSystem/CarRentalManagementSystem-ejb/src/java/ejb/session/stateless/RentalRateEntitySessionBeanLocal.java</file>
         </group>
     </open-files>
 </project-private>
