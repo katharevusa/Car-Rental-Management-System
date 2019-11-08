@@ -42,7 +42,7 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
         try {
             em.persist(newEmployee);
             OutletEntity outlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(outletId);
-            newEmployee.setOutlet(outlet);
+            newEmployee.setOutletEntity(outlet);
             outlet.getEmployees().add(newEmployee);
             em.flush();
             em.refresh(newEmployee);

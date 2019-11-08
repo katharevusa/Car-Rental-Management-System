@@ -13,6 +13,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import util.enumeration.AccessRightEnum;
@@ -44,7 +45,8 @@ public class EmployeeEntity implements Serializable {
 
     
    @ManyToOne
-    private OutletEntity outlet;
+   @JoinColumn(nullable = false)
+    private OutletEntity outletEntity;
     //@OneToMany(mappedBy = "employee")
    // private DispatchRecord dispatchRecord;
     
@@ -62,12 +64,12 @@ public class EmployeeEntity implements Serializable {
         this.password = password;
     }
 
-    public OutletEntity getOutlet() {
-        return outlet;
+    public OutletEntity getOutletEntity() {
+        return outletEntity;
     }
 
-    public void setOutlet(OutletEntity outlet) {
-        this.outlet = outlet;
+    public void setOutletEntity(OutletEntity outletEntity) {
+        this.outletEntity = outletEntity;
     }
 
     /*public DispatchRecord getDispatchRecord() {

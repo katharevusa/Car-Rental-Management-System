@@ -1,6 +1,6 @@
 package ejb.session.stateless;
 
-import com.sun.tools.ws.processor.model.ModelException;
+
 import entity.ModelEntity;
 import java.util.List;
 import java.util.Set;
