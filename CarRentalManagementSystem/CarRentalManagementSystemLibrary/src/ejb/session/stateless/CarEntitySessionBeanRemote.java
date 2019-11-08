@@ -7,6 +7,7 @@ import util.exception.DeleteCarException;
 import util.exception.NewCarCreationException;
 
 public interface CarEntitySessionBeanRemote {
+    
      public List<CarEntity> retrieveAllCars();
      
      public CarEntity retrieveCarByCarId(Long carId) throws CarNotFoundException;
