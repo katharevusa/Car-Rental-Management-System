@@ -17,6 +17,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.CreateNewModelFailureException;
 import util.exception.DeleteModelException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidFieldEnteredException;
@@ -37,40 +38,30 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
     
-    private final ValidatorFactory validatorFactory;
-    private final Validator validator;
 
     public ModelEntitySessionBean() {
-        validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.getValidator();
+        
     }
 
     
-    public ModelEntity createNewModel(ModelEntity newModelEntity) throws InputDataValidationException,InvalidFieldEnteredException{
+    @Override
+    public ModelEntity createNewModel(ModelEntity newModelEntity) throws CreateNewModelFailureException{
         
-        Set<ConstraintViolation<ModelEntity>> constraintViolations = validator.validate(newModelEntity);
-    
-        if (constraintViolations.isEmpty()){
-            
-            try{
-                em.persist(newModelEntity);
-                em.flush();
-                
-                return newModelEntity;
-            }
-            catch(PersistenceException ex){
-                throw new InvalidFieldEnteredException(ex.getMessage());
-            }
-        } 
-        else {
-            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+        try {
+            em.persist(newModelEntity);
+            em.flush();
+
+            return newModelEntity;
+        } catch (PersistenceException ex) {
+            throw new CreateNewModelFailureException(ex.getMessage());
         }
-    } 
+    }
     
     
-    
+    @Override
     public List<ModelEntity> retrieveAllModel(){
-        Query query = em.createQuery("SELECT m FROM ModelEntity");
+        
+        Query query = em.createQuery("SELECT m FROM ModelEntity m ORDER BY m.category, m.modelName ASC");
         return query.getResultList();
     }
     
@@ -100,42 +91,6 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
         
     }
 
-//    public void updateModel(ModelEntity modelEntity) throws UpdateModelException,ModelNotFoundException{
-//        
-//        if (modelEntity.getModelId() != null){
-//            
-//            ModelEntity modelToUpdate = retrieveModelByModelId(modelEntity.getModelId());
-//            if (modelToUpdate.getMake().equals(modelEntity.getMake()) && modelToUpdate.getModel().equals(modelEntity.getModel())){
-//                modelToUpdate.setCategory(modelEntity.getCategory());
-//                modelToUpdate.setMake(modelEntity.getMake());
-//                modelToUpdate.setModel(modelEntity.getModel());
-//            } else {
-//                throw new UpdateModelException("Make and model of the model to be updated does not match the existing record");
-//            }
-//        } else {
-//            throw new ModelNotFoundException("Model ID not provided for model to be updated");
-//        }
-//    }
-    
-    
-    
-//    public void deleteModel(Long modelId) throws DeleteModelException, ModelNotFoundException{
-//        
-//        
-//        ModelEntity modelEntityToRemove = retrieveModelByModelId(modelId);
-//        
-//        if (modelEntityToRemove != null){
-//            if (modelEntityToRemove.getCars().isEmpty()){
-//                em.remove(modelEntityToRemove);
-//            } else {
-//                modelEntityToRemove.setDisabled(true);
-//                throw new DeleteModelException("The model is currently in usage, thus cannot be deleted.");
-//            } 
-//        } else {
-//            throw new ModelNotFoundException("Model ID " + modelId + "does not exist.");
-//        }
-//    }
-//    
     
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<ModelEntity>> constraintViolations)
@@ -148,6 +103,30 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
         }
         
         return msg;
+    }
+    
+    
+    
+    @Override
+    public Long deleteModel(Long modelId) throws DeleteModelException{
+        
+        try{
+            
+            ModelEntity modelToDelete = retrieveModelByModelId(modelId);
+            if (modelToDelete.getCars().isEmpty()){
+                em.remove(modelToDelete);
+                return modelToDelete.getModelId();
+            } else {
+                modelToDelete.setDisabled(true);
+                throw new DeleteModelException();
+            }
+            
+        }catch(ModelNotFoundException ex1){
+            throw new DeleteModelException("Model ID " + modelId + "does not exist.");
+        } catch (DeleteModelException ex2){
+            throw new DeleteModelException("Model " + modelId + "cannot be deleted, but it has been marked as disabled.");
+        }
+        
     }
     
 }

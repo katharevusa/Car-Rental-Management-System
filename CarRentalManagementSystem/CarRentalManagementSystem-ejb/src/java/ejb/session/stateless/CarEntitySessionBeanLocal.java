@@ -10,8 +10,6 @@ public interface CarEntitySessionBeanLocal {
 
     public List<CarEntity> retrieveAllCars();
 
-    public CarEntity createNewCar(CarEntity newCarEntity, Long modelId, Long outletId) throws InvalidFieldEnteredException;
-
     public CarEntity retrieveCarByCarId(Long carId) throws CarNotFoundException;
     
 }

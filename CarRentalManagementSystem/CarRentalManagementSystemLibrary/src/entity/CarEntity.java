@@ -25,10 +25,8 @@ public class CarEntity implements Serializable {
     private String color;
     private boolean onRental;
     private boolean disabled;
+
     
-    
-    
-    /*==========relationship field==========*/
     //bidirectional
     @ManyToOne
     private ModelEntity modelEntity;
@@ -38,11 +36,7 @@ public class CarEntity implements Serializable {
     //bidirectional
     //reservation
 
-    
-    
-    
-    
-    
+
     public CarEntity() {
         onRental = false;
         disabled = false;

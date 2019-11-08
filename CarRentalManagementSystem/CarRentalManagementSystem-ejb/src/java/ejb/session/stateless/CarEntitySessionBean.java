@@ -16,6 +16,7 @@ import util.exception.CarNotFoundException;
 import util.exception.DeleteCarException;
 import util.exception.InvalidFieldEnteredException;
 import util.exception.ModelNotFoundException;
+import util.exception.NewCarCreationException;
 import util.exception.OutletNotFoundException;
 import util.exception.UpdateCarException;
 
@@ -42,28 +43,24 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     public CarEntitySessionBean() {
     }
 
+    
+    
     @Override
-    public CarEntity createNewCar(CarEntity newCarEntity,Long modelId,Long outletId) throws InvalidFieldEnteredException{
+    public Long createNewCar(CarEntity newCarEntity,Long modelId) throws NewCarCreationException{
+        
         
         try
         {
-            em.persist(newCarEntity);
-            OutletEntity outletEntity = outletEntitySessionBeanLocal.retrieveOutletByOutletId(outletId);
             ModelEntity modelEntity = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
-            
+            em.persist(newCarEntity);
             newCarEntity.setModelEntity(modelEntity);
             modelEntity.getCars().add(newCarEntity);
+            return newCarEntity.getCarId();
             
-            newCarEntity.setOutletEntity(outletEntity);
-            outletEntity.getCars().add(newCarEntity);
-            
-            em.flush();
-            em.refresh(newCarEntity);
-            
-            return newCarEntity;
-        }
-        catch (PersistenceException | OutletNotFoundException | ModelNotFoundException ex){
-            throw new InvalidFieldEnteredException("Invalid field values entered!");
+        }catch (ModelNotFoundException ex){
+            throw new NewCarCreationException("Model ID " + modelId + " does not exist!");
+        }catch(PersistenceException ex){
+            throw new NewCarCreationException("License plate number " + newCarEntity.getPlateNumber() + " already exists!");
         }
         
     }
@@ -84,7 +81,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     @Override
     public List<CarEntity> retrieveAllCars()
     {
-        Query query = em.createQuery("SELECT c FROM CarEntity c");
+        Query query = em.createQuery("SELECT c FROM CarEntity c ORDER BY c.modelEntity.category.name, c.modelEntity.modelName,c.plateNumber ASC");
         
         return query.getResultList();
          
@@ -112,27 +109,33 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     
     
     
-    
-//    public void deleteCar(Long carId) throws CarNotFoundException,DeleteCarException{
-//        
-//        CarEntity carEntityToRemove = retrieveCarByCarId(carId);
-//       
-//        if (carEntityToRemove != null) {
-//            if (carEntityToRemove.isOnRental() == false) {
-//                
-//                carEntityToRemove.getModel().getCars().remove(carEntityToRemove);
-//                em.remove(carEntityToRemove);
-//                
-//            } else {
-//                
-//                carEntityToRemove.setDisabled(true);
-//                throw new DeleteCarException("The car is currently in usage, cannot be deleted.");
-//            }
-//        } else {
-//            throw new CarNotFoundException("Car ID " + carId + " does not exist!");
-//        }
-//
-//    }
+    @Override
+    public Long deleteCar(Long carId) throws DeleteCarException{
+        
+        try{
+            CarEntity carEntityToRemove = retrieveCarByCarId(carId);
+            if (carEntityToRemove.isOnRental() == false) {
+                
+                carEntityToRemove.getModelEntity().getCars().remove(carEntityToRemove);
+                if (carEntityToRemove.getOutletEntity() != null){
+                    carEntityToRemove.getOutletEntity().getCars().remove(carEntityToRemove);
+                }
+                em.remove(carEntityToRemove);
+                return carEntityToRemove.getCarId();
+                
+            } else {
+                
+                carEntityToRemove.setDisabled(true);
+                throw new DeleteCarException();
+            }
+            
+        } catch (CarNotFoundException ex1){
+            throw new DeleteCarException("Car ID " + carId + "does not exist!");
+        } catch (DeleteCarException ex2){
+            throw new DeleteCarException("The car is currently in usage and cannot be deleted, but it has been disabled for fruther rental.");
+        }
+        
+    }
 
         
 }

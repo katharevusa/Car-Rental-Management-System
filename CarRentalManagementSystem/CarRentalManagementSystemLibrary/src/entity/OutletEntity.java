@@ -38,22 +38,15 @@ public class OutletEntity implements Serializable {
     @Column(nullable = false)
     private LocalTime closingTime;
 
-    
-    /*******relationship field********/
     //bidirectional
     @OneToMany(mappedBy = "outletEntity")
     private List<CarEntity> cars;
-    
-    
-    @OneToMany
+    //bidirectional
+    @OneToMany(mappedBy = "outletEntity")
     private List<EmployeeEntity> employees;
     
     
-    
-    
-    
-    
-    
+
     public OutletEntity(){
         employees = new ArrayList<>();
         cars = new ArrayList<>();

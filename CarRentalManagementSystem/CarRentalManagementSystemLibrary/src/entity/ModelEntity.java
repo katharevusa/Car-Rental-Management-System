@@ -31,21 +31,24 @@ public class ModelEntity implements Serializable {
     private String modelName;
     private boolean disabled;
     
+    //bidirctional
+    @ManyToOne
+    @Column(nullable = false)
+    private CategoryEntity category;
     
-    
-    /**********relationship field********/
     //bidirdctional
     @OneToMany(mappedBy = "modelEntity")
     private List<CarEntity> cars;
 
-    //bidirctional
-   // @ManyToOne
-    private CategoryEntity category;
-    
-    
-    
     public ModelEntity() {
         cars = new ArrayList<>();
+    }
+
+    public ModelEntity(String modelName) {
+        
+        this();
+        this.modelName = modelName;
+        disabled = false;
     }
 
     
@@ -99,14 +102,6 @@ public class ModelEntity implements Serializable {
         this.disabled = disabled;
     }
 
-    public List<CarEntity> getCars() {
-        return cars;
-    }
-
-    public void setCars(List<CarEntity> cars) {
-        this.cars = cars;
-    }
-
     public CategoryEntity getCategory() {
         return category;
     }
@@ -115,5 +110,14 @@ public class ModelEntity implements Serializable {
         this.category = category;
     }
 
+    public List<CarEntity> getCars() {
+        return cars;
+    }
+
+    public void setCars(List<CarEntity> cars) {
+        this.cars = cars;
+    }
+
+ 
     
 }
