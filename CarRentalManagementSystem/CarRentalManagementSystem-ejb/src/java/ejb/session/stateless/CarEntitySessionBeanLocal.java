@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.CarEntity;
+import java.time.LocalDateTime;
 import java.util.List;
 import util.exception.CarNotFoundException;
 import util.exception.DeleteCarException;
@@ -13,5 +14,7 @@ public Long createNewCar(CarEntity newCarEntity,Long modelId) throws NewCarCreat
     public List<CarEntity> retrieveAllCars();
 public Long deleteCar(Long carId) throws DeleteCarException;
     public CarEntity retrieveCarByCarId(Long carId) throws CarNotFoundException;
+
+    public List<CarEntity> retrieveAvailableCarsBasedOnGivenDateTime(LocalDateTime pickupDateTime, LocalDateTime returnDateTime);
     
 }

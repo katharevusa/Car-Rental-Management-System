@@ -10,6 +10,7 @@ import entity.ReservationRecordEntity;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -164,62 +165,15 @@ public class MainApp {
                 }
             }
 
-            if (response == 2) {
+            if (response == 5) {
                 break;
             }
         }
     }
 
-    private void doSearchCar() {
-        Scanner sc = new Scanner(System.in);
-        String pickupDateTime = "";
-        String pickupOutlet = "";
-        String returnDateTime = "";
-        String returnOutlet = "";
-        String confirmReservation = "";
-
-        do {
-
-            System.out.println("The available outlets are:");
-            int idxNumber = 1;
-
-            List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveAllOutlet();
-            for (OutletEntity outletEntity : outlets) {
-                System.out.println("" + idxNumber + ". " + "Outlet " + outletEntity.getOutletId());
-                System.out.println("Address: " + outletEntity.getAddress());
-                System.out.println("Open from " + df.format(outletEntity.getOpeningTime()) + " to " + df.format(outletEntity.getClosingTime()));
-                idxNumber++;
-            }
-
-            System.out.println("Please select a pickup outlet: ");
-            int selectedPickupOutlet = sc.nextInt();
-            System.out.println("Please select a return outlet: ");
-            int selectedReturnOutlet = sc.nextInt();
-
-            if (selectedPickupOutlet < 1 || selectedPickupOutlet > outlets.size()) {
-                break;
-            } else if (selectedReturnOutlet < 1 || selectedReturnOutlet > outlets.size()) {
-                break;
-            }
-
-            try {
-                System.out.print("Please specify the Date you need a car(YYYY-MM-DD):");
-                Date pickupDate = df.parse(sc.next().trim());
-                System.out.println("");
-                System.out.print("Please specify the time you want to collect the car(HH:MM:SS):");
-                Date pickupTime = df.parse(sc.next().trim());
-                System.out.print("Please specify the Date you return the car(YYYY-MM-DD):");
-                Date returnDate = df.parse(sc.next().trim());
-                System.out.println("");
-                System.out.print("Please specify the time you can return the car(HH:MM:SS):");
-                Date returnTime = df.parse(sc.next().trim());
-
-            } catch (ParseException ex) {
-                System.out.println("Invalid inputs.");
-                break;
-            }
-
-            /*
+    
+    
+    /*
             //pre-condition:
             out of X available car, at least one free car
             
@@ -229,29 +183,45 @@ public class MainApp {
             
             //invariant condition
             number of reservation for a particular caregory or model cannot exceed the capacity of the rental company
+    */
+    private void doSearchCar() {
+        Scanner sc = new Scanner(System.in);
+        String confirmReservation = "";
+
+        do {
+
+            printAllOutlet();
+            System.out.print("Please select a pickup outlet>");
+            int selectedPickupOutlet = sc.nextInt();
+            sc.nextLine();
+            System.out.print("Please select a return outlet>");
+            int selectedReturnOutlet = sc.nextInt();
+            sc.nextLine();
             
-             */
-//            List<ReservationRecordEntity> resevReservationRecords = 
-//            
-//            List<CarEntity> suitableCars = new ArrayList<>();
-//            List<ReservationRecordEntity> reservations;
-//            List<CarEntity> cars = carEntitySessionBeanRemote.retrieveAllCars();
-//            for (CarEntity car : cars){
-//                if (car.getOutletEntity().getOutletId() == outlets.get(selectedPickupOutlet - 1).getOutletId()){
-//                    
-//                }
-//            }
-//            System.out.println("The following cars are available :");
-//            if (cars.size() == 0){
-//                System.out.println("Oops, there is currently no car available for the selected duration");
-//                break;
-//            } else {
-//                for (CarEntity car : cars){
-//                    
-//                }
-//            }
+            System.out.print("Enter pick up date/time>");
+            String pickupDateTimeString = sc.nextLine().trim();
+            LocalDateTime pickupDateTime = LocalDateTime.parse(pickupDateTimeString);
+            System.out.print("Enter return date/time>");
+            String returnDateTimeString = sc.nextLine().trim();
+            LocalDateTime returnDateTime = LocalDateTime.parse(returnDateTimeString);
+
         } while (confirmReservation.equals("Yes"));
     }
+
+    
+    
+    private void printAllOutlet(){
+  
+        System.out.println("The available outlets are:");
+
+        List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveAllOutlet();
+        System.out.printf("%10s%100s%10s%10s%n", "Outlet ID", "Address", "Open At", "Close At");
+        for (OutletEntity outletEntity : outlets) {
+            System.out.printf("%10d%100s%10s%10s%n", outletEntity.getOutletId(), outletEntity.getAddress(), outletEntity.getOpeningTime().toString(), outletEntity.getClosingTime().toString());
+        }
+
+    }
+    
 
     private void doReserveCar() {
 

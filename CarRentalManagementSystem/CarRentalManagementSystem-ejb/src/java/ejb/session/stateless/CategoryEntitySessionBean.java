@@ -6,6 +6,10 @@
 package ejb.session.stateless;
 
 import entity.CategoryEntity;
+import entity.ModelEntity;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -65,17 +69,28 @@ public class CategoryEntitySessionBean implements CategoryEntitySessionBeanRemot
             throw new CategoryNotFoundException("Category " + categoryname + " does not exist!");
         }
     }
-    
+
     @Override
     public void updateCategory(CategoryEntity category) {
         em.merge(category);
     }
-    
-@Override
+
+    @Override
     public void deleteCategory(Long categoryId) {
         //CategoryEntity category = retrieveCategoryByCategoryId(categoryId);
-       // em.remove(category);
+        // em.remove(category);
     }
+
     
+    public List<CategoryEntity> retrieveCategoryBasedOnModels(List<ModelEntity> models){
+        
+        TreeSet<CategoryEntity> categories = new TreeSet<>();
+        for (ModelEntity model : models){
+            categories.add(model.getCategoryEntity());
+        }
+        
+        return new ArrayList<CategoryEntity>(categories);
+        
+    }
     
 }

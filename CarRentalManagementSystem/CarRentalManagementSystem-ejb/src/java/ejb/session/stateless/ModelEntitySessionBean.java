@@ -1,10 +1,13 @@
 package ejb.session.stateless;
 
 
+import entity.CarEntity;
 import entity.CategoryEntity;
 import entity.ModelEntity;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.EJBContext;
@@ -146,4 +149,14 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
         
     }
     
+    
+    public List<ModelEntity> retrieveModelsBasedOnCars(List<CarEntity> cars){
+        
+        TreeSet<ModelEntity> models = new TreeSet<>();
+        for(CarEntity car : cars){
+            models.add(car.getModelEntity());
+        }
+        
+        return new ArrayList<ModelEntity>(models);
+    }
 }
