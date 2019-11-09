@@ -81,7 +81,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     @Override
     public List<CarEntity> retrieveAllCars()
     {
-        Query query = em.createQuery("SELECT c FROM CarEntity c ORDER BY c.modelEntity.category.name, c.modelEntity.modelName,c.plateNumber ASC");
+        Query query = em.createQuery("SELECT c FROM CarEntity c ORDER BY c.modelEntity.categoryEntity.name, c.modelEntity.modelName,c.plateNumber ASC");
         
         return query.getResultList();
          

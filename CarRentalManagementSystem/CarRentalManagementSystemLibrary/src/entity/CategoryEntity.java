@@ -29,8 +29,8 @@ public class CategoryEntity implements Serializable {
     private Long categoryId;
     @Column(nullable = false, length = 64)
     private String name;
-    //@OneToMany
-   // private List<Model> model;   
+    @OneToMany(mappedBy = "categoryEntity")
+    private List<ModelEntity> models;   
     @OneToMany
     private List<RentalRateEntity> rentalRate;
     
@@ -44,36 +44,10 @@ public class CategoryEntity implements Serializable {
         this.name = name;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<RentalRateEntity> getRentalRate() {
-        return rentalRate;
-    }
-
-    public void setRentalRate(List<RentalRateEntity> rentalRate) {
-        this.rentalRate = rentalRate;
-    }
-
-
-
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (categoryId != null ? categoryId.hashCode() : 0);
+        hash += (getCategoryId() != null ? getCategoryId().hashCode() : 0);
         return hash;
     }
 
@@ -84,7 +58,7 @@ public class CategoryEntity implements Serializable {
             return false;
         }
         CategoryEntity other = (CategoryEntity) object;
-        if ((this.categoryId == null && other.categoryId != null) || (this.categoryId != null && !this.categoryId.equals(other.categoryId))) {
+        if ((this.getCategoryId() == null && other.getCategoryId() != null) || (this.getCategoryId() != null && !this.categoryId.equals(other.categoryId))) {
             return false;
         }
         return true;
@@ -92,7 +66,42 @@ public class CategoryEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Category[ id=" + categoryId + " ]";
+        return "entity.Category[ id=" + getCategoryId() + " ]";
     }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+
+    public List<ModelEntity> getModels() {
+        return models;
+    }
+
+    public void setModels(List<ModelEntity> models) {
+        this.models = models;
+    }
+
+    public List<RentalRateEntity> getRentalRate() {
+        return rentalRate;
+    }
+
+    public void setRentalRate(List<RentalRateEntity> rentalRate) {
+        this.rentalRate = rentalRate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
     
 }

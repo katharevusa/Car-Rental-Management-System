@@ -1,9 +1,13 @@
 package ejb.session.stateless;
 
 
+import entity.CategoryEntity;
 import entity.ModelEntity;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Resource;
+import javax.ejb.EJB;
+import javax.ejb.EJBContext;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -17,6 +21,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.CategoryNotFoundException;
 import util.exception.CreateNewModelFailureException;
 import util.exception.DeleteModelException;
 import util.exception.InputDataValidationException;
@@ -34,6 +39,8 @@ import util.exception.UpdateModelException;
 
 public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, ModelEntitySessionBeanLocal {
 
+    @EJB
+    private CategoryEntitySessionBeanLocal categoryEntitySessionBeanLlocal;
     
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
@@ -45,23 +52,33 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
 
     
     @Override
-    public ModelEntity createNewModel(ModelEntity newModelEntity) throws CreateNewModelFailureException{
+    public ModelEntity createNewModel(ModelEntity newModelEntity,Long categoryId) throws CreateNewModelFailureException{
         
         try {
+            
+            CategoryEntity categoryEntity = categoryEntitySessionBeanLlocal.retrieveCategoryByCategoryId(categoryId);
+            newModelEntity.setCategoryEntity(categoryEntity);
+            categoryEntity.getModels().add(newModelEntity);
+            
             em.persist(newModelEntity);
             em.flush();
-
+            
             return newModelEntity;
-        } catch (PersistenceException ex) {
-            throw new CreateNewModelFailureException(ex.getMessage());
+        } catch (PersistenceException ex1) {
+//            eJBContext.setRollbackOnly();
+            throw new CreateNewModelFailureException(ex1.getMessage());
+        } catch (CategoryNotFoundException ex2){
+//            eJBContext.setRollbackOnly();
+            throw new CreateNewModelFailureException(ex2.getMessage());
         }
+            
     }
     
     
     @Override
     public List<ModelEntity> retrieveAllModel(){
         
-        Query query = em.createQuery("SELECT m FROM ModelEntity m ORDER BY m.category, m.modelName ASC");
+        Query query = em.createQuery("SELECT m FROM ModelEntity m ORDER BY m.categoryEntity.name ASC, m.modelName ASC");
         return query.getResultList();
     }
     

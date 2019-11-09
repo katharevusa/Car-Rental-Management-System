@@ -35,7 +35,7 @@ public class ModelEntity implements Serializable {
     //bidirctional
     @ManyToOne
     @JoinColumn(nullable = false)
-    private CategoryEntity category;
+    private CategoryEntity categoryEntity;
     
     //bidirdctional
     @OneToMany(mappedBy = "modelEntity")
@@ -103,12 +103,12 @@ public class ModelEntity implements Serializable {
         this.disabled = disabled;
     }
 
-    public CategoryEntity getCategory() {
-        return category;
+    public CategoryEntity getCategoryEntity() {
+        return categoryEntity;
     }
 
-    public void setCategory(CategoryEntity category) {
-        this.category = category;
+    public void setCategoryEntity(CategoryEntity categoryEntity) {
+        this.categoryEntity = categoryEntity;
     }
 
     public List<CarEntity> getCars() {
@@ -119,6 +119,5 @@ public class ModelEntity implements Serializable {
         this.cars = cars;
     }
 
- 
     
 }
