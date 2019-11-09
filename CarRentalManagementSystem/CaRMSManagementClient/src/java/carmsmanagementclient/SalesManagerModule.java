@@ -230,7 +230,7 @@ class SalesManagerModule {
 
     private void doViewAllRentalRate() {
         Scanner scanner = new Scanner(System.in);
-        // SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        
 
         System.out.println("*** :: View All Rental Rate ***\n");
 
