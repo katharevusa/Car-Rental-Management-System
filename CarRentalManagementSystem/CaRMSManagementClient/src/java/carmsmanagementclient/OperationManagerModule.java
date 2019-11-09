@@ -166,11 +166,17 @@ class OperationManagerModule {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter new model name>");
         String modelName = sc.nextLine();
+        System.out.print("Enter category ID>");
+        Long categoryId = sc.nextLong();
+        sc.nextLine();
         
         ModelEntity newModelEntity = new ModelEntity(modelName);
         
         try{
-            modelEntitySessionBeanRemote.createNewModel(newModelEntity);
+            modelEntitySessionBeanRemote.createNewModel(newModelEntity,categoryId);
+            System.out.println("New model " + modelName + "successfully created!");
+            System.out.print("Press any key to continue...> ");
+            sc.nextLine();
         } catch(CreateNewModelFailureException ex){
             System.out.println(ex.getMessage());
         }
@@ -179,12 +185,16 @@ class OperationManagerModule {
     
     private void doViewAllModels() {
         
+        Scanner sc = new Scanner(System.in);
         List<ModelEntity> models = modelEntitySessionBeanRemote.retrieveAllModel();
         
         for (ModelEntity modelEntity : models){
-            System.out.printf("%20s%20s",modelEntity.getCategory().getName(),modelEntity.getModelName());
+            System.out.printf("%20s%20s",modelEntity.getCategoryEntity().getName(),modelEntity.getModelName());
             System.out.println();
         }
+        
+        System.out.print("Press any key to continue...> ");
+        sc.nextLine();
 
     }
     
@@ -214,8 +224,9 @@ class OperationManagerModule {
         Scanner sc = new Scanner(System.in);
         CarEntity newCarEntity = new CarEntity();
         
-        System.out.print("Enter model ID");
+        System.out.print("Enter model ID>");
         Long modelId = sc.nextLong();
+        sc.nextLine();
         System.out.print("Enter license plate number> ");
         String plateNumber = sc.nextLine().trim();
         newCarEntity.setPlateNumber(plateNumber);
@@ -242,7 +253,7 @@ class OperationManagerModule {
         List<CarEntity> cars = carEntitySessionBeanRemote.retrieveAllCars();
         System.out.printf("%30s%40s%30s\n","Car Category","Make and Model","License Plate Number");
         for (CarEntity car : cars){
-            System.out.printf("%30s%40s%30s\n",car.getModelEntity().getCategory().getName(),car.getModelEntity().getModelName(),car.getPlateNumber());
+            System.out.printf("%30s%40s%30s\n",car.getModelEntity().getCategoryEntity().getName(),car.getModelEntity().getModelName(),car.getPlateNumber());
         }
         
         System.out.print("Press any key to continue...> ");
@@ -263,9 +274,9 @@ class OperationManagerModule {
             CarEntity car = carEntitySessionBeanRemote.retrieveCarByCarId(carId);
             System.out.println("Current car :" + car.getCarId());
             
-            System.out.printf("%40s%40s%20s\n","Model Name","Plate Number","Color");
-            System.out.printf("%40s%40s%20s\n",car.getModelEntity().getModelName(),car.getPlateNumber(),car.getColor());
-            System.out.print("Press any key to continue...> ");
+            System.out.printf("%20s%20s%20s\n","Model Name","Plate Number","Color");
+            System.out.printf("%20s%20s%20s\n",car.getModelEntity().getModelName(),car.getPlateNumber(),car.getColor());
+            System.out.print("Press any key to continue...>");
             sc.nextLine();
             
             System.out.println("1: Update Car");
@@ -296,7 +307,7 @@ class OperationManagerModule {
         
         try{
             Long carId = carEntitySessionBeanRemote.deleteCar(carToDelete.getCarId());
-            System.out.println("Car ID " + carId + "has been successfully deleted.");
+            System.out.println("Car ID " + carId + " has been successfully deleted.");
             System.out.print("Press any key to continue...> ");
             sc.nextLine();
         

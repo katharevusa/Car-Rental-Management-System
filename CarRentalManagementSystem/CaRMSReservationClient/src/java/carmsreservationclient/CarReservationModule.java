@@ -43,8 +43,6 @@ public class CarReservationModule {
         while (true){
             System.out.println("*** CaRMS System :: Car Rental Reservation ***\n");
             System.out.println("1: Search car");
-//            System.out.println("2: Void/Refund");
-//            System.out.println("3: View My Sale Transactions");
             System.out.println("4: Back\n");
             response = 0;
             
@@ -84,16 +82,16 @@ public class CarReservationModule {
             int idxNumber = 1;
 
             List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveAllOutlet();
+            System.out.printf("%10s%20s%20s%20s%n","Outlet No.","Address","Opening Time","Closing Time");
             for (OutletEntity outletEntity : outlets) {
-                System.out.println("" + idxNumber + ". " + "Outlet " + outletEntity.getOutletId());
-                System.out.println("Address: " + outletEntity.getAddress());
-                System.out.println("Open from " + df.format(outletEntity.getOpeningTime()) + " to " + df.format(outletEntity.getClosingTime()));
+               
+                System.out.printf("%10d%20s%20t%20t%n",idxNumber,outletEntity.getAddress(),outletEntity.getOpeningTime(),outletEntity.getClosingTime());
                 idxNumber++;
             }
 
-            System.out.println("Please select a pickup outlet: ");
+            System.out.println("Please select a pickup outlet>");
             int selectedPickupOutlet = sc.nextInt();
-            System.out.println("Please select a return outlet: ");
+            System.out.println("Please select a return outlet>");
             int selectedReturnOutlet = sc.nextInt();
        
             if (selectedPickupOutlet < 1 || selectedPickupOutlet > outlets.size()){
@@ -113,13 +111,14 @@ public class CarReservationModule {
                 System.out.println("");
                 System.out.print("Please specify the time you can return the car(HH:MM:SS):");
                 Date returnTime = df.parse(sc.next().trim());
-                
-            } catch(ParseException ex){
+
+            } catch (ParseException ex) {
                 System.out.println("Invalid inputs.");
                 break;
             }
-            
-            
+
+        } while (confirmReservation.equals("Yes"));
+
             /*
             //pre-condition:
             out of X available car, at least one free car
@@ -158,7 +157,7 @@ public class CarReservationModule {
 //            }
             
             
-        } while(confirmReservation.equals("Yes"));
+        
     }
     
     
