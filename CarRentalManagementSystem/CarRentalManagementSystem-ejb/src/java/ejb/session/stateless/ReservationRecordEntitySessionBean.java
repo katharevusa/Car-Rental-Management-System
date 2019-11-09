@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.ReservationRecordEntity;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -10,6 +11,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.InvalidFieldEnteredException;
+import util.exception.NoReservationAvailable;
 
 /**
  *
@@ -28,27 +30,30 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
     }
 
     @Override
-    public Long createNewReservationRecord(ReservationRecordEntity reservationRecordEntity) throws InvalidFieldEnteredException{
-        
-        try
-        {
+    public Long createNewReservationRecord(ReservationRecordEntity reservationRecordEntity) throws InvalidFieldEnteredException {
+
+        try {
             em.persist(reservationRecordEntity);
             em.flush();
-            
+
             return reservationRecordEntity.getReservationRecordId();
-        }
-        catch(PersistenceException ex){
+        } catch (PersistenceException ex) {
             throw new InvalidFieldEnteredException();
         }
     }
 
     @Override
-    public List<ReservationRecordEntity> retrieveAllReservation()
-    {
+    public List<ReservationRecordEntity> retrieveAllReservation() {
         Query query = em.createQuery("SELECT rr FROM ReservationRecordEntity rr");
-        
+
         return query.getResultList();
     }
- 
-    
+
+    @Override
+    public List<ReservationRecordEntity> retrieveReservationByStartDate() throws NoReservationAvailable {
+
+        Query query = em.createQuery("SELECT rr FROM ReservationRecordEntity WHERE ");
+        return query.getResultList();
+    }
+
 }

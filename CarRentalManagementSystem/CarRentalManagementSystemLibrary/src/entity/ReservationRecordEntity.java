@@ -6,7 +6,10 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,45 +30,93 @@ public class ReservationRecordEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationRecordId;
-    
-    //-----------relationship fields------------------------
-    //bidirectional
+    @Column(nullable = false)
+    private Date pickUpDateTime;
+    @Column(nullable = false)
+    private Date returnDateTime;
+
+    @OneToOne
+    //unidirectional
+    private OutletEntity pickUpOutlet;
+    //unidirectional
+    @OneToOne
+    private OutletEntity returnOutlet;
     @OneToOne
     private CarEntity carEntity;
-    
-    
-    
-    
-  
-    
-    
-//    //-----------relationship fields------------------------
-//    @OneToMany(mappedBy = "reservationRecordEntity")
-//    private List<RentalDayEntity> rentalDays;
-//    //unidirectional
-//    @OneToOne
-//    private OutletEntity pickupOutlet;
-//    //unidirectional
-//    @OneToOne
-//    private OutletEntity returnOutlet;
-//    //bidirectional
-//    @ManyToOne
-//    private CustomerEntity customer;
-//    
-//    //bidirectional
-//    @ManyToOne
-//    private PartnerEntity partner;
-    
-    
-
-    
-    
-
+    @OneToMany(mappedBy = "reservationRecordEntity")
+    private List<RentalDayEntity> rentalDays;
+    @ManyToOne
+    private CustomerEntity customer;
+    @ManyToOne
+    private PartnerEntity partner;
 
     public ReservationRecordEntity() {
+        rentalDays = new ArrayList<>();
+
     }
 
-    
+    public ReservationRecordEntity(Date pickUpDateTime, Date returnDateTime) {
+        this();
+        this.pickUpDateTime = pickUpDateTime;
+        this.returnDateTime = returnDateTime;
+    }
+
+    public Date getPickUpDateTime() {
+        return pickUpDateTime;
+    }
+
+    public void setPickUpDateTime(Date pickUpDateTime) {
+        this.pickUpDateTime = pickUpDateTime;
+    }
+
+    public Date getReturnDateTime() {
+        return returnDateTime;
+    }
+
+    public void setReturnDateTime(Date returnDateTime) {
+        this.returnDateTime = returnDateTime;
+    }
+
+    public OutletEntity getPickUpOutlet() {
+        return pickUpOutlet;
+    }
+
+    public void setPickUpOutlet(OutletEntity pickUpOutlet) {
+        this.pickUpOutlet = pickUpOutlet;
+    }
+
+    public OutletEntity getReturnOutlet() {
+        return returnOutlet;
+    }
+
+    public void setReturnOutlet(OutletEntity returnOutlet) {
+        this.returnOutlet = returnOutlet;
+    }
+
+    public List<RentalDayEntity> getRentalDays() {
+        return rentalDays;
+    }
+
+    public void setRentalDays(List<RentalDayEntity> rentalDays) {
+        this.rentalDays = rentalDays;
+    }
+
+    public CustomerEntity getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(CustomerEntity customer) {
+        this.customer = customer;
+    }
+
+    public PartnerEntity getPartner() {
+        return partner;
+    }
+
+    public void setPartner(PartnerEntity partner) {
+        this.partner = partner;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -106,5 +157,5 @@ public class ReservationRecordEntity implements Serializable {
     public void setCarEntity(CarEntity carEntity) {
         this.carEntity = carEntity;
     }
-    
+
 }
