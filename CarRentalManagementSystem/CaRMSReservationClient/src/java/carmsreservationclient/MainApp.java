@@ -22,7 +22,6 @@ public class MainApp {
     private CustomerEntitySessionBeanRemote customerEntitySessionBeanRemote;
     private CarEntitySessionBeanRemote carEntitySessionBeanRemote;
     private CustomerEntity currentCustomerEntity;
-    private CarReservationModule carReservationModule;
     private OutletEntitySessionBeanRemote outletEntitySessionBeanRemote;
     private ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote;
     private SimpleDateFormat df;
