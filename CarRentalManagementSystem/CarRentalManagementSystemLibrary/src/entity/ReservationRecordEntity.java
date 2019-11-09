@@ -6,6 +6,8 @@
 package entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,6 +20,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -31,9 +34,16 @@ public class ReservationRecordEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationRecordId;
     @Column(nullable = false)
-    private Date pickUpDateTime;
+    private LocalDateTime pickUpDateTime;
     @Column(nullable = false)
-    private Date returnDateTime;
+    private LocalDateTime returnDateTime;
+    @Column(nullable = false)
+    @NotNull
+    private Boolean isCancelled;
+    @Column(nullable = false)
+    private BigDecimal paid;
+    @Column(nullable = false)
+    private BigDecimal penalty;
 
     @OneToOne
     //unidirectional
@@ -52,28 +62,58 @@ public class ReservationRecordEntity implements Serializable {
 
     public ReservationRecordEntity() {
         rentalDays = new ArrayList<>();
+        isCancelled = false;
 
     }
 
-    public ReservationRecordEntity(Date pickUpDateTime, Date returnDateTime) {
+    public ReservationRecordEntity(LocalDateTime pickUpDateTime, LocalDateTime returnDateTime, Boolean isCancelled,
+            BigDecimal paid, BigDecimal penalty) {
         this();
         this.pickUpDateTime = pickUpDateTime;
         this.returnDateTime = returnDateTime;
+        this.isCancelled = isCancelled;
+        this.paid = paid;
+        this.penalty = penalty;
+        
     }
 
-    public Date getPickUpDateTime() {
+    public BigDecimal getPaid() {
+        return paid;
+    }
+
+    public void setPaid(BigDecimal paid) {
+        this.paid = paid;
+    }
+
+    public BigDecimal getPenalty() {
+        return penalty;
+    }
+
+    public void setPenalty(BigDecimal penalty) {
+        this.penalty = penalty;
+    }
+
+    public Boolean getIsCancelled() {
+        return isCancelled;
+    }
+
+    public void setIsCancelled(Boolean isCancelled) {
+        this.isCancelled = isCancelled;
+    }
+
+    public LocalDateTime getPickUpDateTime() {
         return pickUpDateTime;
     }
 
-    public void setPickUpDateTime(Date pickUpDateTime) {
+    public void setPickUpDateTime(LocalDateTime pickUpDateTime) {
         this.pickUpDateTime = pickUpDateTime;
     }
 
-    public Date getReturnDateTime() {
+    public LocalDateTime getReturnDateTime() {
         return returnDateTime;
     }
 
-    public void setReturnDateTime(Date returnDateTime) {
+    public void setReturnDateTime(LocalDateTime returnDateTime) {
         this.returnDateTime = returnDateTime;
     }
 
@@ -157,5 +197,7 @@ public class ReservationRecordEntity implements Serializable {
     public void setCarEntity(CarEntity carEntity) {
         this.carEntity = carEntity;
     }
+
+
 
 }
