@@ -6,9 +6,10 @@
 package ejb.session.stateless;
 
 import entity.RentalRateEntity;
+import java.time.LocalDate;
 import java.util.Date;
 
 
 public interface RentalDayEntitySessionBeanLocal {
-    public void createNewRentalDay(RentalRateEntity rentalRate, Date startDate, Date endDate);
+    public void createNewRentalDay(RentalRateEntity rentalRate, LocalDate startDate, LocalDate endDate);
 }

@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.CategoryEntity;
+import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -36,7 +37,11 @@ public class CategoryEntitySessionBean implements CategoryEntitySessionBeanRemot
         em.flush();
         return newCategory.getCategoryId();
     }
-    
+    @Override
+    public List<CategoryEntity> retrieveAllCategory(){
+        Query query = em.createQuery("SELECT c FROM CategoryEntity c");
+        return query.getResultList();
+    }
     @Override
     public CategoryEntity retrieveCategoryByCategoryId(Long categoryId) throws CategoryNotFoundException
     {

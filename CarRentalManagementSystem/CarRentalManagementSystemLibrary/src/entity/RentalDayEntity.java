@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,8 +33,8 @@ public class RentalDayEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalDayId;
     @Column(nullable = false)
-    private Date start;
-    private Date end;
+    private LocalDate start;
+    private LocalDate end;
     
     @ManyToOne
     private RentalRateEntity rentalRate;
@@ -46,28 +47,26 @@ public class RentalDayEntity implements Serializable {
         
     }
 
-    public RentalDayEntity(Date start, Date end) {
+    public RentalDayEntity(LocalDate start, LocalDate end) {
         this.start = start;
         this.end = end;
     }
 
-    public Date getStart() {
+    public LocalDate getStart() {
         return start;
     }
 
-    public void setStart(Date start) {
+    public void setStart(LocalDate start) {
         this.start = start;
     }
 
-    public Date getEnd() {
+    public LocalDate getEnd() {
         return end;
     }
 
-    public void setEnd(Date end) {
+    public void setEnd(LocalDate end) {
         this.end = end;
     }
-
-  
 
     public RentalRateEntity getRentalRate() {
         return rentalRate;

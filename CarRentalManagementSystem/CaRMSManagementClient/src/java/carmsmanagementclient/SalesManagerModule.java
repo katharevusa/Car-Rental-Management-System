@@ -32,9 +32,12 @@ import util.exception.UnknownPersistenceException;
 import java.lang.String;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import javax.swing.text.DateFormatter;
 import util.exception.InputDataValidationException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.UpdateRentalRateException;
@@ -52,13 +55,14 @@ class SalesManagerModule {
     private CategoryEntity enteredCategory;
     private CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
     private RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote;
-    private SimpleDateFormat dateFormatter;
-
+ //   private SimpleDateFormat dateFormatter;
+    private DateTimeFormatter formatter;
     public SalesManagerModule() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
-        dateFormatter = new SimpleDateFormat();
+        //dateFormatter = new SimpleDateFormat();
         this.enteredCategory = enteredCategory;
+        formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     }
 
     public SalesManagerModule(EmployeeEntity currentEmployee, RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote,
@@ -184,18 +188,22 @@ class SalesManagerModule {
         newRentalRateEntity.setRatePerDay(scanner.nextDouble());
         scanner.nextLine();
 
-        try {
+//        try {
             System.out.print("Enter validity period: enter starting date (dd/mm/yyyy) > ");
             String startDate = scanner.nextLine().trim();
-            Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(startDate);
+            LocalDate date1 = LocalDate.parse(startDate, formatter);
             newRentalRateEntity.setStartDate(date1);
+            
             System.out.print("Enter validity period: enter ending date (dd/mm/yyyy) > ");
             String endDate = scanner.nextLine().trim();
-            Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(endDate);
+            LocalDate date2 = LocalDate.parse(endDate, formatter);
             newRentalRateEntity.setEndDate(date2);
-        } catch (ParseException ex) {
-            System.out.println("error with date input");
-        }
+            
+//            Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(endDate);
+//            newRentalRateEntity.setEndDate(date2);
+//        } catch (ParseException ex) {
+//            System.out.println("error with date input");
+//        }
 
         Set<ConstraintViolation<RentalRateEntity>> constraintViolations = validator.validate(newRentalRateEntity);
 
@@ -298,22 +306,17 @@ class SalesManagerModule {
         if (input.length() > 0) {
             rentalRateEntity.setRatePerDay(Double.valueOf(input));
         }
-        try {
-            System.out.print("Enter Starting date (blank if no change)> ");
-            input = scanner.nextLine().trim();
-            if (input.length() > 0) {
-                Date date1;
-                date1 = new SimpleDateFormat("dd/MM/yyyy").parse(input);
-                rentalRateEntity.setStartDate(date1);
-            }
-            System.out.print("Enter Ending date (blank if no change)> ");
-            input = scanner.nextLine().trim();
-            if (input.length() > 0) {
-                Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(input);
-                rentalRateEntity.setEndDate(date2);
-            }
-        } catch (ParseException ex) {
-            System.out.println("input error");
+        System.out.print("Enter Starting date (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if (input.length() > 0) {
+            LocalDate date1 = LocalDate.parse(input, formatter);
+            rentalRateEntity.setStartDate(date1);
+        }
+        System.out.print("Enter Ending date (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if (input.length() > 0) {
+            LocalDate date2 = LocalDate.parse(input, formatter);
+            rentalRateEntity.setEndDate(date2);
         }
 
         //should i allow user to change the category as well?
