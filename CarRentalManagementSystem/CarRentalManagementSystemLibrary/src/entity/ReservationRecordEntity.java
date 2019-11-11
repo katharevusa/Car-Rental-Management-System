@@ -16,7 +16,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -40,10 +39,10 @@ public class ReservationRecordEntity implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean isCancelled;
-    @Column(nullable = false)
-    private BigDecimal paid;
-    @Column(nullable = false)
-    private BigDecimal penalty;
+    @Column(nullable = true)
+    private Double paidAmount;
+    @Column(nullable = true)
+    private Double refund;
 
     @OneToOne
     //unidirectional
@@ -59,6 +58,12 @@ public class ReservationRecordEntity implements Serializable {
     private CustomerEntity customer;
     @ManyToOne
     private PartnerEntity partner;
+    @OneToOne
+    private CategoryEntity category;
+    @OneToOne
+    private ModelEntity model;
+
+   
 
     public ReservationRecordEntity() {
         rentalDays = new ArrayList<>();
@@ -67,30 +72,46 @@ public class ReservationRecordEntity implements Serializable {
     }
 
     public ReservationRecordEntity(LocalDateTime pickUpDateTime, LocalDateTime returnDateTime, Boolean isCancelled,
-            BigDecimal paid, BigDecimal penalty) {
+            Double paidAmount, Double refund) {
         this();
         this.pickUpDateTime = pickUpDateTime;
         this.returnDateTime = returnDateTime;
         this.isCancelled = isCancelled;
-        this.paid = paid;
-        this.penalty = penalty;
+        this.paidAmount = paidAmount;
+        this.refund = refund;
         
     }
 
-    public BigDecimal getPaid() {
-        return paid;
+    public Double getRefund() {
+        return refund;
     }
 
-    public void setPaid(BigDecimal paid) {
-        this.paid = paid;
+    public void setRefund(Double refund) {
+        this.refund = refund;
     }
 
-    public BigDecimal getPenalty() {
-        return penalty;
+ public CategoryEntity getCategory() {
+        return category;
     }
 
-    public void setPenalty(BigDecimal penalty) {
-        this.penalty = penalty;
+    public void setCategory(CategoryEntity category) {
+        this.category = category;
+    }
+
+    public ModelEntity getModel() {
+        return model;
+    }
+
+    public void setModel(ModelEntity model) {
+        this.model = model;
+    }
+    
+    public Double getPaidAmount() {
+        return paidAmount;
+    }
+
+    public void setPaidAmount(Double paidAmount) {
+        this.paidAmount = paidAmount;
     }
 
     public Boolean getIsCancelled() {

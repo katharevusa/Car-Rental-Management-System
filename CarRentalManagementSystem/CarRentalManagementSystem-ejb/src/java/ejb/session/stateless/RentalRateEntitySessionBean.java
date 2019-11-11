@@ -4,6 +4,7 @@ import entity.CategoryEntity;
 import entity.RentalDayEntity;
 import entity.RentalRateEntity;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -36,11 +37,8 @@ import util.exception.InputDataValidationException;
 @Local(RentalRateEntitySessionBeanLocal.class)
 @Remote(RentalRateEntitySessionBeanRemote.class)
 
-
 public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanRemote, RentalRateEntitySessionBeanLocal {
 
-    
-    
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
     private final ValidatorFactory validatorFactory;
@@ -49,129 +47,101 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
     private CategoryEntitySessionBeanLocal categoryEntitySessionBeanLocal;
     @EJB
     private RentalDayEntitySessionBeanLocal rentalDayEntitySessionBeanLocal;
-    
+
     public RentalRateEntitySessionBean() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
-        
+
     }
-    
+
     @Override
     public RentalRateEntity createNewRentalRate(Long categoryId, RentalRateEntity newRentalRate)
-            throws  RentalRateExistException,CategoryNotFoundException, GeneralException
-    { 
-        try
-    {
-        CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
-        
-        em.persist(newRentalRate);
-        newRentalRate.setCategory(category);
-        category.getRentalRate().add(newRentalRate);
-        
-        rentalDayEntitySessionBeanLocal.createNewRentalDay(newRentalRate, newRentalRate.getStartDate(), newRentalRate.getEndDate());
-        
-        em.flush();
-        em.refresh(newRentalRate);
-        return newRentalRate;
-    }
-   /* catch(CategoryNotFoundException ex)
-    {
-        throw new CategoryNotFoundException("Unable to create new rental rate as the categroy does not exist");
-    }*/
-    
-    catch(PersistenceException ex)
-    {
-        if(ex.getCause() != null &&
-                ex.getCause().getCause() != null &&
-                ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException"))
-        {
-            //how to check for rental rate exists
-            throw new RentalRateExistException();
-        }
-        else
-        {
-            throw new GeneralException("An unexpected error has occurred: " + ex.getMessage());
+            throws RentalRateExistException, CategoryNotFoundException, GeneralException {
+        try {
+            CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
+
+            em.persist(newRentalRate);
+            newRentalRate.setCategory(category);
+            category.getRentalRate().add(newRentalRate);
+            //loop through from the startday to the end day, create new rental days
+            for (LocalDate date = newRentalRate.getStartDate(); date.isBefore(newRentalRate.getEndDate()); date = date.plusDays(1)) {
+                rentalDayEntitySessionBeanLocal.createNewRentalDay(newRentalRate, date);
+            }
+            // rentalDayEntitySessionBeanLocal.createNewRentalDay(newRentalRate, newRentalRate.getStartDate(), newRentalRate.getEndDate());
+
+            em.flush();
+            em.refresh(newRentalRate);
+            return newRentalRate;
+        } catch (PersistenceException ex) {
+            if (ex.getCause() != null
+                    && ex.getCause().getCause() != null
+                    && ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException")) {
+                //how to check for rental rate exists
+                throw new RentalRateExistException();
+            } else {
+                throw new GeneralException("An unexpected error has occurred: " + ex.getMessage());
+            }
         }
     }
-    }
-    
+
     @Override
-    public List<RentalRateEntity> retrieveAllRentalRates(){
+    public List<RentalRateEntity> retrieveAllRentalRates() {
         Query query = em.createQuery("SELECT rr FROM RentalRateEntity rr");
-        
+
         return query.getResultList();
     }
+
     @Override
-    public RentalRateEntity retrieveRentalRateByRentalId(Long rentalRateId) throws RentalRateNotFoundException
-    {
-    
-    RentalRateEntity rentalRateEntity = em.find(RentalRateEntity.class, rentalRateId);
-        
-        if(rentalRateEntity != null)
-        {
+    public RentalRateEntity retrieveRentalRateByRentalId(Long rentalRateId) throws RentalRateNotFoundException {
+
+        RentalRateEntity rentalRateEntity = em.find(RentalRateEntity.class, rentalRateId);
+
+        if (rentalRateEntity != null) {
             return rentalRateEntity;
-        }
-        else
-        {
+        } else {
             throw new RentalRateNotFoundException("Rental Rate ID " + rentalRateId + " does not exist!");
-        }               
+        }
     }
-    
-    
+
     @Override
-    public void updateRentalRate(RentalRateEntity rentalRate) throws RentalRateNotFoundException, UpdateRentalRateException, InputDataValidationException
-    {
-        if(rentalRate != null && rentalRate.getRentalRateId()!= null)
-        {
-            Set<ConstraintViolation<RentalRateEntity>>constraintViolations = validator.validate(rentalRate);
-        
-            if(constraintViolations.isEmpty())
-            {
+    public void updateRentalRate(RentalRateEntity rentalRate) throws RentalRateNotFoundException, UpdateRentalRateException, InputDataValidationException {
+        if (rentalRate != null && rentalRate.getRentalRateId() != null) {
+            Set<ConstraintViolation<RentalRateEntity>> constraintViolations = validator.validate(rentalRate);
+
+            if (constraintViolations.isEmpty()) {
                 RentalRateEntity rentalRateEntityToUpdate = retrieveRentalRateByRentalId(rentalRate.getRentalRateId());
 
-                if(rentalRateEntityToUpdate.getRentalRateId().equals(rentalRate.getRentalRateId()))
-                {
+                if (rentalRateEntityToUpdate.getRentalRateId().equals(rentalRate.getRentalRateId())) {
                     rentalRateEntityToUpdate.setRentalRateName(rentalRate.getRentalRateName());
                     rentalRateEntityToUpdate.setRatePerDay(rentalRate.getRatePerDay());
                     rentalRateEntityToUpdate.setStartDate(rentalRate.getStartDate());
                     rentalRateEntityToUpdate.setEndDate(rentalRate.getEndDate());
-                }
-                else
-                {
+                } else {
                     throw new UpdateRentalRateException("ID of rental rate to be updated does not match the existing rental rate");
                 }
-            }
-            else
-            {
+            } else {
                 throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
             }
-        }
-        else
-        {
+        } else {
             throw new RentalRateNotFoundException("Rental rate ID not provided for product to be updated");
         }
     }
-    
-    
-   @Override
-    public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException
-    {
+
+    @Override
+    public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException {
         RentalRateEntity rentalRateEntityToRemove = retrieveRentalRateByRentalId(rentalRateId);
         rentalRateEntityToRemove.getCategory().getRentalRate().remove(rentalRateEntityToRemove);
         rentalRateEntityToRemove.getRentalDay().clear();
         em.remove(rentalRateEntityToRemove);
     }
 
-    
-    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RentalRateEntity>>constraintViolations)
-    {
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RentalRateEntity>> constraintViolations) {
         String msg = "Input data validation error!:";
-        
-        for(ConstraintViolation constraintViolation:constraintViolations)
-        {
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
             msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
         }
-        
+
         return msg;
     }
 }

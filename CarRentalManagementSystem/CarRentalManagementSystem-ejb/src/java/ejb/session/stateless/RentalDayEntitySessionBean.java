@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.RentalDayEntity;
 import entity.RentalRateEntity;
+import java.time.LocalDate;
 import java.util.Date;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -23,8 +24,8 @@ public class RentalDayEntitySessionBean implements RentalDayEntitySessionBeanRem
     private EntityManager em;
 
     @Override
-    public void createNewRentalDay(RentalRateEntity rentalRate, Date startDate, Date endDate){
-        RentalDayEntity newRentalDay = new RentalDayEntity(startDate, endDate);
+    public void createNewRentalDay(RentalRateEntity rentalRate, LocalDate date){
+        RentalDayEntity newRentalDay = new RentalDayEntity(date,rentalRate.getRatePerDay());
         em.persist(newRentalDay);
         newRentalDay.setRentalRate(rentalRate);
         rentalRate.getRentalDay().add(newRentalDay);

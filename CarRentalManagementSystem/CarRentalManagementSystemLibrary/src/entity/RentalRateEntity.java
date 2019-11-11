@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,8 +39,8 @@ public class RentalRateEntity implements Serializable {
     @Column(nullable = false, length = 12)
     private Double ratePerDay;
    // private String validityPeriod;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     //validity period i.e. monday-wednesday 1-3
     @ManyToOne
     private CategoryEntity category;
@@ -54,7 +55,7 @@ public class RentalRateEntity implements Serializable {
         rentalDay = new ArrayList<>();
     }
 
-    public RentalRateEntity(String rentalRateName, Double ratePerDay, Date startDate, Date endDate)
+    public RentalRateEntity(String rentalRateName, Double ratePerDay, LocalDate startDate, LocalDate endDate)
     {
         this();
         this.rentalRateName = rentalRateName;
@@ -133,19 +134,19 @@ public class RentalRateEntity implements Serializable {
         this.ratePerDay = ratePerDay;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
