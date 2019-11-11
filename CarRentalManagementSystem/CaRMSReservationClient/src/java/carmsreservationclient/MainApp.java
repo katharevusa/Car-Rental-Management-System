@@ -5,6 +5,7 @@ import ejb.session.stateless.CategoryEntitySessionBeanRemote;
 import ejb.session.stateless.CustomerEntitySessionBeanRemote;
 import ejb.session.stateless.ModelEntitySessionBeanRemote;
 import ejb.session.stateless.OutletEntitySessionBeanRemote;
+import ejb.session.stateless.RentalDayEntitySessionBeanRemote;
 import ejb.session.stateless.ReservationRecordEntitySessionBeanRemote;
 import entity.CategoryEntity;
 import entity.CustomerEntity;
@@ -13,14 +14,15 @@ import entity.OutletEntity;
 import entity.ReservationRecordEntity;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import util.exception.CategoryNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.RegistrationFailureException;
+import util.exception.RentalRateNotFoundException;
 import util.exception.ReservationAlreadyCancelledException;
 import util.exception.ReservationRecordNotFoundException;
 
@@ -32,12 +34,15 @@ public class MainApp {
     private CustomerEntity currentCustomerEntity;
     private OutletEntitySessionBeanRemote outletEntitySessionBeanRemote;
     private ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote;
-    private SimpleDateFormat df;
+    private RentalDayEntitySessionBeanRemote rentalDayEntitySessionBeanRemote;
 
     public MainApp() {
     }
 
-    public MainApp(ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote, OutletEntitySessionBeanRemote outletEntitySessionBeanRemote, CustomerEntitySessionBeanRemote customerEntitySessionBeanRemote, CarEntitySessionBeanRemote carEntitySessionBeanRemote, CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote) {
+    public MainApp(ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote, 
+            OutletEntitySessionBeanRemote outletEntitySessionBeanRemote, CustomerEntitySessionBeanRemote customerEntitySessionBeanRemote, 
+            CarEntitySessionBeanRemote carEntitySessionBeanRemote, CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote,
+            RentalDayEntitySessionBeanRemote rentalDayEntitySessionBeanRemote) {
 
         this();
 
@@ -46,7 +51,7 @@ public class MainApp {
         this.customerEntitySessionBeanRemote = customerEntitySessionBeanRemote;
         this.carEntitySessionBeanRemote = carEntitySessionBeanRemote;
         this.categoryEntitySessionBeanRemote = categoryEntitySessionBeanRemote;
-        df = new SimpleDateFormat("HH:mm:ss");
+        this.rentalDayEntitySessionBeanRemote = rentalDayEntitySessionBeanRemote;
 
     }
 
@@ -196,36 +201,98 @@ public class MainApp {
 
         do {
 
-            printAllOutlet();
-            System.out.print("Please select a pickup outlet>");
-            int selectedPickupOutlet = sc.nextInt();
-            sc.nextLine();
-            System.out.print("Please select a return outlet>");
-            int selectedReturnOutlet = sc.nextInt();
-            sc.nextLine();
-            
-            System.out.print("Enter pick up date/time>");
-            String pickupDateTimeString = sc.nextLine().trim();
-            LocalDateTime pickupDateTime = LocalDateTime.parse(pickupDateTimeString);
-            System.out.print("Enter return date/time>");
-            String returnDateTimeString = sc.nextLine().trim();
-            LocalDateTime returnDateTime = LocalDateTime.parse(returnDateTimeString);
+            try {
+                printAllCategory();
+                System.out.print("Please select a category>");
+                long selectedCategoryId = sc.nextLong();
+                System.out.println("");
+                
+                printAvailableModel(selectedCategoryId);
+                System.out.print("Do you want to skip selecting a specific car model?(Y/N)>");
+                String option = sc.nextLine();
+                long selectedModelId;
+                if(option.equals("Y")){
+                    selectedModelId = -1;
+                } else {
+                    System.out.print("Please select a category>");
+                    selectedModelId = sc.nextLong();
+                }
+                
+                
+                System.out.print("Enter pick up date/time>");
+                String pickupDateTimeString = sc.nextLine().trim();
+                LocalDateTime pickupDateTime = LocalDateTime.parse(pickupDateTimeString);
+                printAvailableOutlet(pickupDateTime);
+                
+                printAvailableOutlet(pickupDateTime);
+                System.out.print("Please select a pickup outlet>");
+                long selectedPickupOutletId = sc.nextLong();
+                sc.nextLine();
+                
+                System.out.print("Enter return date/time>");
+                String returnDateTimeString = sc.nextLine().trim();
+                LocalDateTime returnDateTime = LocalDateTime.parse(returnDateTimeString);
+                printAvailableOutlet(returnDateTime);
+                
+                System.out.print("Please select a return outlet>");
+                long selectedReturnOutletId = sc.nextLong();
+                sc.nextLine();
+
+                searchCar(selectedCategoryId,selectedModelId,pickupDateTime,returnDateTime);
+                
+            } catch(CategoryNotFoundException ex1){
+                System.out.println(ex1.getMessage());
+            } catch(RentalRateNotFoundException ex2){
+                System.out.println(ex2.getMessage());
+            }
 
         } while (confirmReservation.equals("Yes"));
     }
-
     
-    
-    private void printAllOutlet(){
-  
-        System.out.println("The available outlets are:");
+    public void searchCar(long selectedCategoryId,long selectedModelId,LocalDateTime pickupDateTime,LocalDateTime returnDateTime) throws RentalRateNotFoundException{
+        
+        try{
+            
+            rentalDayEntitySessionBeanRemote.checkForExistenceOfRentalRate(pickupDateTime,returnDateTime);
+            
+            
+        }catch (RentalRateNotFoundException ex){
+            throw new RentalRateNotFoundException("Rental Rate is unavailable for the specified period!");
+        }
+        
+    }
 
-        List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveAllOutlet();
+    private void printAllCategory(){
+        
+        System.out.println("Categories");
+        List<CategoryEntity> categories = categoryEntitySessionBeanRemote.retrieveAllCategory();
+        System.out.printf("%10s%20s%n","Category ID","Category Name");
+        for(CategoryEntity categoryEntity : categories){
+            System.out.printf("%10s%20s%n",categoryEntity.getCategoryId(),categoryEntity.getName());
+        }
+    }
+    
+    private void printAvailableModel(long selectedCategory) throws CategoryNotFoundException{
+        try{
+            CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(selectedCategory);
+            System.out.printf("%10s%20s%n","Model ID","Model Name");
+            for(ModelEntity model : category.getModels()){
+                System.out.printf("%10s%20s%n",model.getModelId(),model.getModelName());
+            }
+            
+        } catch (CategoryNotFoundException ex){
+            throw new CategoryNotFoundException("The selected category does not exist.");
+        }
+        
+    }
+    
+    private void printAvailableOutlet(LocalDateTime pickupDateTime){
+        List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveOutletByPickupDateTime(pickupDateTime);
+        System.out.println("According to your selected pick up time, the following outlets are available...");
         System.out.printf("%10s%100s%10s%10s%n", "Outlet ID", "Address", "Open At", "Close At");
-        for (OutletEntity outletEntity : outlets) {
+        for(OutletEntity outletEntity:outlets){
             System.out.printf("%10d%100s%10s%10s%n", outletEntity.getOutletId(), outletEntity.getAddress(), outletEntity.getOpeningTime().toString(), outletEntity.getClosingTime().toString());
         }
-
     }
     
 

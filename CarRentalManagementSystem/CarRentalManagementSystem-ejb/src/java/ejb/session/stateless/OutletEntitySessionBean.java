@@ -6,6 +6,8 @@
 package ejb.session.stateless;
 
 import entity.OutletEntity;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -66,7 +68,17 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
         Query query = em.createQuery("SELECT o FROM OutletEntity o");
         return query.getResultList();
     }  
+    
+    @Override
+    public List<OutletEntity> retrieveOutletByPickupDateTime(LocalDateTime pickupDateTime){
+        
+        List<OutletEntity> allOutlets = retrieveAllOutlet();
+        List<OutletEntity> availableOutlets = new ArrayList<>();
+        for(OutletEntity outlet:allOutlets){
+            if(outlet.getOpeningTime().isBefore(pickupDateTime.toLocalTime()) && outlet.getClosingTime().isAfter(pickupDateTime.toLocalTime())){
+                availableOutlets.add(outlet);
+            }
+        }
+        return availableOutlets;
+    }
 }
-
-    // Add business logic below. (Right-click in editor and choose
-    // "Insert Code > Add Business Method")
