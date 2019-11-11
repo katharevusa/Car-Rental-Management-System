@@ -16,7 +16,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -53,7 +52,7 @@ public class ReservationRecordEntity implements Serializable {
     private OutletEntity returnOutlet;
     @OneToOne
     private CarEntity carEntity;
-   @OneToMany(mappedBy = "reservationRecordEntity")
+    @OneToMany(mappedBy = "reservationRecordEntity")
     private List<RentalDayEntity> rentalDays;
     @ManyToOne
     private CustomerEntity customer;

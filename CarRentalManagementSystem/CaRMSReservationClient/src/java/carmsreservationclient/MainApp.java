@@ -15,6 +15,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
@@ -158,9 +159,9 @@ public class MainApp {
                 response = sc.nextInt();
 
                 if (response == 1) {
-                  //  doSearchCar();
+                    //  doSearchCar();
                 } else if (response == 2) {
-                    doReserveCar();
+                  //  doReserveCar();
                 } else if (response == 3) {
                     doViewReservationDetails();
                 } else if (response == 4) {
@@ -183,53 +184,66 @@ public class MainApp {
 //        Category inputCategory = "";
 //        String inputModel = "";
 //        String inputPickupOutlet = "";
-//   
+//
 //        String inputReturnOutlet = "";
 //        String confirmReservation = "";
 //
 //        do {
 //            //ReservationRecordEntity newReservation = new ReservationRecordEntity();
 //            //newReservation.setCategory(categoryEntitySessionBeanRemote.retrieveCategoryByCategoryName(sc.nextLine().trim()));
-//            System.out.println("======================================");
-//            System.out.println("The available categories are:");
-//            List<CategoryEntity> categories = categoryEntitySessionBeanRemote.retrieveAllCategory();
-//            for (CategoryEntity category : categories) {
-//            System.out.println(category.getCategoryId()+". "+category.getName());
-//            }
-//            inputCategory = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(sc.nextLong());
-//            System.out.println("======================================");
-//            System.out.println("The available models are:");
-//            List<ModelEntity> models = modelEntitySessionBeanRemote.retrieveAllModels();
-//            for (ModelEntity model : models) {
-//            System.out.println(model.getModelId()+" ."+model.getModelName());
-//            }
-//            
-//            inputModel = sc.nextLine().trim();
-//            System.out.println("======================================");
-//            System.out.println("The available outlets are:");
-//            List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveAllOutlet();
-//            for (OutletEntity outlet : outlets) {
-//            System.out.println(outlet.getName());
-//            }
-//            inputPickupOutlet = sc.nextLine().trim();
+////            System.out.println("======================================");
+////            System.out.println("The available categories are:");
+////            List<CategoryEntity> categories = categoryEntitySessionBeanRemote.retrieveAllCategory();
+////            for (CategoryEntity category : categories) {
+////            System.out.println(category.getCategoryId()+". "+category.getName());
+////            }
+////            inputCategory = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(sc.nextLong());
+////            System.out.println("======================================");
+////            System.out.println("The available models are:");
+////            List<ModelEntity> models = modelEntitySessionBeanRemote.retrieveAllModels();
+////            for (ModelEntity model : models) {
+////            System.out.println(model.getModelId()+" ."+model.getModelName());
+////            }
+////          
+//
 //            System.out.println("======================================");
 //            System.out.println("Enter pick up date and time: (dd-mm-yyyy HH:mm)");
 //            String str1 = sc.nextLine().trim();
 //            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 //            LocalDateTime pickUpDateTime = LocalDateTime.parse(str1, formatter);
+//            LocalTime pickUpTime = pickUpDateTime.toLocalTime();
+//
 //            System.out.println("======================================");
 //            System.out.println("The available outlets are:");
+//            List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveAllOutlet();
 //            for (OutletEntity outlet : outlets) {
-//            System.out.println(outlet.getName());
+//                if (pickUpTime.isAfter(outlet.getOpeningTime()) && pickUpTime.isBefore(outlet.getClosingTime())) {
+//                    System.out.println(outlet.getName());
+//                } else {
+//                    System.out.println("no outlet is opening at this hour!");
+//                }
 //            }
-//            inputReturnOutlet = sc.nextLine().trim();
+//            inputPickupOutlet = sc.nextLine().trim();
+//
 //            System.out.println("======================================");
 //            System.out.println("Enter return date and time:");
 //            String str2 = sc.nextLine().trim();
 //            LocalDateTime returnDateTime = LocalDateTime.parse(str2, formatter);
-//            
+//            LocalTime returnTime = returnDateTime.toLocalTime();
+//
+//            System.out.println("======================================");
+//            System.out.println("The available outlets are:");
+//            for (OutletEntity outlet : outlets) {
+//                if (returnTime.isAfter(outlet.getOpeningTime()) && returnTime.isBefore(outlet.getClosingTime())) {
+//                    System.out.println(outlet.getName());
+//                } else {
+//                    System.out.println("no outlet is opening at this hour!");
+//                }
+//            }
+//            inputReturnOutlet = sc.nextLine().trim();
+//
 //            //get list of reservation record
-//            boolean available = reservationRecordEntitySessionBeanRemote.search(inputCategory,inputModel,inputPickupOutlet,pickUpDateTime,inputReturnOutlet,returnDateTime);
+//            boolean available = reservationRecordEntitySessionBeanRemote.search(inputCategory, inputModel, inputPickupOutlet, pickUpDateTime, inputReturnOutlet, returnDateTime);
 //            if (selectedPickupOutlet < 1 || selectedPickupOutlet > outlets.size()) {
 //                break;
 //            } else if (selectedReturnOutlet < 1 || selectedReturnOutlet > outlets.size()) {
@@ -286,8 +300,11 @@ public class MainApp {
 ////            }
 //        } while (confirmReservation.equals("Yes"));
 //    }
-    private void doReserveCar() {
-    }
+//
+//    private void doReserveCar() {
+//        ReservationRecordEntity reservationRecord = new ReservationRecordEntity();
+//        reservationRecord.
+//    }
 
     private void doViewReservationDetails() {
         Scanner scanner = new Scanner(System.in);
@@ -348,21 +365,21 @@ public class MainApp {
         System.out.printf("Confirm Cancel Reservation %s ID  (Enter 'Y' to Delete)> ", reservationRecordEntity.getReservationRecordId());
         input = scanner.nextLine().trim();
 
-        if (input.equals("Y")) {
-            try {
-                reservationRecordEntitySessionBeanRemote.cancelReservation(reservationRecordEntity.getReservationRecordId());
-                if(reservationRecordEntity.getRefund()< 0 ){
-                    System.out.println(-1*(reservationRecordEntity.getRefund())+ " is being charged to your credit card for cancellation penalty!");
-                }else{
-                    System.out.println("Your reservation is being cancelled with the refund of "+reservationRecordEntity.getRefund()+" to your credit card!");
-                }
-                System.out.println("Reservation cancelled successfully!\n");
-
-            } catch (ReservationAlreadyCancelledException ex) {
-                System.out.println(ex.getMessage());
-            }
-        } else {
-            System.out.println("Reservation NOT cancelled!\n");
-        }
+//        if (input.equals("Y")) {
+//            try {
+//                reservationRecordEntitySessionBeanRemote.cancelReservation(reservationRecordEntity.getReservationRecordId());
+//                if (reservationRecordEntity.getRefund() < 0) {
+//                    System.out.println(-1 * (reservationRecordEntity.getRefund()) + " is being charged to your credit card for cancellation penalty!");
+//                } else {
+//                    System.out.println("Your reservation is being cancelled with the refund of " + reservationRecordEntity.getRefund() + " to your credit card!");
+//                }
+//                System.out.println("Reservation cancelled successfully!\n");
+//
+//            } catch (ReservationAlreadyCancelledException ex) {
+//                System.out.println(ex.getMessage());
+//            }
+//        } else {
+//            System.out.println("Reservation NOT cancelled!\n");
+//        }
     }
 }

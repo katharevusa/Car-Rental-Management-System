@@ -11,5 +11,5 @@ import java.util.Date;
 
 
 public interface RentalDayEntitySessionBeanLocal {
-    public void createNewRentalDay(RentalRateEntity rentalRate, LocalDate startDate, LocalDate endDate);
+   public void createNewRentalDay(RentalRateEntity rentalRate, LocalDate date);
 }

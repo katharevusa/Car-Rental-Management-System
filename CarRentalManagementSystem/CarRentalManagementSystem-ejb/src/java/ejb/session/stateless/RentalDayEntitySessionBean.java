@@ -24,8 +24,8 @@ public class RentalDayEntitySessionBean implements RentalDayEntitySessionBeanRem
     private EntityManager em;
 
     @Override
-    public void createNewRentalDay(RentalRateEntity rentalRate, LocalDate startDate, LocalDate endDate){
-        RentalDayEntity newRentalDay = new RentalDayEntity(startDate, endDate);
+    public void createNewRentalDay(RentalRateEntity rentalRate, LocalDate date){
+        RentalDayEntity newRentalDay = new RentalDayEntity(date,rentalRate.getRatePerDay());
         em.persist(newRentalDay);
         newRentalDay.setRentalRate(rentalRate);
         rentalRate.getRentalDay().add(newRentalDay);

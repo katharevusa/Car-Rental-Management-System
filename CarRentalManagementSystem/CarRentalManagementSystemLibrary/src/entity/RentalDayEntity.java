@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,13 +34,12 @@ public class RentalDayEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalDayId;
     @Column(nullable = false)
-    private LocalDate start;
-    private LocalDate end;
-    
+    private LocalDate date;
+    private Double rate;
     @ManyToOne
-    private RentalRateEntity rentalRate;
+    private RentalRateEntity rentalRate;                                                                                                                                                                                                                                                                                                                                                                                                                                                        
     @ManyToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(nullable = true)
     private ReservationRecordEntity reservationRecordEntity;
 
 
@@ -47,25 +47,34 @@ public class RentalDayEntity implements Serializable {
         
     }
 
-    public RentalDayEntity(LocalDate start, LocalDate end) {
-        this.start = start;
-        this.end = end;
+    public RentalDayEntity(LocalDate date, Double rate) {
+        this();
+        this.date = date;
+        this.rate = rate;
     }
 
-    public LocalDate getStart() {
-        return start;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public void setStart(LocalDate start) {
-        this.start = start;
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
-    public LocalDate getEnd() {
-        return end;
+    public Double getRate() {
+        return rate;
     }
 
-    public void setEnd(LocalDate end) {
-        this.end = end;
+    public void setRate(Double rate) {
+        this.rate = rate;
+    }
+
+    public ReservationRecordEntity getReservationRecordEntity() {
+        return reservationRecordEntity;
+    }
+
+    public void setReservationRecordEntity(ReservationRecordEntity reservationRecordEntity) {
+        this.reservationRecordEntity = reservationRecordEntity;
     }
 
     public RentalRateEntity getRentalRate() {
@@ -75,23 +84,6 @@ public class RentalDayEntity implements Serializable {
     public void setRentalRate(RentalRateEntity rentalRate) {
         this.rentalRate = rentalRate;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-//    //-----------relationship fields------------------------
-//    @ManyToOne
-//    private RentalRateEntity rentalRate;
-//    @ManyToOne
-//    private ReservationRecordEntity reservationRecordEntity;
-    
-    
-    
 
 
     @Override
