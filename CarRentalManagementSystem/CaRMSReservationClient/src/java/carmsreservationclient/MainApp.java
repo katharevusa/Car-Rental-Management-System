@@ -365,21 +365,21 @@ public class MainApp {
         System.out.printf("Confirm Cancel Reservation %s ID  (Enter 'Y' to Delete)> ", reservationRecordEntity.getReservationRecordId());
         input = scanner.nextLine().trim();
 
-//        if (input.equals("Y")) {
-//            try {
-//                reservationRecordEntitySessionBeanRemote.cancelReservation(reservationRecordEntity.getReservationRecordId());
-//                if (reservationRecordEntity.getRefund() < 0) {
-//                    System.out.println(-1 * (reservationRecordEntity.getRefund()) + " is being charged to your credit card for cancellation penalty!");
-//                } else {
-//                    System.out.println("Your reservation is being cancelled with the refund of " + reservationRecordEntity.getRefund() + " to your credit card!");
-//                }
-//                System.out.println("Reservation cancelled successfully!\n");
-//
-//            } catch (ReservationAlreadyCancelledException ex) {
-//                System.out.println(ex.getMessage());
-//            }
-//        } else {
-//            System.out.println("Reservation NOT cancelled!\n");
-//        }
+        if (input.equals("Y")) {
+            try {
+                reservationRecordEntitySessionBeanRemote.cancelReservation(reservationRecordEntity.getReservationRecordId());
+                if (reservationRecordEntity.getRefund() < 0) {
+                    System.out.println(-1 * (reservationRecordEntity.getRefund()) + " is being charged to your credit card for cancellation penalty!");
+                } else {
+                    System.out.println("Your reservation is being cancelled with the refund of " + reservationRecordEntity.getRefund() + " to your credit card!");
+                }
+                System.out.println("Reservation cancelled successfully!\n");
+
+            } catch (ReservationAlreadyCancelledException ex) {
+                System.out.println(ex.getMessage());
+            }
+        } else {
+            System.out.println("Reservation NOT cancelled!\n");
+        }
     }
 }

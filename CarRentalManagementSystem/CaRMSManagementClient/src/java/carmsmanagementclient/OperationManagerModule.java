@@ -233,6 +233,11 @@ class OperationManagerModule {
         System.out.print("Enter color> ");
         String color = sc.nextLine().trim();
         newCarEntity.setColor(color);
+        System.out.print("Enter outlet>");
+        List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveAllOutlet();
+        for(OutletEntity outlet : outlets){
+            System.out.println(outlet.getOutletId()+" "+outlet.getName());
+        }
 
         try {
             

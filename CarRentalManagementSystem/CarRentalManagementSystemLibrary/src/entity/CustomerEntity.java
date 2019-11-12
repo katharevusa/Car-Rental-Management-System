@@ -1,14 +1,13 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.logging.Logger;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 
 /**
  *
@@ -37,7 +36,8 @@ public class CustomerEntity implements Serializable {
     private String mobileNumber;
     @Column(nullable = false)
     private String email;
-    
+    @ManyToOne
+    private PartnerEntity partner;
     
     
     
@@ -45,18 +45,8 @@ public class CustomerEntity implements Serializable {
 //    //bidirectional
 //    @OneToMany(mappedBy = "customerEntity")
 //    private List<ReservationRecordEntity> reservationRecords;
-
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
     //constructor
+    private static final Logger LOG = Logger.getLogger(CustomerEntity.class.getName());
     public CustomerEntity() {
     }
 
@@ -97,6 +87,14 @@ public class CustomerEntity implements Serializable {
     @Override
     public String toString() {
         return "entity.CustomerEntity[ id=" + getCustomerId() + " ]";
+    }
+
+    public PartnerEntity getPartner() {
+        return partner;
+    }
+
+    public void setPartner(PartnerEntity partner) {
+        this.partner = partner;
     }
 
     public Long getCustomerId() {

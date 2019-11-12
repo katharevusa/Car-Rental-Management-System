@@ -62,7 +62,6 @@ public class ReservationRecordEntity implements Serializable {
     private CategoryEntity category;
     @OneToOne
     private ModelEntity model;
-
    
 
     public ReservationRecordEntity() {
