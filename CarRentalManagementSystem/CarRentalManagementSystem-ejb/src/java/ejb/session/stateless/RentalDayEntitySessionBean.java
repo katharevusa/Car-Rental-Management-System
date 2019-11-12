@@ -8,12 +8,16 @@ package ejb.session.stateless;
 import entity.RentalDayEntity;
 import entity.RentalRateEntity;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import util.exception.RentalRateNotFoundException;
 
 @Local(RentalDayEntitySessionBeanLocal.class)
 @Remote(RentalDayEntitySessionBeanRemote.class)
@@ -31,6 +35,32 @@ public class RentalDayEntitySessionBean implements RentalDayEntitySessionBeanRem
         rentalRate.getRentalDay().add(newRentalDay);
         em.flush();
         em.refresh(newRentalDay);
+    }
+    
+    @Override
+    public void checkForExistenceOfRentalRate(LocalDateTime pickupDateTime,LocalDateTime returnDateTime) throws RentalRateNotFoundException{
+        
+        boolean rentalDayExist;
+        LocalDate curr = pickupDateTime.toLocalDate();
+        List<RentalDayEntity> rentalDays = retrieveAllRentalDays();
+        while(curr.compareTo(returnDateTime.toLocalDate())<=0){
+            rentalDayExist = false;
+            for(RentalDayEntity rentalDayEntity : rentalDays){
+                if(curr.compareTo(rentalDayEntity.getDate()) == 0){
+                    rentalDayExist = true;
+                    break;
+                }
+            }
+            if(!rentalDayExist){
+                throw new RentalRateNotFoundException();
+            }  
+        }
+    }
+    
+    @Override
+    public List<RentalDayEntity> retrieveAllRentalDays(){
+        Query query = em.createQuery("SELECT rd FROM RentalDayEntity rd");
+        return query.getResultList();
     }
 
 }

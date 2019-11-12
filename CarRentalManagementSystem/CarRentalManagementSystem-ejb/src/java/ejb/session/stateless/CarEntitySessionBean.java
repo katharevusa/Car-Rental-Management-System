@@ -3,6 +3,9 @@ package ejb.session.stateless;
 import entity.CarEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
+import entity.ReservationRecordEntity;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -29,6 +32,9 @@ import util.exception.UpdateCarException;
 @Remote(CarEntitySessionBeanRemote.class)
 
 public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEntitySessionBeanLocal {
+
+    @EJB
+    private ReservationRecordEntitySessionBeanLocal reservationRecordEntitySessionBeanLocal;
     
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
@@ -38,6 +44,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     private OutletEntitySessionBeanLocal outletEntitySessionBeanLocal;
     @EJB(name = "ModelEntitySessionBeanLocal")
     private ModelEntitySessionBeanLocal modelEntitySessionBeanLocal;
+    
     
 
     public CarEntitySessionBean() {
@@ -87,27 +94,6 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
          
     }
     
-//    public void updateCar(CarEntity carEntity) throws CarNotFoundException,UpdateCarException{
-//        
-//        if (carEntity.getCarId() != null){
-//            
-//            CarEntity carEntityToUpdate = retrieveCarByCarId(carEntity.getCarId());
-//            
-//            if (carEntityToUpdate.getPlateNumber().equals(carEntity.getPlateNumber())) {
-//                carEntityToUpdate.setOnRental(carEntity.isOnRental());
-//                carEntityToUpdate.setColor(carEntity.getColor());
-//                carEntityToUpdate.setLocation1(carEntity.getLocation1());
-//                carEntityToUpdate.setLocation2(carEntity.getLocation2());
-//            }else {
-//                throw new UpdateCarException("License plate number of car record to be updated does not match the existing record");
-//            }
-//            
-//        } else {
-//            throw new CarNotFoundException("Car ID not provided for car to be updated");
-//        }
-//    }
-    
-    
     
     @Override
     public Long deleteCar(Long carId) throws DeleteCarException{
@@ -138,6 +124,25 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     }
 
 
-
+    @Override
+    public List<CarEntity> retrieveAvailableCarsBasedOnGivenDateTime(LocalDateTime pickupDateTime,LocalDateTime returnDateTime){
+        
+        List<ReservationRecordEntity> overlappedReservations = new ArrayList<>();
+        List<ReservationRecordEntity> reservations = reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
+        for (ReservationRecordEntity reservation : reservations){
+            if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)){
+                overlappedReservations.add(reservation);
+            } else if(reservation.getReturnDateTime().isAfter(pickupDateTime) && reservation.getReturnDateTime().isBefore(returnDateTime)){
+                overlappedReservations.add(reservation);
+            }
+        }
+        
+        List<CarEntity> availableCars = retrieveAllCars();
+        for(ReservationRecordEntity reservation : overlappedReservations){
+            availableCars.remove(reservation.getCarEntity());
+        }
+        
+        return availableCars;
+    }
         
 }

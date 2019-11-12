@@ -7,9 +7,13 @@ package ejb.session.stateless;
 
 import entity.RentalRateEntity;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
+import util.exception.RentalRateNotFoundException;
 
 
 public interface RentalDayEntitySessionBeanRemote {
    public void createNewRentalDay(RentalRateEntity rentalRate, LocalDate date);
+
+    public void checkForExistenceOfRentalRate(LocalDateTime pickupDateTime, LocalDateTime returnDateTime) throws RentalRateNotFoundException;
 }
