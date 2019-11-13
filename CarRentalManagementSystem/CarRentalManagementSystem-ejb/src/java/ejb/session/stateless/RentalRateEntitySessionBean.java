@@ -1,7 +1,7 @@
 package ejb.session.stateless;
 
 import entity.CategoryEntity;
-import entity.RentalDayEntity;
+
 import entity.RentalRateEntity;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -45,9 +45,7 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
     private final Validator validator;
     @EJB
     private CategoryEntitySessionBeanLocal categoryEntitySessionBeanLocal;
-    @EJB
-    private RentalDayEntitySessionBeanLocal rentalDayEntitySessionBeanLocal;
-
+   
     public RentalRateEntitySessionBean() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
@@ -56,32 +54,18 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
 
     @Override
     public RentalRateEntity createNewRentalRate(Long categoryId, RentalRateEntity newRentalRate)
-            throws RentalRateExistException, CategoryNotFoundException, GeneralException {
-        try {
+            throws  CategoryNotFoundException, GeneralException {
+       
             CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
 
             em.persist(newRentalRate);
             newRentalRate.setCategory(category);
             category.getRentalRate().add(newRentalRate);
-            //loop through from the startday to the end day, create new rental days
-            for (LocalDate date = newRentalRate.getStartDate(); date.isBefore(newRentalRate.getEndDate()); date = date.plusDays(1)) {
-                rentalDayEntitySessionBeanLocal.createNewRentalDay(newRentalRate, date);
-            }
-            // rentalDayEntitySessionBeanLocal.createNewRentalDay(newRentalRate, newRentalRate.getStartDate(), newRentalRate.getEndDate());
-
+            
             em.flush();
             em.refresh(newRentalRate);
             return newRentalRate;
-        } catch (PersistenceException ex) {
-            if (ex.getCause() != null
-                    && ex.getCause().getCause() != null
-                    && ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException")) {
-                //how to check for rental rate exists
-                throw new RentalRateExistException();
-            } else {
-                throw new GeneralException("An unexpected error has occurred: " + ex.getMessage());
-            }
-        }
+        
     }
 
     @Override
@@ -114,8 +98,8 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
                 if (rentalRateEntityToUpdate.getRentalRateId().equals(rentalRate.getRentalRateId())) {
                     rentalRateEntityToUpdate.setRentalRateName(rentalRate.getRentalRateName());
                     rentalRateEntityToUpdate.setRatePerDay(rentalRate.getRatePerDay());
-                    rentalRateEntityToUpdate.setStartDate(rentalRate.getStartDate());
-                    rentalRateEntityToUpdate.setEndDate(rentalRate.getEndDate());
+                    rentalRateEntityToUpdate.setStartDateTime(rentalRate.getStartDateTime());
+                    rentalRateEntityToUpdate.setEndDateTime(rentalRate.getEndDateTime());
                 } else {
                     throw new UpdateRentalRateException("ID of rental rate to be updated does not match the existing rental rate");
                 }
@@ -131,7 +115,6 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
     public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException {
         RentalRateEntity rentalRateEntityToRemove = retrieveRentalRateByRentalId(rentalRateId);
         rentalRateEntityToRemove.getCategory().getRentalRate().remove(rentalRateEntityToRemove);
-        rentalRateEntityToRemove.getRentalDay().clear();
         em.remove(rentalRateEntityToRemove);
     }
 

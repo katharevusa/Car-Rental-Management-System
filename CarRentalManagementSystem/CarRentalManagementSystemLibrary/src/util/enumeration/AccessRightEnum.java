@@ -18,6 +18,7 @@ public enum AccessRightEnum {
     SALESMANAGER,
     OPERATIONSMANAGER,
     CUSTOMERSERVICEEXECUTIVE,
+    EMPLOYEE,
     CUSTOMER,
     
 

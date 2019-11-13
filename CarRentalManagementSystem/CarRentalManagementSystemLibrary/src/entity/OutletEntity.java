@@ -33,9 +33,9 @@ public class OutletEntity implements Serializable {
     //do we need an outlet name?
     @Column(nullable = false, length = 128)
     private String address;
-    @Column(nullable = false)
+
     private LocalTime openingTime;
-    @Column(nullable = false)
+  
     private LocalTime closingTime;
 
     //bidirectional

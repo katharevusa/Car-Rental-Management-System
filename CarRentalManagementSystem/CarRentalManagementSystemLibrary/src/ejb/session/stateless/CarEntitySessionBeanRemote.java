@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import util.exception.CarNotFoundException;
 import util.exception.DeleteCarException;
+import util.exception.ModelNotFoundException;
 import util.exception.NewCarCreationException;
+import util.exception.OutletNotFoundException;
 
 public interface CarEntitySessionBeanRemote {
     
@@ -13,7 +15,7 @@ public interface CarEntitySessionBeanRemote {
      
      public CarEntity retrieveCarByCarId(Long carId) throws CarNotFoundException;
 
-    public Long createNewCar(CarEntity newCarEntity, Long modelId) throws NewCarCreationException;
+    public Long createNewCar(CarEntity newCarEntity,String make,String model,Long outletId) throws NewCarCreationException, OutletNotFoundException, ModelNotFoundException;
 
     public Long deleteCar(Long carId) throws DeleteCarException;
     

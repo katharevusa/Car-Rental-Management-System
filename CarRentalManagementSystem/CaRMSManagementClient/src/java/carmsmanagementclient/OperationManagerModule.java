@@ -102,7 +102,11 @@ class OperationManagerModule {
                 } else if (response == 4) {
                     doDeleteModel();
                 } else if (response == 5) {
-                    doCreateNewCar();
+                    try {
+                        doCreateNewCar();
+                    } catch (OutletNotFoundException ex) {
+                        System.out.println("outlet not found");
+                    }
                 } else if (response == 6) {
                     doViewAllCars();
                 } else if (response == 7) {
@@ -126,15 +130,9 @@ class OperationManagerModule {
         }
     }
 
-    
-
-    
-
     private void doUpdateModel() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-    
 
     private void doViewTDDR() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -148,8 +146,6 @@ class OperationManagerModule {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-
     private void showInputDataValidationErrorsForCarEntity(Set<ConstraintViolation<CarEntity>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
 
@@ -159,48 +155,48 @@ class OperationManagerModule {
 
         System.out.println("\nPlease try again......\n");
     }
-    
-    
+
     private void doCreateNewModel() {
 
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter new model name>");
         String modelName = sc.nextLine();
+        System.out.print("Enter new make name>");
+        String makeName = sc.nextLine();
         System.out.print("Enter category ID>");
         Long categoryId = sc.nextLong();
         sc.nextLine();
-        
-        ModelEntity newModelEntity = new ModelEntity(modelName);
-        
-        try{
-            modelEntitySessionBeanRemote.createNewModel(newModelEntity,categoryId);
+
+        ModelEntity newModelEntity = new ModelEntity(modelName, makeName);
+
+        try {
+            modelEntitySessionBeanRemote.createNewModel(newModelEntity, categoryId);
             System.out.println("New model " + modelName + "successfully created!");
             System.out.print("Press any key to continue...> ");
             sc.nextLine();
-        } catch(CreateNewModelFailureException ex){
+        } catch (CreateNewModelFailureException ex) {
             System.out.println(ex.getMessage());
         }
 
     }
-    
+
     private void doViewAllModels() {
-        
+
         Scanner sc = new Scanner(System.in);
         List<ModelEntity> models = modelEntitySessionBeanRemote.retrieveAllModel();
-        
-        for (ModelEntity modelEntity : models){
-            System.out.printf("%20s%20s",modelEntity.getCategoryEntity().getName(),modelEntity.getModelName());
+
+        for (ModelEntity modelEntity : models) {
+            System.out.printf("%20s%20s", modelEntity.getCategoryEntity().getName(), modelEntity.getModelName());
             System.out.println();
         }
-        
+
         System.out.print("Press any key to continue...> ");
         sc.nextLine();
 
     }
-    
-    
+
     private void doDeleteModel() {
-        
+
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter model ID> ");
         Long modelId = sc.nextLong();
@@ -211,61 +207,69 @@ class OperationManagerModule {
             System.out.println("Model " + modelId + "has been successfully deleted.");
             System.out.print("Press any key to continue...> ");
             sc.nextLine();
-            
+
         } catch (DeleteModelException ex) {
             System.out.println(ex.getMessage());
         }
 
     }
-    
-    
-    private void doCreateNewCar(){
-        
+
+    private void doCreateNewCar() throws OutletNotFoundException {
+
         Scanner sc = new Scanner(System.in);
         CarEntity newCarEntity = new CarEntity();
-        
-        System.out.print("Enter model ID>");
-        Long modelId = sc.nextLong();
-        sc.nextLine();
+
+//        System.out.print("Enter model ID>");
+//        Long modelId = sc.nextLong();
+//        sc.nextLine();
         System.out.print("Enter license plate number> ");
         String plateNumber = sc.nextLine().trim();
         newCarEntity.setPlateNumber(plateNumber);
-        System.out.print("Enter color> ");
-        String color = sc.nextLine().trim();
-        newCarEntity.setColor(color);
-        System.out.print("Enter outlet>");
+
+        //associate cars with outlet
         List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveAllOutlet();
-        for(OutletEntity outlet : outlets){
-            System.out.println(outlet.getOutletId()+" "+outlet.getName());
+        for (OutletEntity outlet : outlets) {
+            System.out.println(outlet.getOutletId() + " " + outlet.getName());
         }
+        System.out.print("Enter outlet ID>");
+        Long outletId = sc.nextLong();
+        System.out.println("Enter status (Availble/Repair)>");
+        newCarEntity.setStatus(sc.nextLine().trim());
+        System.out.println("Enter make>");
+        String make = sc.nextLine().trim();
+        newCarEntity.setMake(make);
+        System.out.println("Enter model>");
+        String model = sc.nextLine().trim();
+        newCarEntity.setModel(model);
+        sc.nextLine();
 
         try {
-            
-            Long carId = carEntitySessionBeanRemote.createNewCar(newCarEntity, modelId);
+
+            Long carId = carEntitySessionBeanRemote.createNewCar(newCarEntity, make, model, outletId);
             System.out.println("New Car " + carId + "has been successfully created.");
-        
-        }catch(NewCarCreationException ex){
+
+        } catch (NewCarCreationException ex) {
+            System.out.println(ex.getMessage());
+        } catch (ModelNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
 
     }
-    
-    
-    private void doViewAllCars(){
-        
+
+    private void doViewAllCars() {
+
         Scanner sc = new Scanner(System.in);
-        
+
         List<CarEntity> cars = carEntitySessionBeanRemote.retrieveAllCars();
-        System.out.printf("%30s%40s%30s\n","Car Category","Make and Model","License Plate Number");
-        for (CarEntity car : cars){
-            System.out.printf("%30s%40s%30s\n",car.getModelEntity().getCategoryEntity().getName(),car.getModelEntity().getModelName(),car.getPlateNumber());
+        System.out.printf("%8s%20s%20s%20s%20s%20s\n", "Id", "Car Category", "Make", "Model", "Status", "License Plate Number");
+        for (CarEntity car : cars) {
+            System.out.printf("%8s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getModelEntity().getCategoryEntity().getName(), car.getMake(), car.getModel(), car.getStatus(), car.getPlateNumber());
         }
-        
+
         System.out.print("Press any key to continue...> ");
         sc.nextLine();
     }
-    
-    
+
     private void doViewCarDetails() {
 
         Scanner sc = new Scanner(System.in);
@@ -278,12 +282,12 @@ class OperationManagerModule {
 
             CarEntity car = carEntitySessionBeanRemote.retrieveCarByCarId(carId);
             System.out.println("Current car :" + car.getCarId());
-            
-            System.out.printf("%20s%20s%20s\n","Model Name","Plate Number","Color");
-            System.out.printf("%20s%20s%20s\n",car.getModelEntity().getModelName(),car.getPlateNumber(),car.getColor());
+
+            System.out.printf("%8s%20s%20s%20s%20s%20s\n", "Id", "Car Category", "Make", "Model", "Status", "License Plate Number");
+            System.out.printf("%8s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getModelEntity().getCategoryEntity().getName(), car.getMake(), car.getModel(), car.getStatus(), car.getPlateNumber());
             System.out.print("Press any key to continue...>");
             sc.nextLine();
-            
+
             System.out.println("1: Update Car");
             System.out.println("2: Delete Car");
             System.out.println("3: Back\n");
@@ -291,10 +295,10 @@ class OperationManagerModule {
             response = sc.nextInt();
 
             if (response == 1) {
-//                doUpdateCar(carEntity);
+          //      doUpdateCar(car);
             } else if (response == 2) {
                 doDeleteCar(car);
-            } else if (response == 3){
+            } else if (response == 3) {
                 //do nothing
             } else {
                 System.out.println("Invalid Option");
@@ -304,21 +308,65 @@ class OperationManagerModule {
             System.out.println(ex.getMessage() + "\n");
         }
     }
-    
-    
-    private void doDeleteCar(CarEntity carToDelete){
-        
+
+    private void doDeleteCar(CarEntity carToDelete) {
+
         Scanner sc = new Scanner(System.in);
-        
-        try{
+
+        try {
             Long carId = carEntitySessionBeanRemote.deleteCar(carToDelete.getCarId());
             System.out.println("Car ID " + carId + " has been successfully deleted.");
             System.out.print("Press any key to continue...> ");
             sc.nextLine();
-        
-        }catch(DeleteCarException ex){
+
+        } catch (DeleteCarException ex) {
             System.out.println(ex.getMessage());
         }
 
     }
+
+ /*   private void doUpdateCar(CarEntity car) {
+        Scanner scanner = new Scanner(System.in);
+        String input;
+
+        System.out.println("*** :: View Car Details :: Update Car ***\n");
+        System.out.print("Enter Make (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if (input.length() > 0) {
+            car.setMake(input);
+        }
+
+        System.out.print("Enter Model (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if (input.length() > 0) {
+            car.setModel(input);
+        }
+        System.out.print("Enter Plate Number (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if (input.length() > 0) {
+            car.setPlateNumber(input);
+        }
+        System.out.print("Enter Ending date (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if (input.length() > 0) {
+            LocalDateTime date2 = LocalDateTime.parse(input, formatter);
+            rentalRateEntity.setEndDateTime(date2);
+        }
+
+        //should i allow user to change the category as well?
+        Set<ConstraintViolation<RentalRateEntity>> constraintViolations = validator.validate(rentalRateEntity);
+
+        if (constraintViolations.isEmpty()) {
+            try {
+                rentalRateEntitySessionBeanRemote.updateRentalRate(rentalRateEntity);
+                System.out.println("Product updated successfully!\n");
+            } catch (RentalRateNotFoundException | UpdateRentalRateException ex) {
+                System.out.println("An error has occurred while updating rental rate: " + ex.getMessage() + "\n");
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        } else {
+            showInputDataValidationErrorsForRentalRateEntity(constraintViolations);
+        }
+    }*/
 }

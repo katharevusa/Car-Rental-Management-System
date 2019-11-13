@@ -52,8 +52,6 @@ public class ReservationRecordEntity implements Serializable {
     private OutletEntity returnOutlet;
     @OneToOne
     private CarEntity carEntity;
-    @OneToMany(mappedBy = "reservationRecordEntity")
-    private List<RentalDayEntity> rentalDays;
     @ManyToOne
     private CustomerEntity customer;
     @ManyToOne
@@ -65,7 +63,6 @@ public class ReservationRecordEntity implements Serializable {
    
 
     public ReservationRecordEntity() {
-        rentalDays = new ArrayList<>();
         isCancelled = false;
 
     }
@@ -151,14 +148,6 @@ public class ReservationRecordEntity implements Serializable {
 
     public void setReturnOutlet(OutletEntity returnOutlet) {
         this.returnOutlet = returnOutlet;
-    }
-
-    public List<RentalDayEntity> getRentalDays() {
-        return rentalDays;
-    }
-
-    public void setRentalDays(List<RentalDayEntity> rentalDays) {
-        this.rentalDays = rentalDays;
     }
 
     public CustomerEntity getCustomer() {

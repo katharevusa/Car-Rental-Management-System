@@ -14,7 +14,7 @@ import util.exception.UpdateRentalRateException;
 
 public interface RentalRateEntitySessionBeanRemote {
 public RentalRateEntity createNewRentalRate(Long categoryId, RentalRateEntity newRentalRate)
-             throws  RentalRateExistException,CategoryNotFoundException, GeneralException;
+             throws  CategoryNotFoundException, GeneralException;
 public List<RentalRateEntity> retrieveAllRentalRates();
 public RentalRateEntity retrieveRentalRateByRentalId(Long rentalRateId) throws RentalRateNotFoundException;
 public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException;

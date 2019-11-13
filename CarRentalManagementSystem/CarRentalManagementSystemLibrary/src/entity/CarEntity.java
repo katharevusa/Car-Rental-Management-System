@@ -20,28 +20,49 @@ public class CarEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long carId;
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     private String plateNumber;
-    private String color;
+    private String status;
+    private String make;
+    private String model;
     private boolean onRental;
     private boolean disabled;
 
-    
     //bidirectional
     @ManyToOne
     private ModelEntity modelEntity;
     //bidirectional
     @ManyToOne
     private OutletEntity outletEntity;
+
     //bidirectional
     //reservation
-
-
     public CarEntity() {
         onRental = false;
         disabled = false;
     }
-    
+    public CarEntity(String plateNumber, String model, String make, String status) {
+        this();
+        this.plateNumber = plateNumber;
+        this.model = model;
+        this.make = make;
+        this.status = status;
+    }
+    public String getMake() {
+        return make;
+    }
+
+    public void setMake(String make) {
+        this.make = make;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
 
     @Override
     public int hashCode() {
@@ -84,12 +105,12 @@ public class CarEntity implements Serializable {
         this.plateNumber = plateNumber;
     }
 
-    public String getColor() {
-        return color;
+    public String getStatus() {
+        return status;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public boolean isOnRental() {
@@ -124,5 +145,4 @@ public class CarEntity implements Serializable {
         this.outletEntity = outletEntity;
     }
 
-   
 }

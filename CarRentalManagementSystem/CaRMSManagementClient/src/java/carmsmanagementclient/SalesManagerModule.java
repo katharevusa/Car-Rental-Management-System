@@ -9,15 +9,9 @@ import ejb.session.stateless.CategoryEntitySessionBeanRemote;
 import ejb.session.stateless.RentalRateEntitySessionBeanRemote;
 import entity.CategoryEntity;
 import entity.EmployeeEntity;
-import entity.RentalDayEntity;
 import entity.RentalRateEntity;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -26,18 +20,10 @@ import util.enumeration.AccessRightEnum;
 import util.exception.CategoryNotFoundException;
 import util.exception.GeneralException;
 import util.exception.InvalidAccessRightException;
-import util.exception.InvalidFieldEnteredException;
-import util.exception.RentalRateExistException;
-import util.exception.UnknownPersistenceException;
 import java.lang.String;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import javax.swing.text.DateFormatter;
 import util.exception.InputDataValidationException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.UpdateRentalRateException;
@@ -55,14 +41,15 @@ class SalesManagerModule {
     private CategoryEntity enteredCategory;
     private CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
     private RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote;
- //   private SimpleDateFormat dateFormatter;
+    //   private SimpleDateFormat dateFormatter;
     private DateTimeFormatter formatter;
+
     public SalesManagerModule() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
-        //dateFormatter = new SimpleDateFormat();
+
         this.enteredCategory = enteredCategory;
-        formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     }
 
     public SalesManagerModule(EmployeeEntity currentEmployee, RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote,
@@ -188,22 +175,25 @@ class SalesManagerModule {
         newRentalRateEntity.setRatePerDay(scanner.nextDouble());
         scanner.nextLine();
 
-//        try {
-            System.out.print("Enter validity period: enter starting date (dd/mm/yyyy) > ");
-            String startDate = scanner.nextLine().trim();
-            LocalDate date1 = LocalDate.parse(startDate, formatter);
-            newRentalRateEntity.setStartDate(date1);
-            
-            System.out.print("Enter validity period: enter ending date (dd/mm/yyyy) > ");
-            String endDate = scanner.nextLine().trim();
-            LocalDate date2 = LocalDate.parse(endDate, formatter);
-            newRentalRateEntity.setEndDate(date2);
-            
-//            Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(endDate);
-//            newRentalRateEntity.setEndDate(date2);
-//        } catch (ParseException ex) {
-//            System.out.println("error with date input");
-//        }
+        System.out.print("Enter validity period: enter starting date time (dd/MM/yyyy HH:mm) > ");
+        String startDate = scanner.nextLine().trim();
+        LocalDateTime dateTime1;
+        if (startDate.equals(null)) {
+            dateTime1 = LocalDateTime.parse("01/01/1990 00:00", formatter);
+        } else {
+            dateTime1 = LocalDateTime.parse(startDate, formatter);
+        }
+        newRentalRateEntity.setStartDateTime(dateTime1);
+
+        System.out.print("Enter validity period: enter ending date (dd/mm/yyyy HH:mm) > ");
+        String endDate = scanner.nextLine().trim();
+        LocalDateTime dateTime2;
+        if (endDate.equals(null)) {
+            dateTime2 = LocalDateTime.parse("01/01/2100 00:00", formatter);
+        } else {
+            dateTime2 = LocalDateTime.parse(endDate, formatter);
+        }
+        newRentalRateEntity.setEndDateTime(dateTime2);
 
         Set<ConstraintViolation<RentalRateEntity>> constraintViolations = validator.validate(newRentalRateEntity);
 
@@ -215,8 +205,6 @@ class SalesManagerModule {
                 System.out.println("New rental rate of " + newRentalRateEntity.getRatePerDay() + " is created under " + newRentalRateEntity.getCategory().getName() + "\n");
             } catch (CategoryNotFoundException ex) {
                 System.out.println(ex.getMessage());
-            } catch (RentalRateExistException ex) {
-                System.out.println("An error has occurred while creating the rental rate!: The rental rate already exist\n");
             } catch (GeneralException ex) {
                 System.out.println("An unknown error has occurred while creating the new rental rate!: " + ex.getMessage() + "\n");
             }
@@ -238,7 +226,6 @@ class SalesManagerModule {
 
     private void doViewAllRentalRate() {
         Scanner scanner = new Scanner(System.in);
-        
 
         System.out.println("*** :: View All Rental Rate ***\n");
 
@@ -248,8 +235,8 @@ class SalesManagerModule {
         for (RentalRateEntity rentalRateEntity : rentalRateEntities) {
             System.out.printf("%10s%20s%20f%20s%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(),
                     rentalRateEntity.getRatePerDay(),
-                    rentalRateEntity.getStartDate(),
-                    rentalRateEntity.getEndDate(),
+                    rentalRateEntity.getStartDateTime(),
+                    rentalRateEntity.getEndDateTime(),
                     rentalRateEntity.getCategory().getName());
         }
 
@@ -270,8 +257,8 @@ class SalesManagerModule {
             System.out.printf("%10s%20s%20s%20s%20s%20s\n", "Rental rate id", "name", "rate per day", "start date", "end date", "category");
             System.out.printf("%10s%20s%20f%20s%20s%20s\n", rentalRateEntity.getRentalRateId(), rentalRateEntity.getRentalRateName(),
                     rentalRateEntity.getRatePerDay(),
-                    rentalRateEntity.getStartDate(),
-                    rentalRateEntity.getEndDate(),
+                    rentalRateEntity.getStartDateTime(),
+                    rentalRateEntity.getEndDateTime(),
                     rentalRateEntity.getCategory().getName());
             System.out.println("------------------------");
             System.out.println("1: Update Rental Rate");
@@ -309,14 +296,14 @@ class SalesManagerModule {
         System.out.print("Enter Starting date (blank if no change)> ");
         input = scanner.nextLine().trim();
         if (input.length() > 0) {
-            LocalDate date1 = LocalDate.parse(input, formatter);
-            rentalRateEntity.setStartDate(date1);
+            LocalDateTime date1 = LocalDateTime.parse(input, formatter);
+            rentalRateEntity.setStartDateTime(date1);
         }
         System.out.print("Enter Ending date (blank if no change)> ");
         input = scanner.nextLine().trim();
         if (input.length() > 0) {
-            LocalDate date2 = LocalDate.parse(input, formatter);
-            rentalRateEntity.setEndDate(date2);
+            LocalDateTime date2 = LocalDateTime.parse(input, formatter);
+            rentalRateEntity.setEndDateTime(date2);
         }
 
         //should i allow user to change the category as well?

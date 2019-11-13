@@ -1,6 +1,5 @@
 package ejb.session.stateless;
 
-
 import entity.CarEntity;
 import entity.CategoryEntity;
 import entity.ModelEntity;
@@ -44,119 +43,122 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
 
     @EJB
     private CategoryEntitySessionBeanLocal categoryEntitySessionBeanLlocal;
-    
+
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
-    
 
     public ModelEntitySessionBean() {
-        
+
     }
 
-    
     @Override
-    public ModelEntity createNewModel(ModelEntity newModelEntity,Long categoryId) throws CreateNewModelFailureException{
-        
+    public ModelEntity createNewModel(ModelEntity newModelEntity, Long categoryId) throws CreateNewModelFailureException {
+
         try {
-            
+
             CategoryEntity categoryEntity = categoryEntitySessionBeanLlocal.retrieveCategoryByCategoryId(categoryId);
             newModelEntity.setCategoryEntity(categoryEntity);
             categoryEntity.getModels().add(newModelEntity);
-            
+
             em.persist(newModelEntity);
             em.flush();
-            
+
             return newModelEntity;
         } catch (PersistenceException ex1) {
 //            eJBContext.setRollbackOnly();
             throw new CreateNewModelFailureException(ex1.getMessage());
-        } catch (CategoryNotFoundException ex2){
+        } catch (CategoryNotFoundException ex2) {
 //            eJBContext.setRollbackOnly();
             throw new CreateNewModelFailureException(ex2.getMessage());
         }
-            
+
     }
-    
-    
+
     @Override
-    public List<ModelEntity> retrieveAllModel(){
-        
+    public ModelEntity retrieveModelByMakeAndModel(String make, String model) throws ModelNotFoundException {
+        Query query = em.createQuery("SELECT m FROM ModelEntity m WHERE m.make = :inMake AND m.modelName = :inModel");
+        query.setParameter("inMake", make);
+        query.setParameter("inModel", model);
+        try {
+            return (ModelEntity) query.getSingleResult();
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new ModelNotFoundException("Model does not exist!");
+        }
+
+    }
+
+    @Override
+    public List<ModelEntity> retrieveAllModel() {
+
         Query query = em.createQuery("SELECT m FROM ModelEntity m ORDER BY m.categoryEntity.name ASC, m.modelName ASC");
         return query.getResultList();
     }
-    
+
     @Override
-    public ModelEntity retrieveModelByModelId(Long modelId) throws ModelNotFoundException{
-        
+    public ModelEntity retrieveModelByModelId(Long modelId) throws ModelNotFoundException {
+
         ModelEntity modelEntity = em.find(ModelEntity.class, modelId);
-        
-        if (modelEntity != null){
+
+        if (modelEntity != null) {
             return modelEntity;
         } else {
             throw new ModelNotFoundException("Model ID " + modelId + "does not exist!");
         }
     }
-    
+
     @Override
-    public ModelEntity retrieveModelByName(String modelName) throws ModelNotFoundException{
-    
+    public ModelEntity retrieveModelByName(String modelName) throws ModelNotFoundException {
+
         Query query = em.createQuery("SELECT m FROM ModelEntity m WHERE m.modelName = :inName");
         query.setParameter("inName", modelName);
-        
+
         try {
-            return (ModelEntity)query.getSingleResult();
-        } catch (NoResultException | NonUniqueResultException ex){
+            return (ModelEntity) query.getSingleResult();
+        } catch (NoResultException | NonUniqueResultException ex) {
             throw new ModelNotFoundException("Model name " + modelName + "does not exist!");
         }
-        
+
     }
 
-    
-    
-    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<ModelEntity>> constraintViolations)
-    {
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<ModelEntity>> constraintViolations) {
         String msg = "Input data validation error!:";
-            
-        for(ConstraintViolation constraintViolation:constraintViolations)
-        {
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
             msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
         }
-        
+
         return msg;
     }
-    
-    
-    
+
     @Override
-    public Long deleteModel(Long modelId) throws DeleteModelException{
-        
-        try{
-            
+    public Long deleteModel(Long modelId) throws DeleteModelException {
+
+        try {
+
             ModelEntity modelToDelete = retrieveModelByModelId(modelId);
-            if (modelToDelete.getCars().isEmpty()){
+            if (modelToDelete.getCars().isEmpty()) {
                 em.remove(modelToDelete);
                 return modelToDelete.getModelId();
             } else {
                 modelToDelete.setDisabled(true);
                 throw new DeleteModelException();
             }
-            
-        }catch(ModelNotFoundException ex1){
+
+        } catch (ModelNotFoundException ex1) {
             throw new DeleteModelException("Model ID " + modelId + "does not exist.");
-        } catch (DeleteModelException ex2){
+        } catch (DeleteModelException ex2) {
             throw new DeleteModelException("Model " + modelId + "cannot be deleted, but it has been marked as disabled.");
         }
-        
+
     }
-    
-    
-    public List<ModelEntity> retrieveModelsBasedOnCars(List<CarEntity> cars){
-        
+
+    public List<ModelEntity> retrieveModelsBasedOnCars(List<CarEntity> cars) {
+
         TreeSet<ModelEntity> models = new TreeSet<>();
-        for(CarEntity car : cars){
+        for (CarEntity car : cars) {
             models.add(car.getModelEntity());
         }
-        
+
         return new ArrayList<ModelEntity>(models);
     }
 }

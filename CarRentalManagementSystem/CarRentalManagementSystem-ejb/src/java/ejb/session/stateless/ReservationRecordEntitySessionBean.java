@@ -1,6 +1,6 @@
 package ejb.session.stateless;
 
-import entity.RentalDayEntity;
+
 import entity.ReservationRecordEntity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

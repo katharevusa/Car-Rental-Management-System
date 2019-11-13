@@ -7,6 +7,8 @@ import entity.ReservationRecordEntity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -35,114 +37,108 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
 
     @EJB
     private ReservationRecordEntitySessionBeanLocal reservationRecordEntitySessionBeanLocal;
-    
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
-    
+
     @EJB(name = "OutletEntitySessionBeanLocal")
     private OutletEntitySessionBeanLocal outletEntitySessionBeanLocal;
     @EJB(name = "ModelEntitySessionBeanLocal")
     private ModelEntitySessionBeanLocal modelEntitySessionBeanLocal;
-    
-    
 
     public CarEntitySessionBean() {
     }
 
-    
-    
     @Override
-    public Long createNewCar(CarEntity newCarEntity,Long modelId) throws NewCarCreationException{
-        
-        
-        try
-        {
-            ModelEntity modelEntity = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
+    public Long createNewCar(CarEntity newCarEntity, String make, String model, Long outletId) throws NewCarCreationException, OutletNotFoundException, ModelNotFoundException {
+
+        try {
+            ModelEntity modelEntity = modelEntitySessionBeanLocal.retrieveModelByMakeAndModel(make, model);
+            OutletEntity outletEntity = outletEntitySessionBeanLocal.retrieveOutletByOutletId(outletId);
             em.persist(newCarEntity);
             newCarEntity.setModelEntity(modelEntity);
+            newCarEntity.setOutletEntity(outletEntity);
+            outletEntity.getCars().add(newCarEntity);
             modelEntity.getCars().add(newCarEntity);
             return newCarEntity.getCarId();
-            
-        }catch (ModelNotFoundException ex){
-            throw new NewCarCreationException("Model ID " + modelId + " does not exist!");
-        }catch(PersistenceException ex){
+
+        } catch (PersistenceException ex) {
             throw new NewCarCreationException("License plate number " + newCarEntity.getPlateNumber() + " already exists!");
+        } catch (OutletNotFoundException ex) {
+            throw new OutletNotFoundException("Outlet not found" + outletId);
+        } catch (ModelNotFoundException ex) {
+            throw new ModelNotFoundException("Model associated to the car does not exist!");
         }
-        
+
     }
-    
+
     @Override
-    public CarEntity retrieveCarByCarId(Long carId) throws CarNotFoundException{
-        
-        CarEntity carEntity = em.find(CarEntity.class,carId);
-        
-        if (carEntity != null){
+    public CarEntity retrieveCarByCarId(Long carId) throws CarNotFoundException {
+
+        CarEntity carEntity = em.find(CarEntity.class, carId);
+
+        if (carEntity != null) {
             return carEntity;
         } else {
             throw new CarNotFoundException("Car ID " + carId + " does not exist!");
         }
     }
-    
-    
+
     @Override
-    public List<CarEntity> retrieveAllCars()
-    {
+    public List<CarEntity> retrieveAllCars() {
         Query query = em.createQuery("SELECT c FROM CarEntity c ORDER BY c.modelEntity.categoryEntity.name, c.modelEntity.modelName,c.plateNumber ASC");
-        
+
         return query.getResultList();
-         
+
     }
-    
-    
+
     @Override
-    public Long deleteCar(Long carId) throws DeleteCarException{
-        
-        try{
+    public Long deleteCar(Long carId) throws DeleteCarException {
+
+        try {
             CarEntity carEntityToRemove = retrieveCarByCarId(carId);
             if (carEntityToRemove.isOnRental() == false) {
-                
+
                 carEntityToRemove.getModelEntity().getCars().remove(carEntityToRemove);
-                if (carEntityToRemove.getOutletEntity() != null){
+                if (carEntityToRemove.getOutletEntity() != null) {
                     carEntityToRemove.getOutletEntity().getCars().remove(carEntityToRemove);
                 }
                 em.remove(carEntityToRemove);
                 return carEntityToRemove.getCarId();
-                
+
             } else {
-                
+
                 carEntityToRemove.setDisabled(true);
                 throw new DeleteCarException();
             }
-            
-        } catch (CarNotFoundException ex1){
+
+        } catch (CarNotFoundException ex1) {
             throw new DeleteCarException("Car ID " + carId + "does not exist!");
-        } catch (DeleteCarException ex2){
+        } catch (DeleteCarException ex2) {
             throw new DeleteCarException("The car is currently in usage and cannot be deleted, but it has been disabled for fruther rental.");
         }
-        
+
     }
 
-
     @Override
-    public List<CarEntity> retrieveAvailableCarsBasedOnGivenDateTime(LocalDateTime pickupDateTime,LocalDateTime returnDateTime){
-        
+    public List<CarEntity> retrieveAvailableCarsBasedOnGivenDateTime(LocalDateTime pickupDateTime, LocalDateTime returnDateTime) {
+
         List<ReservationRecordEntity> overlappedReservations = new ArrayList<>();
         List<ReservationRecordEntity> reservations = reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
-        for (ReservationRecordEntity reservation : reservations){
-            if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)){
+        for (ReservationRecordEntity reservation : reservations) {
+            if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)) {
                 overlappedReservations.add(reservation);
-            } else if(reservation.getReturnDateTime().isAfter(pickupDateTime) && reservation.getReturnDateTime().isBefore(returnDateTime)){
+            } else if (reservation.getReturnDateTime().isAfter(pickupDateTime) && reservation.getReturnDateTime().isBefore(returnDateTime)) {
                 overlappedReservations.add(reservation);
             }
         }
-        
+
         List<CarEntity> availableCars = retrieveAllCars();
-        for(ReservationRecordEntity reservation : overlappedReservations){
+        for (ReservationRecordEntity reservation : overlappedReservations) {
             availableCars.remove(reservation.getCarEntity());
         }
-        
+
         return availableCars;
     }
-        
+
 }

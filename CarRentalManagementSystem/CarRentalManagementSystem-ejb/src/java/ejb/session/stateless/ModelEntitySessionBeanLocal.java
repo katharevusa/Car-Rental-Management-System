@@ -28,5 +28,5 @@ public interface ModelEntitySessionBeanLocal {
     public Long deleteModel(Long modelId) throws DeleteModelException;
 
     public ModelEntity createNewModel(ModelEntity newModelEntity, Long categoryId) throws CreateNewModelFailureException;
-    
+    public ModelEntity retrieveModelByMakeAndModel(String make,String model) throws ModelNotFoundException;
 }

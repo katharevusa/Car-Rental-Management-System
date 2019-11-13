@@ -28,8 +28,9 @@ public class ModelEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long modelId;
+    private String make;
     @Column(unique = true,nullable = false)
-    private String modelName;
+    private String modelName; 
     private boolean disabled;
     
     //bidirctional
@@ -45,11 +46,20 @@ public class ModelEntity implements Serializable {
         cars = new ArrayList<>();
     }
 
-    public ModelEntity(String modelName) {
+    public ModelEntity(String make,String modelName) {
         
         this();
+        this.make = make;
         this.modelName = modelName;
         disabled = false;
+    }
+
+    public String getMake() {
+        return make;
+    }
+
+    public void setMake(String make) {
+        this.make = make;
     }
 
     
