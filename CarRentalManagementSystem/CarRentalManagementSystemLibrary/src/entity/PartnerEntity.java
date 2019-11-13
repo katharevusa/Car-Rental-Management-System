@@ -30,36 +30,54 @@ public class PartnerEntity implements Serializable {
     private String username;
     @Column(nullable = false)
     private String password;
+    //bidirectional
     @OneToMany(mappedBy = "partner")
     private List<ReservationRecordEntity> reservationRecord;
-    @OneToMany(mappedBy = "partner")
-    private List<CustomerEntity> customer;
+//    @OneToMany(mappedBy = "partner")
+//    private List<CustomerEntity> customer;
 
-    public List<ReservationRecordEntity> getReservationRecord() {
-        return reservationRecord;
-    }
-
-    public void setReservationRecord(List<ReservationRecordEntity> reservationRecord) {
-        this.reservationRecord = reservationRecord;
-    }
-
-    public List<CustomerEntity> getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(List<CustomerEntity> customer) {
-        this.customer = customer;
-    }
-    
     public PartnerEntity() {
-        reservationRecord = new ArrayList<>();
-        customer = new ArrayList<>();
     }
 
     public PartnerEntity(String username, String password) {
+        
         this();
         this.username = username;
         this.password = password;
+    }
+
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getPartnerId() != null ? getPartnerId().hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the partnerId fields are not set
+        if (!(object instanceof PartnerEntity)) {
+            return false;
+        }
+        PartnerEntity other = (PartnerEntity) object;
+        if ((this.getPartnerId() == null && other.getPartnerId() != null) || (this.getPartnerId() != null && !this.partnerId.equals(other.partnerId))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "entity.Partner[ id=" + getPartnerId() + " ]";
+    }
+
+    public Long getPartnerId() {
+        return partnerId;
+    }
+
+    public void setPartnerId(Long partnerId) {
+        this.partnerId = partnerId;
     }
 
     public String getUsername() {
@@ -78,39 +96,12 @@ public class PartnerEntity implements Serializable {
         this.password = password;
     }
 
-
-
-    public Long getPartnerId() {
-        return partnerId;
+    public List<ReservationRecordEntity> getReservationRecord() {
+        return reservationRecord;
     }
 
-    public void setPartnerId(Long partnerId) {
-        this.partnerId = partnerId;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (partnerId != null ? partnerId.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the partnerId fields are not set
-        if (!(object instanceof PartnerEntity)) {
-            return false;
-        }
-        PartnerEntity other = (PartnerEntity) object;
-        if ((this.partnerId == null && other.partnerId != null) || (this.partnerId != null && !this.partnerId.equals(other.partnerId))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "entity.Partner[ id=" + partnerId + " ]";
+    public void setReservationRecord(List<ReservationRecordEntity> reservationRecord) {
+        this.reservationRecord = reservationRecord;
     }
 
 }

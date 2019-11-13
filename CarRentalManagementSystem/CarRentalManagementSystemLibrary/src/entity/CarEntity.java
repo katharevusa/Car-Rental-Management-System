@@ -25,9 +25,8 @@ public class CarEntity implements Serializable {
     private String status;
     private String make;
     private String model;
-    private boolean onRental;
-    private boolean disabled;
-
+    private boolean onRental = false;
+    private boolean disabled = false;
 
     //bidirectional
     @ManyToOne
@@ -35,16 +34,20 @@ public class CarEntity implements Serializable {
     //bidirectional
     @ManyToOne
     private OutletEntity outletEntity;
+    //bidirectional
+    @OneToOne(mappedBy = "carEntity")
+    private ReservationRecordEntity reservationRecordEntity;
 
     //bidirectional
     //reservation
     public CarEntity() {
-        onRental = false;
-        disabled = false;
+        
 
     }
     public CarEntity(String plateNumber, String model, String make, String status) {
+        
         this();
+        
         this.plateNumber = plateNumber;
         this.model = model;
         this.make = make;
@@ -145,6 +148,14 @@ public class CarEntity implements Serializable {
 
     public void setOutletEntity(OutletEntity outletEntity) {
         this.outletEntity = outletEntity;
+    }
+
+    public ReservationRecordEntity getReservationRecordEntity() {
+        return reservationRecordEntity;
+    }
+
+    public void setReservationRecordEntity(ReservationRecordEntity reservationRecordEntity) {
+        this.reservationRecordEntity = reservationRecordEntity;
     }
 
 }

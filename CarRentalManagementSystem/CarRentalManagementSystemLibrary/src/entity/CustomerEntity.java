@@ -1,6 +1,8 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -16,6 +20,7 @@ import javax.persistence.ManyToOne;
 @Entity
 public class CustomerEntity implements Serializable {
 
+    private static final Logger LOG = Logger.getLogger(CustomerEntity.class.getName());
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,16 +43,14 @@ public class CustomerEntity implements Serializable {
     private String email;
     @ManyToOne
     private PartnerEntity partner;
+    //bidirectional
+    @OneToMany(mappedBy = "customerEntity")
+    private List<ReservationRecordEntity> reservations;
     
+  
     
-    
-//    //-----------relationship fields------------------------
-//    //bidirectional
-//    @OneToMany(mappedBy = "customerEntity")
-//    private List<ReservationRecordEntity> reservationRecords;
-    //constructor
-    private static final Logger LOG = Logger.getLogger(CustomerEntity.class.getName());
     public CustomerEntity() {
+        reservations = new ArrayList<>();
     }
 
     //overloaded constructor
@@ -135,6 +138,14 @@ public class CustomerEntity implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<ReservationRecordEntity> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<ReservationRecordEntity> reservations) {
+        this.reservations = reservations;
     }
 
     

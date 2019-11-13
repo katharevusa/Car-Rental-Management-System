@@ -16,6 +16,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -36,134 +37,47 @@ public class ReservationRecordEntity implements Serializable {
     private LocalDateTime pickUpDateTime;
     @Column(nullable = false)
     private LocalDateTime returnDateTime;
-    @Column(nullable = false)
-    @NotNull
-    private Boolean isCancelled;
-    @Column(nullable = true)
+    private double rentalRate;
+    private Boolean isCancelled = false;
     private Double paidAmount;
-    @Column(nullable = true)
     private Double refund;
 
+    //uni
     @OneToOne
+    private CategoryEntity category;
+    //uni
+    @OneToOne
+    private ModelEntity model;
+    //bidirectional
+    @OneToOne
+    private CarEntity carEntity;
     //unidirectional
+    @OneToOne
     private OutletEntity pickUpOutlet;
     //unidirectional
     @OneToOne
     private OutletEntity returnOutlet;
-    @OneToOne
-    private CarEntity carEntity;
+    //bidirectional
     @ManyToOne
-    private CustomerEntity customer;
+    @JoinColumn(nullable = false)
+    private CustomerEntity customerEntity;
     @ManyToOne
+    @JoinColumn(nullable = true)
     private PartnerEntity partner;
-    @OneToOne
-    private CategoryEntity category;
-    @OneToOne
-    private ModelEntity model;
+    
    
 
     public ReservationRecordEntity() {
-        isCancelled = false;
-
-    }
-
-    public ReservationRecordEntity(LocalDateTime pickUpDateTime, LocalDateTime returnDateTime, Boolean isCancelled,
-            Double paidAmount, Double refund) {
-        this();
-        this.pickUpDateTime = pickUpDateTime;
-        this.returnDateTime = returnDateTime;
-        this.isCancelled = isCancelled;
-        this.paidAmount = paidAmount;
-        this.refund = refund;
         
     }
 
-    public Double getRefund() {
-        return refund;
-    }
-
-    public void setRefund(Double refund) {
-        this.refund = refund;
-    }
-
- public CategoryEntity getCategory() {
-        return category;
-    }
-
-    public void setCategory(CategoryEntity category) {
-        this.category = category;
-    }
-
-    public ModelEntity getModel() {
-        return model;
-    }
-
-    public void setModel(ModelEntity model) {
-        this.model = model;
-    }
-    
-    public Double getPaidAmount() {
-        return paidAmount;
-    }
-
-    public void setPaidAmount(Double paidAmount) {
-        this.paidAmount = paidAmount;
-    }
-
-    public Boolean getIsCancelled() {
-        return isCancelled;
-    }
-
-    public void setIsCancelled(Boolean isCancelled) {
-        this.isCancelled = isCancelled;
-    }
-
-    public LocalDateTime getPickUpDateTime() {
-        return pickUpDateTime;
-    }
-
-    public void setPickUpDateTime(LocalDateTime pickUpDateTime) {
+    public ReservationRecordEntity(Double rentalRate, LocalDateTime pickUpDateTime, LocalDateTime returnDateTime) {
+        
+        this();
+        
+        this.rentalRate = rentalRate;
         this.pickUpDateTime = pickUpDateTime;
-    }
-
-    public LocalDateTime getReturnDateTime() {
-        return returnDateTime;
-    }
-
-    public void setReturnDateTime(LocalDateTime returnDateTime) {
         this.returnDateTime = returnDateTime;
-    }
-
-    public OutletEntity getPickUpOutlet() {
-        return pickUpOutlet;
-    }
-
-    public void setPickUpOutlet(OutletEntity pickUpOutlet) {
-        this.pickUpOutlet = pickUpOutlet;
-    }
-
-    public OutletEntity getReturnOutlet() {
-        return returnOutlet;
-    }
-
-    public void setReturnOutlet(OutletEntity returnOutlet) {
-        this.returnOutlet = returnOutlet;
-    }
-
-    public CustomerEntity getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(CustomerEntity customer) {
-        this.customer = customer;
-    }
-
-    public PartnerEntity getPartner() {
-        return partner;
-    }
-
-    public void setPartner(PartnerEntity partner) {
-        this.partner = partner;
     }
 
     @Override
@@ -199,6 +113,62 @@ public class ReservationRecordEntity implements Serializable {
         this.reservationRecordId = reservationRecordId;
     }
 
+    public LocalDateTime getPickUpDateTime() {
+        return pickUpDateTime;
+    }
+
+    public void setPickUpDateTime(LocalDateTime pickUpDateTime) {
+        this.pickUpDateTime = pickUpDateTime;
+    }
+
+    public LocalDateTime getReturnDateTime() {
+        return returnDateTime;
+    }
+
+    public void setReturnDateTime(LocalDateTime returnDateTime) {
+        this.returnDateTime = returnDateTime;
+    }
+
+    public Boolean getIsCancelled() {
+        return isCancelled;
+    }
+
+    public void setIsCancelled(Boolean isCancelled) {
+        this.isCancelled = isCancelled;
+    }
+
+    public Double getPaidAmount() {
+        return paidAmount;
+    }
+
+    public void setPaidAmount(Double paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+
+    public Double getRefund() {
+        return refund;
+    }
+
+    public void setRefund(Double refund) {
+        this.refund = refund;
+    }
+
+    public CategoryEntity getCategory() {
+        return category;
+    }
+
+    public void setCategory(CategoryEntity category) {
+        this.category = category;
+    }
+
+    public ModelEntity getModel() {
+        return model;
+    }
+
+    public void setModel(ModelEntity model) {
+        this.model = model;
+    }
+
     public CarEntity getCarEntity() {
         return carEntity;
     }
@@ -207,6 +177,38 @@ public class ReservationRecordEntity implements Serializable {
         this.carEntity = carEntity;
     }
 
+    public OutletEntity getPickUpOutlet() {
+        return pickUpOutlet;
+    }
 
+    public void setPickUpOutlet(OutletEntity pickUpOutlet) {
+        this.pickUpOutlet = pickUpOutlet;
+    }
+
+    public OutletEntity getReturnOutlet() {
+        return returnOutlet;
+    }
+
+    public void setReturnOutlet(OutletEntity returnOutlet) {
+        this.returnOutlet = returnOutlet;
+    }
+
+    public CustomerEntity getCustomerEntity() {
+        return customerEntity;
+    }
+
+    public void setCustomerEntity(CustomerEntity customerEntity) {
+        this.customerEntity = customerEntity;
+    }
+
+    public PartnerEntity getPartner() {
+        return partner;
+    }
+
+    public void setPartner(PartnerEntity partner) {
+        this.partner = partner;
+    }
+
+    
 
 }
