@@ -219,20 +219,17 @@ class OperationManagerModule {
         Scanner sc = new Scanner(System.in);
         CarEntity newCarEntity = new CarEntity();
 
-//        System.out.print("Enter model ID>");
-//        Long modelId = sc.nextLong();
-//        sc.nextLine();
         System.out.print("Enter license plate number> ");
         String plateNumber = sc.nextLine().trim();
         newCarEntity.setPlateNumber(plateNumber);
 
-        //associate cars with outlet
         List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveAllOutlet();
         for (OutletEntity outlet : outlets) {
             System.out.println(outlet.getOutletId() + " " + outlet.getName());
         }
         System.out.print("Enter outlet ID>");
         Long outletId = sc.nextLong();
+        sc.nextLine();
         System.out.println("Enter status (Availble/Repair)>");
         newCarEntity.setStatus(sc.nextLine().trim());
         System.out.println("Enter make>");

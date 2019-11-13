@@ -60,6 +60,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
             newCarEntity.setOutletEntity(outletEntity);
             outletEntity.getCars().add(newCarEntity);
             modelEntity.getCars().add(newCarEntity);
+            em.flush();
             return newCarEntity.getCarId();
 
         } catch (PersistenceException ex) {

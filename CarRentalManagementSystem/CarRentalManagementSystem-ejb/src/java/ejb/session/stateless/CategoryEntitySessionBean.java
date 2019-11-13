@@ -52,6 +52,7 @@ public class CategoryEntitySessionBean implements CategoryEntitySessionBeanRemot
         
         if(category != null)
         {
+            category.getModels().size();
             return category;
        }
         else
@@ -73,7 +74,12 @@ public class CategoryEntitySessionBean implements CategoryEntitySessionBeanRemot
             throw new CategoryNotFoundException("Category " + categoryname + " does not exist!");
         }
     }
-
+  /*  public List<ModelEntity> retrieveAllModelsUnderCategory(CategoryEntity category){
+        Query query = em.createQuery("SELECT m From ModelEntity m WHERE m.categoryEntity = :inCategory");
+        query.setParameter("inCategory",category);
+        return query.getResultList();
+    }*/
+    
     @Override
     public void updateCategory(CategoryEntity category) {
         em.merge(category);

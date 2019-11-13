@@ -134,9 +134,9 @@ public class DataInitializationSessionBean {
             }
             try {
                 //preload car
-                carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00A1TC", "Toyota", "Corolla", "Available"), "Toyora", "Corolla", Long.valueOf(1));
-                carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00A2TC", "Toyota", "Corolla", "Available"), "Toyora", "Corolla", Long.valueOf(1));
-                carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00A3TC", "Toyota", "Corolla", "Available"), "Toyora", "Corolla", Long.valueOf(1));
+                carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00A1TC", "Toyota", "Corolla", "Available"), "Toyota", "Corolla", Long.valueOf(1));
+                carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00A2TC", "Toyota", "Corolla", "Available"), "Toyota", "Corolla", Long.valueOf(1));
+                carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00A3TC", "Toyota", "Corolla", "Available"), "Toyota", "Corolla", Long.valueOf(1));
                 carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00B1HC", "Honda", "Civic", "Available"), "Honda", "Civic", Long.valueOf(2));
                 carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00B2HC", "Honda", "Civic", "Available"), "Honda", "Civic", Long.valueOf(2));
                 carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00B3HC", "Honda", "Civic", "Available"), "Honda", "Civic", Long.valueOf(2));

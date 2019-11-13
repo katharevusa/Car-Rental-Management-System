@@ -167,7 +167,7 @@ this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
                 response = sc.nextInt();
 
                 if (response == 1) {
-                    //  doSearchCar();
+                      doSearchCar();
                 } else if (response == 2) {
                     //  doReserveCar();
                 } else if (response == 3) {
@@ -214,7 +214,7 @@ this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
 
                 printAvailableModel(selectedCategoryId);
                 System.out.print("Do you want to skip selecting a specific car model?(Y/N)>");
-                String option = sc.nextLine();
+                String option = sc.nextLine().trim();
                 long selectedModelId;
                 if (option.equals("Y")) {
                     selectedModelId = -1;
@@ -300,6 +300,8 @@ this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
         try {
             CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(selectedCategory);
             System.out.printf("%10s%20s%n", "Model ID", "Model Name");
+            //get list of models under the category
+           // <ModelEntity> models = categoryEntitySessionBeanRemote.retrieveAllModelsUnderCategory(category);
             for (ModelEntity model : category.getModels()) {
                 System.out.printf("%10s%20s%n", model.getModelId(), model.getModelName());
             }
