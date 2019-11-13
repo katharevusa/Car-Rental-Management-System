@@ -53,7 +53,8 @@ public class RentalDayEntitySessionBean implements RentalDayEntitySessionBeanRem
             }
             if(!rentalDayExist){
                 throw new RentalRateNotFoundException();
-            }  
+            }
+            curr.plusDays(1);
         }
     }
     

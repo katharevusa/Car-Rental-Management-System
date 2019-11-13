@@ -8,6 +8,7 @@ package entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,9 +39,8 @@ public class RentalRateEntity implements Serializable {
     private String rentalRateName;
     @Column(nullable = false, length = 12)
     private Double ratePerDay;
-   // private String validityPeriod;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
     //validity period i.e. monday-wednesday 1-3
     @ManyToOne
     private CategoryEntity category;
@@ -55,13 +55,13 @@ public class RentalRateEntity implements Serializable {
         rentalDay = new ArrayList<>();
     }
 
-    public RentalRateEntity(String rentalRateName, Double ratePerDay, LocalDate startDate, LocalDate endDate)
+    public RentalRateEntity(String rentalRateName, Double ratePerDay, LocalDateTime startDateTime, LocalDateTime endDateTime)
     {
         this();
         this.rentalRateName = rentalRateName;
         this.ratePerDay = ratePerDay;
-        this.endDate = endDate;
-        this.startDate = startDate;
+        this.endDateTime = endDateTime;
+        this.startDateTime = startDateTime;
     }
     
 
@@ -108,8 +108,36 @@ public class RentalRateEntity implements Serializable {
         this.rentalRateName = rentalRateName;
     }
 
+    public Double getRatePerDay() {
+        return ratePerDay;
+    }
+
+    public void setRatePerDay(Double ratePerDay) {
+        this.ratePerDay = ratePerDay;
+    }
+
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
+    }
+
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
+    }
+
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
+    }
+
     public CategoryEntity getCategory() {
         return category;
+    }
+
+    public void setCategory(CategoryEntity category) {
+        this.category = category;
     }
 
     public List<RentalDayEntity> getRentalDay() {
@@ -119,37 +147,6 @@ public class RentalRateEntity implements Serializable {
     public void setRentalDay(List<RentalDayEntity> rentalDay) {
         this.rentalDay = rentalDay;
     }
-
-
-
-    public void setCategory(CategoryEntity category) {
-        this.category = category;
-    }
-
-    public Double getRatePerDay() {
-        return ratePerDay;
-    }
-
-    public void setRatePerDay(Double ratePerDay) {
-        this.ratePerDay = ratePerDay;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
-
 
     
 }

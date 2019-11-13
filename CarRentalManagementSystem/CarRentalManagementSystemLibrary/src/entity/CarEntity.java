@@ -16,6 +16,14 @@ import javax.persistence.OneToOne;
 @Entity
 public class CarEntity implements Serializable {
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +33,7 @@ public class CarEntity implements Serializable {
     private String color;
     private boolean onRental;
     private boolean disabled;
+    private String status;
 
     
     //bidirectional
@@ -40,6 +49,7 @@ public class CarEntity implements Serializable {
     public CarEntity() {
         onRental = false;
         disabled = false;
+        status = "Available";
     }
     
 
