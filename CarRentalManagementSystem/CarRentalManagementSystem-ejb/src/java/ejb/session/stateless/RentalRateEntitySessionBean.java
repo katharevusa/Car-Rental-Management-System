@@ -2,9 +2,13 @@ package ejb.session.stateless;
 
 import entity.CategoryEntity;
 
+import entity.ModelEntity;
+
 import entity.RentalRateEntity;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -28,6 +32,7 @@ import util.exception.RentalRateNotFoundException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRentalRateException;
 import util.exception.InputDataValidationException;
+import util.exception.ModelNotFoundException;
 
 /**
  *
@@ -39,13 +44,19 @@ import util.exception.InputDataValidationException;
 
 public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanRemote, RentalRateEntitySessionBeanLocal {
 
+    
+
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
     @EJB
     private CategoryEntitySessionBeanLocal categoryEntitySessionBeanLocal;
-   
+
+
+    
+
+
     public RentalRateEntitySessionBean() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
@@ -61,7 +72,7 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
             em.persist(newRentalRate);
             newRentalRate.setCategory(category);
             category.getRentalRate().add(newRentalRate);
-            
+
             em.flush();
             em.refresh(newRentalRate);
             return newRentalRate;
@@ -126,5 +137,88 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
         }
 
         return msg;
+    }
+    
+    
+    @Override
+    public double checkForExistenceOfRentalRate(Long selectedCategoryId,LocalDateTime pickupDateTime,
+            LocalDateTime returnDateTime) throws CategoryNotFoundException, RentalRateNotFoundException{
+        
+        CategoryEntity category;
+        ModelEntity model;
+        try{
+            category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(selectedCategoryId);
+        }catch(CategoryNotFoundException ex){
+            throw new CategoryNotFoundException("Category Id " + selectedCategoryId + " does not exist!");
+        }
+        
+        boolean rentalRateExist;
+        LocalDateTime currStartDateTime = pickupDateTime;
+        LocalDateTime next24HourDateTime = currStartDateTime.plusHours(24);
+        double totalRate = 0;
+        
+        List<RentalRateEntity> rentalRates = category.getRentalRate();
+        while(next24HourDateTime.compareTo(returnDateTime) <= 0){
+            rentalRateExist = false;
+            List<Double> rates = new ArrayList<>();
+            for(RentalRateEntity rentalRate:rentalRates){
+                if(currStartDateTime.compareTo(rentalRate.getStartDateTime())==0 || currStartDateTime.isAfter(rentalRate.getStartDateTime())){
+                    if(next24HourDateTime.compareTo(rentalRate.getEndDateTime()) == 0 || next24HourDateTime.isBefore(rentalRate.getEndDateTime())){
+                        rentalRateExist = true;
+                        rates.add(rentalRate.getRatePerDay());
+                    }
+                }
+            }
+            
+            
+            if(!rentalRateExist){
+                throw new RentalRateNotFoundException();
+            } else {
+                
+                
+                double minimumRate = rates.get(0);
+                for(int i=0;i<rates.size();i++){
+                    minimumRate = Math.min(minimumRate,rates.get(i));
+                }
+                totalRate += minimumRate;
+            }
+            
+            next24HourDateTime.plusHours(24);
+                
+        }
+        
+        
+        
+        //after exit from the previous while loop, next24HourDateTime can only be after returnDateTime
+        //check for the last period of reservation time one more time through the same process
+        if(next24HourDateTime.isAfter(returnDateTime)){
+            currStartDateTime = next24HourDateTime.minusHours(24);
+            next24HourDateTime = returnDateTime;
+            
+            rentalRateExist = false;
+            List<Double> rates = new ArrayList<>();
+            for(RentalRateEntity rentalRate:rentalRates){
+                if(currStartDateTime.compareTo(rentalRate.getStartDateTime())==0 || currStartDateTime.isAfter(rentalRate.getStartDateTime())){
+                    if(next24HourDateTime.compareTo(rentalRate.getEndDateTime()) == 0 || next24HourDateTime.isBefore(rentalRate.getEndDateTime())){
+                        rentalRateExist = true;
+                        rates.add(rentalRate.getRatePerDay());
+                    }
+                }
+            }
+            
+            
+            if(!rentalRateExist){
+                throw new RentalRateNotFoundException();
+            } else {
+                
+                double minimumRate = rates.get(0);
+                for(int i=0;i<rates.size();i++){
+                    minimumRate = Math.min(minimumRate,rates.get(i));
+                }
+                totalRate += minimumRate;
+            }
+        }
+        
+        return totalRate;
     }
 }

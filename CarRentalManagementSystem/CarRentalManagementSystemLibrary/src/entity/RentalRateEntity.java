@@ -39,10 +39,8 @@ public class RentalRateEntity implements Serializable {
     private String rentalRateName;
     @Column(nullable = false, length = 12)
     private Double ratePerDay;
-
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
-
     @ManyToOne
     private CategoryEntity category;
 
@@ -51,7 +49,8 @@ public class RentalRateEntity implements Serializable {
 
     }
 
-    public RentalRateEntity(String rentalRateName, Double ratePerDay, LocalDateTime startDate, LocalDateTime endDate)
+
+    public RentalRateEntity(String rentalRateName, Double ratePerDay, LocalDateTime startDateTime, LocalDateTime endDateTime)
     {
         this();
         this.rentalRateName = rentalRateName;
@@ -88,54 +87,90 @@ public class RentalRateEntity implements Serializable {
         return "entity.RentalRateEntity[ id=" + getRentalRateId() + " ]";
     }
 
+    /**
+     * @return the rentalRateId
+     */
     public Long getRentalRateId() {
         return rentalRateId;
     }
 
+    /**
+     * @param rentalRateId the rentalRateId to set
+     */
     public void setRentalRateId(Long rentalRateId) {
         this.rentalRateId = rentalRateId;
     }
 
+    /**
+     * @return the rentalRateName
+     */
     public String getRentalRateName() {
         return rentalRateName;
     }
 
+    /**
+     * @param rentalRateName the rentalRateName to set
+     */
     public void setRentalRateName(String rentalRateName) {
         this.rentalRateName = rentalRateName;
     }
 
-    public CategoryEntity getCategory() {
-        return category;
-    }
-
-    public void setCategory(CategoryEntity category) {
-        this.category = category;
-    }
-
+    /**
+     * @return the ratePerDay
+     */
     public Double getRatePerDay() {
         return ratePerDay;
     }
 
+    /**
+     * @param ratePerDay the ratePerDay to set
+     */
     public void setRatePerDay(Double ratePerDay) {
         this.ratePerDay = ratePerDay;
     }
 
+    /**
+     * @return the startDateTime
+     */
     public LocalDateTime getStartDateTime() {
         return startDateTime;
     }
 
+    /**
+     * @param startDateTime the startDateTime to set
+     */
     public void setStartDateTime(LocalDateTime startDateTime) {
         this.startDateTime = startDateTime;
     }
 
+    /**
+     * @return the endDateTime
+     */
     public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
+    /**
+     * @param endDateTime the endDateTime to set
+     */
     public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
     }
 
+    /**
+     * @return the category
+     */
+    public CategoryEntity getCategory() {
+        return category;
+    }
+
+    /**
+     * @param category the category to set
+     */
+    public void setCategory(CategoryEntity category) {
+        this.category = category;
+    }
+    
 
     
 }

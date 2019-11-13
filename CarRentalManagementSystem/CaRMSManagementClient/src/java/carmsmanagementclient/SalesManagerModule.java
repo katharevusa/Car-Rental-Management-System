@@ -24,7 +24,10 @@ import java.lang.String;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.exception.InputDataValidationException;
+import util.exception.RentalRateExistException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.UpdateRentalRateException;
 
@@ -207,6 +210,8 @@ class SalesManagerModule {
                 System.out.println(ex.getMessage());
             } catch (GeneralException ex) {
                 System.out.println("An unknown error has occurred while creating the new rental rate!: " + ex.getMessage() + "\n");
+            } catch (RentalRateExistException ex) {
+                Logger.getLogger(SalesManagerModule.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         } else {

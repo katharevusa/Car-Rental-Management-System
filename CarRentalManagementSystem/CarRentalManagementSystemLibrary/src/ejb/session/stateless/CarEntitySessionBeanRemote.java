@@ -18,7 +18,11 @@ public interface CarEntitySessionBeanRemote {
     public Long createNewCar(CarEntity newCarEntity,String make,String model,Long outletId) throws NewCarCreationException, OutletNotFoundException, ModelNotFoundException;
 
     public Long deleteCar(Long carId) throws DeleteCarException;
-    
-    public List<CarEntity> retrieveAvailableCarsBasedOnGivenDateTime(LocalDateTime pickupDateTime, LocalDateTime returnDateTime);
+
+    public List<CarEntity> filterCarsBasedOnCategoryId(List<CarEntity> cars, Long categoryId);
+
+    public List<CarEntity> filterCarsBasedOnModelId(List<CarEntity> cars, Long modelId);
+
+    public List<CarEntity> retrieveAvailableCars(LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId);
     
 }

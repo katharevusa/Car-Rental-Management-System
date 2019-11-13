@@ -8,11 +8,13 @@ import util.exception.DeleteCarException;
 import util.exception.InvalidFieldEnteredException;
 import util.exception.ModelNotFoundException;
 import util.exception.NewCarCreationException;
+
 import util.exception.OutletNotFoundException;
 
 public interface CarEntitySessionBeanLocal {
 
     public Long createNewCar(CarEntity newCarEntity, String make, String model, Long outletId) throws NewCarCreationException, OutletNotFoundException, ModelNotFoundException;
+
 
     public List<CarEntity> retrieveAllCars();
 
@@ -20,6 +22,8 @@ public interface CarEntitySessionBeanLocal {
 
     public CarEntity retrieveCarByCarId(Long carId) throws CarNotFoundException;
 
-    public List<CarEntity> retrieveAvailableCarsBasedOnGivenDateTime(LocalDateTime pickupDateTime, LocalDateTime returnDateTime);
+
+ 
+
 
 }

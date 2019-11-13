@@ -121,7 +121,8 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     }
 
     @Override
-    public List<CarEntity> retrieveAvailableCarsBasedOnGivenDateTime(LocalDateTime pickupDateTime, LocalDateTime returnDateTime) {
+    public List<CarEntity> retrieveAvailableCars(LocalDateTime pickupDateTime,LocalDateTime returnDateTime,Long selectedPickupOutletId, Long selectedReturnOutletId){
+        
 
         List<ReservationRecordEntity> overlappedReservations = new ArrayList<>();
         List<ReservationRecordEntity> reservations = reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
@@ -130,6 +131,12 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
                 overlappedReservations.add(reservation);
             } else if (reservation.getReturnDateTime().isAfter(pickupDateTime) && reservation.getReturnDateTime().isBefore(returnDateTime)) {
                 overlappedReservations.add(reservation);
+            } else if(reservation.getReturnDateTime().compareTo(pickupDateTime) == 0 && reservation.getReturnOutlet().getOutletId() != selectedPickupOutletId){
+                overlappedReservations.add(reservation);
+            } else if(reservation.getReturnDateTime().isBefore(pickupDateTime) && reservation.getReturnDateTime().isAfter(pickupDateTime.minusHours(2))){
+                if(reservation.getReturnOutlet().getOutletId() != selectedPickupOutletId){
+                    overlappedReservations.add(reservation);
+                }
             }
         }
 
@@ -138,7 +145,43 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
             availableCars.remove(reservation.getCarEntity());
         }
 
+        for(CarEntity car:availableCars){
+            if(car.getStatus().equals("Repair")){
+                availableCars.remove(car);
+            }
+        }
+        
         return availableCars;
     }
+    
+    @Override
+    public List<CarEntity> filterCarsBasedOnCategoryId(List<CarEntity> cars, Long categoryId){
+        
+        List<CarEntity> filtered = new ArrayList<>(cars);
+        for(CarEntity car:cars){
+            if(car.getModelEntity().getCategoryEntity().getCategoryId() != categoryId){
+                filtered.remove(car);
+            }
+        }
+        return filtered;
+    }
+    
+    @Override
+    public List<CarEntity> filterCarsBasedOnModelId(List<CarEntity> cars, Long modelId){
+     
+        List<CarEntity> filtered = new ArrayList<>(cars);
+        if (modelId == -1) {
+            return filtered;
+        } else {
+            
+            for (CarEntity car : cars) {
+                if (car.getModelEntity().getModelId() != modelId) {
+                    filtered.remove(car);
+                }
+            }
+            return filtered;
 
+        }
+
+    }
 }

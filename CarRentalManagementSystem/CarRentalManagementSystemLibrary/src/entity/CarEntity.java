@@ -28,6 +28,7 @@ public class CarEntity implements Serializable {
     private boolean onRental;
     private boolean disabled;
 
+
     //bidirectional
     @ManyToOne
     private ModelEntity modelEntity;
@@ -40,13 +41,14 @@ public class CarEntity implements Serializable {
     public CarEntity() {
         onRental = false;
         disabled = false;
+
     }
     public CarEntity(String plateNumber, String model, String make, String status) {
         this();
         this.plateNumber = plateNumber;
         this.model = model;
         this.make = make;
-        this.status = status;
+
     }
     public String getMake() {
         return make;
