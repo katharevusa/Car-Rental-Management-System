@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import java.time.LocalDateTime;
 import javax.ejb.Remote;
 
 /**
@@ -13,6 +14,6 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface CarAllocationSessionBeanRemote {
-    
-    public void carAllocationCheckTimer();
+
+    public void carAllocationCheckTimer(LocalDateTime triggerDateTime);
 }

@@ -6,6 +6,7 @@
 package carmsmanagementclient;
 
 import ejb.session.stateless.ReservationRecordEntitySessionBeanRemote;
+import entity.CarEntity;
 import entity.EmployeeEntity;
 import entity.ReservationRecordEntity;
 import java.util.Scanner;
@@ -100,8 +101,12 @@ class CustomerServiceExecutiveModule {
             Scanner sc = new Scanner(System.in);
             System.out.println("Enter reservation id>");
             ReservationRecordEntity reservation = reservationRecordEntitySessionBeanRemote.retrieveReservationBylId(sc.nextLong());
-            reservation.getCarEntity().setStatus(CarStatusEnum.AVAILABLE);
-            reservation.getCarEntity().setOutletEntity(currentEmployee.getOutletEntity());
+            CarEntity car = reservation.getCarEntity();
+            car.setStatus(CarStatusEnum.AVAILABLE);
+            car.setOutletEntity(reservation.getReturnOutlet());
+            car.setReservationRecordEntity(null);
+            reservation.setCarEntity(null);
+            
         }catch(ReservationRecordNotFoundException ex){
             System.out.println(ex.getMessage());
         }

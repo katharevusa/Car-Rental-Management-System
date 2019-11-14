@@ -18,6 +18,8 @@ import entity.EmployeeEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
 import entity.TransitDriverDispatchRecordEntity;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -56,6 +58,7 @@ class OperationManagerModule {
 
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
+    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private EmployeeEntity currentEmployee;
     private ModelEntitySessionBeanRemote modelEntitySessionBeanRemote;
@@ -106,8 +109,8 @@ class OperationManagerModule {
             System.out.println("6: View All Cars");
             System.out.println("7: View Car Details");
             System.out.println("===============================");
-            System.out.println("8: View Transit Driver Dispatch Record For Current Day Reservation");
-            System.out.println("9: Assign Transit Driver");
+            System.out.println("8: View Transit Driver Dispatch Record For Current Day Reservation");//error
+            System.out.println("9: Assign Transit Driver");//error
             System.out.println("10: Update Transit As Complete");
             System.out.println("11: Allocate cars");
             System.out.println("12: Log out\n");
@@ -473,6 +476,12 @@ class OperationManagerModule {
     }
 
     private void doAllocateCars() {
-        carAllocationSessionBeanRemote.carAllocationCheckTimer();
+        
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter a date to trigger the alloation of car(yyyy-MM-dd)>");
+        String dateTimeString = sc.nextLine().trim();
+        dateTimeString += " 02:00:00";
+        LocalDateTime triggerDateTime = LocalDateTime.parse(dateTimeString, formatter);
+        carAllocationSessionBeanRemote.carAllocationCheckTimer(triggerDateTime);
     }
 }
