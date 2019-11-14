@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package carmsmanagementclient;
+
 import ejb.session.stateless.CarEntitySessionBeanRemote;
 import ejb.session.stateless.OutletEntitySessionBeanRemote;
 import ejb.session.stateless.EmployeeEntitySessionBeanRemote;
@@ -11,6 +12,7 @@ import ejb.session.stateless.PartnerEntitySessionBeanRemote;
 import ejb.session.stateless.CategoryEntitySessionBeanRemote;
 import ejb.session.stateless.ModelEntitySessionBeanRemote;
 import ejb.session.stateless.RentalRateEntitySessionBeanRemote;
+import ejb.session.stateless.ReservationRecordEntitySessionBeanRemote;
 import javax.ejb.EJB;
 
 /**
@@ -18,6 +20,9 @@ import javax.ejb.EJB;
  * @author admin
  */
 public class Main {
+
+    @EJB(name = "ReservationRecordEntitySessionBeanRemote")
+    private static ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote;
 
     @EJB
     private static OutletEntitySessionBeanRemote outletEntitySessionBeanRemote;
@@ -33,14 +38,13 @@ public class Main {
     private static ModelEntitySessionBeanRemote modelEntitySessionBeanRemote;
     @EJB
     private static CarEntitySessionBeanRemote carEntitySessionBeanRemote;
-    
-    
-    
+
     public static void main(String[] args) {
-    MainApp mainApp = new MainApp(outletEntitySessionBeanRemote, employeeEntitySessionBeanRemote, partnerEntitySessionBeanRemote, 
-            categoryEntitySessionBeanRemote, modelEntitySessionBeanRemote, rentalRateEntitySessionBeanRemote,carEntitySessionBeanRemote);
+        MainApp mainApp = new MainApp(outletEntitySessionBeanRemote, employeeEntitySessionBeanRemote, partnerEntitySessionBeanRemote,
+                categoryEntitySessionBeanRemote, modelEntitySessionBeanRemote, rentalRateEntitySessionBeanRemote, carEntitySessionBeanRemote,
+                 reservationRecordEntitySessionBeanRemote);
         mainApp.runApp();
     }
-    
+
 }
 //abcdefg

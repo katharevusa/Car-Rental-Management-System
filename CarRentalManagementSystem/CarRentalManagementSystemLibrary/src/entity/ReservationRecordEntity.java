@@ -65,7 +65,11 @@ public class ReservationRecordEntity implements Serializable {
     @JoinColumn(nullable = true)
     private PartnerEntity partner;
     
-   
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private TransitDriverDispatchRecordEntity tddr;
+
+    
 
     public ReservationRecordEntity() {
         
@@ -74,7 +78,6 @@ public class ReservationRecordEntity implements Serializable {
     public ReservationRecordEntity(Double rentalRate, LocalDateTime pickUpDateTime, LocalDateTime returnDateTime) {
         
         this();
-        
         this.rentalRate = rentalRate;
         this.pickUpDateTime = pickUpDateTime;
         this.returnDateTime = returnDateTime;
@@ -104,7 +107,21 @@ public class ReservationRecordEntity implements Serializable {
     public String toString() {
         return "entity.ReservationRecordEntity[ id=" + getReservationRecordId() + " ]";
     }
+public double getRentalRate() {
+        return rentalRate;
+    }
 
+    public void setRentalRate(double rentalRate) {
+        this.rentalRate = rentalRate;
+    }
+
+    public TransitDriverDispatchRecordEntity getTddr() {
+        return tddr;
+    }
+
+    public void setTddr(TransitDriverDispatchRecordEntity tddr) {
+        this.tddr = tddr;
+    }
     public Long getReservationRecordId() {
         return reservationRecordId;
     }

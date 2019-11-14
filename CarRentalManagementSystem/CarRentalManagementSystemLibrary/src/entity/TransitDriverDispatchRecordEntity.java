@@ -6,10 +6,14 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -22,6 +26,13 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @OneToOne
+    private OutletEntity outlet;
+    @OneToMany(mappedBy = "reservationRecords")
+    private List<ReservationRecordEntity> reservationRecords;
+    //reservation record contains cars, so just traverse the relationship
+    @ManyToOne
+    private EmployeeEntity employee;
     
     public Long getId() {
         return id;

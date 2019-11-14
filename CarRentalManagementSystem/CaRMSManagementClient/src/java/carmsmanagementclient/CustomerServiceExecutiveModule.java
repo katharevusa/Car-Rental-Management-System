@@ -5,6 +5,7 @@
 */
 package carmsmanagementclient;
 
+import ejb.session.stateless.ReservationRecordEntitySessionBeanRemote;
 import entity.EmployeeEntity;
 import java.util.Scanner;
 import util.enumeration.AccessRightEnum;
@@ -17,8 +18,10 @@ import util.exception.InvalidAccessRightException;
 class CustomerServiceExecutiveModule {
     private EmployeeEntity currentEmployee;
     
-    public CustomerServiceExecutiveModule(EmployeeEntity currentEmployee) {
+    private ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote;
+    public CustomerServiceExecutiveModule(EmployeeEntity currentEmployee, ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote) {
         this.currentEmployee = currentEmployee;
+        this.reservationRecordEntitySessionBeanRemote = reservationRecordEntitySessionBeanRemote;
     }
     
     public void menuCustomerServiceExecutiveModule() throws InvalidAccessRightException{ {
@@ -71,7 +74,10 @@ class CustomerServiceExecutiveModule {
     }
 
     private void doPickupCar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter reservation id>");
+       // reservationRecordEntitySessionBeanRemote.retrieveReservationByReservationId(sc.nextLong());
+        
     }
 
     private void doReturnCar() {

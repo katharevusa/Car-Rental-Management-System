@@ -27,10 +27,19 @@ public class CarEntity implements Serializable {
     private String model;
     private boolean onRental = false;
     private boolean disabled = false;
+    private boolean inTransit = false;
 
     //bidirectional
     @ManyToOne
     private ModelEntity modelEntity;
+
+    public boolean isInTransit() {
+        return inTransit;
+    }
+
+    public void setInTransit(boolean inTransit) {
+        this.inTransit = inTransit;
+    }
     //bidirectional
     @ManyToOne
     private OutletEntity outletEntity;
