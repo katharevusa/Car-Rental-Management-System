@@ -5,7 +5,9 @@
  */
 package ejb.session.stateless;
 
+import entity.EmployeeEntity;
 import entity.OutletEntity;
+import entity.TransitDriverDispatchRecordEntity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,5 +85,14 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
             }
         }
         return availableOutlets;
+    }
+    @Override
+    public List<TransitDriverDispatchRecordEntity> retrieveAllDispatchRecord(OutletEntity outletEntity){
+        em.merge(outletEntity);
+        return outletEntity.getDispatchRecord();
+    }
+    public List<EmployeeEntity> retrieveAllEmployee(OutletEntity outlet){
+        em.merge(outlet);
+        return outlet.getEmployees();
     }
 }

@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import util.enumeration.DispatchRecordEnum;
 
 /**
  *
@@ -26,13 +28,19 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private DispatchRecordEnum dispatchRecordEnum;
+    @ManyToOne
+    private OutletEntity outletEntity;
     @OneToOne
-    private OutletEntity outlet;
-    @OneToMany(mappedBy = "reservationRecords")
-    private List<ReservationRecordEntity> reservationRecords;
-    //reservation record contains cars, so just traverse the relationship
+    private ReservationRecordEntity reservationRecords;
     @ManyToOne
     private EmployeeEntity employee;
+
+    public TransitDriverDispatchRecordEntity() {
+        this.dispatchRecordEnum = DispatchRecordEnum.UNASSIGNED;
+
+    }
+    
     
     public Long getId() {
         return id;
@@ -47,6 +55,40 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
         int hash = 0;
         hash += (id != null ? id.hashCode() : 0);
         return hash;
+    }
+
+    public OutletEntity getOutlet() {
+        return outletEntity;
+    }
+
+    public void setOutlet(OutletEntity outletEntity) {
+        this.outletEntity = outletEntity;
+    }
+
+    public DispatchRecordEnum getDispatchRecordEnum() {
+        return dispatchRecordEnum;
+    }
+
+    public void setDispatchRecordEnum(DispatchRecordEnum dispatchRecordEnum) {
+        this.dispatchRecordEnum = dispatchRecordEnum;
+    }
+
+    public ReservationRecordEntity getReservationRecords() {
+        return reservationRecords;
+    }
+
+    public void setReservationRecords(ReservationRecordEntity reservationRecords) {
+        this.reservationRecords = reservationRecords;
+    }
+
+
+
+    public EmployeeEntity getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(EmployeeEntity employee) {
+        this.employee = employee;
     }
 
     @Override

@@ -66,8 +66,7 @@ public class ReservationRecordEntity implements Serializable {
     @JoinColumn(nullable = true)
     private PartnerEntity partner;
     
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @OneToOne
     private TransitDriverDispatchRecordEntity tddr;
 
     

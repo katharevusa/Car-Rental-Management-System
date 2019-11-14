@@ -1,12 +1,14 @@
 package ejb.session.stateless;
 
 import entity.CarEntity;
+import entity.CategoryEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
 import entity.ReservationRecordEntity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -17,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
 import util.enumeration.CarStatusEnum;
 import util.exception.CarNotFoundException;
 import util.exception.DeleteCarException;
@@ -99,7 +102,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
 
         try {
             CarEntity carEntityToRemove = retrieveCarByCarId(carId);
-            if (carEntityToRemove.isOnRental() == false) {
+            if (carEntityToRemove.getStatus() != CarStatusEnum.ONRENTAL) {
 
                 carEntityToRemove.getModelEntity().getCars().remove(carEntityToRemove);
                 if (carEntityToRemove.getOutletEntity() != null) {
@@ -211,4 +214,28 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
         }
 
     }
+    /*@Override
+    public void updateCar(CarEntity car) throws CarNotFoundException{
+        if (car != null && car.getCarId()!= null) {
+            Set<ConstraintViolation<CarEntity>> constraintViolations = validator.validate(car);
+
+            if (constraintViolations.isEmpty()) {
+                CarEntity carToUpdate = retrieveCarByCarId(car.getCarId());
+
+                if (carToUpdate.getCarId().equals(car.getCarId())) {
+                    carToUpdate.setMake(car.getMake());
+                    carToUpdate.setModel(car.getModel());
+                    carToUpdate.setPlateNumber(car.getPlateNumber());
+                    carToUpdate.setStatus(car.getStatus());
+                } else {
+                    throw new UpdateRentalRateException("ID of rental rate to be updated does not match the existing rental rate");
+                }
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        } else {
+            throw new RentalRateNotFoundException("Rental rate ID not provided for product to be updated");
+        }
+    }*/
+
 }

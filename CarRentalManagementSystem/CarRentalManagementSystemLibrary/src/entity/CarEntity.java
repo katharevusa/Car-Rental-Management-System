@@ -30,21 +30,13 @@ public class CarEntity implements Serializable {
     private CarStatusEnum status;
     private String make;
     private String model;
-    private boolean onRental = false;
+  
     private boolean disabled = false;
-    private boolean inTransit = false;
 
     //bidirectional
     @ManyToOne
     private ModelEntity modelEntity;
 
-    public boolean isInTransit() {
-        return inTransit;
-    }
-
-    public void setInTransit(boolean inTransit) {
-        this.inTransit = inTransit;
-    }
     //bidirectional
     @ManyToOne
     private OutletEntity outletEntity;
@@ -125,15 +117,6 @@ public class CarEntity implements Serializable {
         this.plateNumber = plateNumber;
     }
 
-
-
-    public boolean isOnRental() {
-        return onRental;
-    }
-
-    public void setOnRental(boolean onRental) {
-        this.onRental = onRental;
-    }
 
     public boolean isDisabled() {
         return disabled;
