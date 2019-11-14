@@ -23,6 +23,6 @@ public interface CarEntitySessionBeanRemote {
 
     public List<CarEntity> filterCarsBasedOnModelId(List<CarEntity> cars, Long modelId);
 
-    public List<CarEntity> retrieveAvailableCars(LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId);
+    public Boolean checkCarAvailability(LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId, Long selectedCategoryId, Long selectedModelId);
     
 }

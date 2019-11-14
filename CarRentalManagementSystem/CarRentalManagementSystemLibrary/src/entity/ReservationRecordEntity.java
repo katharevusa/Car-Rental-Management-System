@@ -39,9 +39,9 @@ public class ReservationRecordEntity implements Serializable {
     private LocalDateTime returnDateTime;
     private double rentalRate;
     private Boolean isCancelled = false;
-    private Double refund;
-    private String ccNumber;
-    private Double paidAmount;
+    private Double refund = 0.0;
+    private String ccNumber = "";
+    private Double paidAmount = 0.0;
 
     //uni
     @OneToOne

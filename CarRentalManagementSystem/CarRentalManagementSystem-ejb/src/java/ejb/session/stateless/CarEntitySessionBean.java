@@ -123,53 +123,119 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     }
 
     @Override
-    public List<CarEntity> retrieveAvailableCars(LocalDateTime pickupDateTime,LocalDateTime returnDateTime,Long selectedPickupOutletId, Long selectedReturnOutletId){
+    public Boolean checkCarAvailability(LocalDateTime pickupDateTime,LocalDateTime returnDateTime,
+            Long selectedPickupOutletId, Long selectedReturnOutletId, Long selectedCategoryId, Long selectedModelId){
         
+        Query query;
+        int totalAvailableCars;
+        if(selectedModelId.equals(-1)){
+            query = em.createQuery("SELECT c FROM CarEntity c WHERE c.disabled = FALSE "
+                    + "AND c.modelEntity.categoryEntity.categoryId = :inCategoryId");
+            query.setParameter("inCategoryId", selectedCategoryId);
+            totalAvailableCars = query.getResultList().size();
+            
+            System.out.println("************" + totalAvailableCars);
+            
+            query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.isCancelled = FALSE AND r.category.categoryId = :inCategoryId");
+            query.setParameter("inCategoryId", selectedCategoryId);
+            List<ReservationRecordEntity> reservations = query.getResultList();
+            List<ReservationRecordEntity> overlappedReservations = new ArrayList<>();
 
-        List<ReservationRecordEntity> overlappedReservations = new ArrayList<>();
-        //only those active reservation would be taken into consideration
-        Query query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.isCancelled = false");
-        List<ReservationRecordEntity> reservations = query.getResultList();
-        
-        for (ReservationRecordEntity reservation : reservations) {
-            if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)) {
-                overlappedReservations.add(reservation);
-            } else if (reservation.getReturnDateTime().isAfter(pickupDateTime) && reservation.getReturnDateTime().isBefore(returnDateTime)) {
-                overlappedReservations.add(reservation);
-            } else if(reservation.getReturnDateTime().isEqual(pickupDateTime) && reservation.getReturnOutlet().getOutletId() != selectedPickupOutletId){
-                overlappedReservations.add(reservation);
-            } else if(reservation.getReturnDateTime().isBefore(pickupDateTime) && reservation.getReturnDateTime().isAfter(pickupDateTime.minusHours(2))){
-                if(reservation.getReturnOutlet().getOutletId() != selectedPickupOutletId){
+            //check for reservation made on the selected category that overlap with the new reservation
+            for (ReservationRecordEntity reservation : reservations) {
+                
+                
+                if(reservation.getPickUpDateTime().isBefore(pickupDateTime)){
+                    if(reservation.getReturnDateTime().isAfter(pickupDateTime)){
+                        overlappedReservations.add(reservation);
+                    } else if (reservation.getReturnDateTime().isEqual(pickupDateTime)){
+                        if(!(reservation.getReturnOutlet().getOutletId().equals(selectedPickupOutletId))){
+                            overlappedReservations.add(reservation);
+                        }
+                    } else if(reservation.getReturnDateTime().isBefore(pickupDateTime)){
+                        if(reservation.getReturnDateTime().isAfter(pickupDateTime.plusHours(2))){
+                            if(!(reservation.getReturnOutlet().equals(selectedPickupOutletId))){
+                                overlappedReservations.add(reservation);
+                            }
+                        }
+                    }
+                } else if(reservation.getPickUpDateTime().isEqual(pickupDateTime)){
                     overlappedReservations.add(reservation);
+                } else if(reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)){
+                    overlappedReservations.add(reservation);
+                } else if(reservation.getPickUpDateTime().isEqual(returnDateTime)){
+                    if(!(reservation.getPickUpOutlet().equals(selectedReturnOutletId))){
+                        overlappedReservations.add(reservation);
+                    }
+                } else if(reservation.getPickUpDateTime().isAfter(returnDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime.plusHours(2))){
+                    if(!(reservation.getPickUpOutlet().getOutletId().equals(selectedReturnOutletId))){
+                        overlappedReservations.add(reservation);
+                    }
                 }
+                
             }
-        }
-
-   
-        List<CarEntity> allAvailableCars = retrieveAllCars();
-        List<CarEntity> filteredCars = new ArrayList<>();
-        boolean found;
-        for (CarEntity car : allAvailableCars) {
-            found = false;
-            for (ReservationRecordEntity reservation : overlappedReservations) {
-                if (car.getCarId() == reservation.getCarEntity().getCarId()){
-                    found = true;
+            
+            totalAvailableCars = totalAvailableCars - overlappedReservations.size();
+            System.out.println("************" + totalAvailableCars);
+            
+        } else {
+            query = em.createQuery("SELECT c FROM CarEntity c WHERE c.disabled = FALSE "
+                    + "AND c.modelEntity.modelId = :inModelId");
+            query.setParameter("inModelId", selectedModelId);
+            totalAvailableCars = query.getResultList().size();
+            
+            System.out.println("************" + totalAvailableCars);
+            
+            query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.model.modelId = :inModelId AND r.isCancelled = FALSE");
+            query.setParameter("inModelId", selectedModelId);
+            List<ReservationRecordEntity> reservations = query.getResultList();
+            List<ReservationRecordEntity> overlappedReservations = new ArrayList<>();
+            
+            for (ReservationRecordEntity reservation : reservations) {
+                
+                
+                if(reservation.getPickUpDateTime().isBefore(pickupDateTime)){
+                    if(reservation.getReturnDateTime().isAfter(pickupDateTime)){
+                        overlappedReservations.add(reservation);
+                    } else if (reservation.getReturnDateTime().isEqual(pickupDateTime)){
+                        if(!(reservation.getReturnOutlet().getOutletId().equals(selectedPickupOutletId))){
+                            overlappedReservations.add(reservation);
+                        }
+                    } else if(reservation.getReturnDateTime().isBefore(pickupDateTime)){
+                        if(reservation.getReturnDateTime().isAfter(pickupDateTime.plusHours(2))){
+                            if(!(reservation.getReturnOutlet().equals(selectedPickupOutletId))){
+                                overlappedReservations.add(reservation);
+                            }
+                        }
+                    }
+                } else if(reservation.getPickUpDateTime().isEqual(pickupDateTime)){
+                    overlappedReservations.add(reservation);
+                } else if(reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)){
+                    overlappedReservations.add(reservation);
+                } else if(reservation.getPickUpDateTime().isEqual(returnDateTime)){
+                    if(!(reservation.getPickUpOutlet().equals(selectedReturnOutletId))){
+                        overlappedReservations.add(reservation);
+                    }
+                } else if(reservation.getPickUpDateTime().isAfter(returnDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime.plusHours(2))){
+                    if(!(reservation.getPickUpOutlet().getOutletId().equals(selectedReturnOutletId))){
+                        overlappedReservations.add(reservation);
+                    }
                 }
+                
+               
             }
-            if(!found){
-                filteredCars.add(car);
-            }
+            
+            totalAvailableCars = totalAvailableCars - overlappedReservations.size();
+            System.out.println("************" + totalAvailableCars);
         }
         
-        List<CarEntity> finalResult = new ArrayList<>();
-
-        for(CarEntity car:filteredCars){
-            if(car.getStatus() == CarStatusEnum.AVAILABLE){
-                finalResult.add(car);
-            }
+        
+        if(totalAvailableCars > 0){
+            return true;
+        } else {
+            return false;
         }
         
-        return finalResult;
     }
     
     @Override

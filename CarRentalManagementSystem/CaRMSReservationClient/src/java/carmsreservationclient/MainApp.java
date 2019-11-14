@@ -196,10 +196,6 @@ public class MainApp {
             if (response == 6) {
                 break;
             }
-
-            sc.nextLine();
-            System.out.print("Press any key to continue...> ");
-            sc.nextLine();
         }
     }
 
@@ -208,29 +204,49 @@ public class MainApp {
     private void doSearchCar() {
         Scanner sc = new Scanner(System.in);
         String confirmReservation;
+        String continueConfirmation;
         String option;
 
         do {
 
             confirmReservation = "";
+            continueConfirmation = "";
             try {
+                
                 printAllCategory();
-                System.out.print("Please select a category>");
-                long selectedCategoryId = sc.nextLong();
-                sc.nextLine();
-
-                printAvailableModel(selectedCategoryId);
-                System.out.print("Do you want to skip selecting a specific car model?(Y/N)>");
+                System.out.print("Any car category?(Y/N)>");
                 option = sc.nextLine().trim();
                 
-                long selectedModelId;
+                long selectedCategoryId;
                 if (option.equals("Y")) {
-                    selectedModelId = -1;
+                    selectedCategoryId = -1;
                 } else {
                     System.out.print("Please select a category>");
-                    selectedModelId = sc.nextLong();
+                    selectedCategoryId = sc.nextLong();
                     sc.nextLine();
                 }
+
+
+                long selectedModelId;
+                printAvailableModel(selectedCategoryId);
+                if (selectedCategoryId == -1) {
+                    System.out.print("Please select a model>");
+                    selectedModelId = sc.nextLong();
+                    sc.nextLine();
+                    selectedCategoryId = modelEntitySessionBeanRemote.retrieveModelByModelId(selectedModelId).getCategoryEntity().getCategoryId();
+                } else {
+                    System.out.print("Any car model?(Y/N)>");
+                    option = sc.nextLine().trim();
+
+                    if (option.equals("Y")) {
+                        selectedModelId = -1;
+                    } else {
+                        System.out.print("Please select a category>");
+                        selectedModelId = sc.nextLong();
+                        sc.nextLine();
+                    }
+                }
+
 
                 System.out.print("Enter pick up date/time(yyyy-MM-dd HH:mm:ss)>");
                 String pickupDateTimeString = sc.nextLine().trim();
@@ -250,62 +266,78 @@ public class MainApp {
                 printAvailableOutlet(returnDateTime);
                 System.out.print("Please select a return outlet>");
                 long selectedReturnOutletId = sc.nextLong();
+                sc.nextLine();
 
-                
+                //first check availability of rental rate
                 double totalRentalRate = rentalRateEntitySessionBeanRemote.checkForExistenceOfRentalRate(selectedCategoryId, pickupDateTime, returnDateTime);
-                CarEntity car = searchCar(selectedCategoryId, selectedModelId, pickupDateTime,
+                //second check availability of cars
+                Boolean canReserve = searchCar(selectedCategoryId, selectedModelId, pickupDateTime,
                         returnDateTime, selectedPickupOutletId, selectedReturnOutletId);
-//                System.out.print("Found a car!Do you want to reserve it?(Y/N)");
-//                confirmReservation = sc.nextLine().trim();
-//                if (confirmReservation.equals("Y")) {
-//                    
-//                    System.out.println("The total rental rate for the current reservation is " + totalRentalRate);
-//                    System.out.println("Please select the payment option:");
-//                    System.out.println("1: Pay Now");
-//                    System.out.println("2: Pay at the outlet");
-//                    System.out.print("> ");
-//                    Long paymentOption = sc.nextLong();
-//                    sc.nextLine();
-//                    String ccNumber;
-//                    double paidAmt;
-//                    if(paymentOption == 2){
-//                        paidAmt = 0;
-//                        System.out.print("Please provide your creadit card number>");
-//                        ccNumber = sc.nextLine().trim();
-//                    } else {
-//                        paidAmt = totalRentalRate;
-//                        ccNumber = "";
-//                    }
-//                    Long reservationId = doReserveCar(car,totalRentalRate,selectedModelId,selectedCategoryId,
-//                            pickupDateTime,returnDateTime,selectedPickupOutletId,selectedReturnOutletId,ccNumber,paidAmt);
-//                    
-//                    System.out.println("Your reservation " + reservationId + " is successful!");
-//                    System.out.print("Press any key to continue...> ");
-//                    sc.nextLine();
-//                }
+                
+                if (canReserve) {
+                    
+                    System.out.print("Found a car!Do you want to reserve it?(Y/N)>");
+                    confirmReservation = sc.nextLine().trim();
+                    if (confirmReservation.equals("Y")) {
 
+                        System.out.println("The total rental rate for the current reservation is " + totalRentalRate);
+                        System.out.println("Please select the payment option:");
+                        System.out.println("1: Pay Now");
+                        System.out.println("2: Pay at the outlet");
+                        System.out.print("> ");
+                        Long paymentOption = sc.nextLong();
+                        sc.nextLine();
+                        String ccNumber;
+                        double paidAmt;
+                        if (paymentOption == 2) {
+                            paidAmt = 0;
+                            System.out.print("Please provide your creadit card number>");
+                            ccNumber = sc.nextLine().trim();
+                        } else {
+                            paidAmt = totalRentalRate;
+                            ccNumber = "";
+                        }
+                        
+                        
+                        Long reservationId = doReserveCar(totalRentalRate, selectedModelId, selectedCategoryId,
+                                pickupDateTime, returnDateTime, selectedPickupOutletId, selectedReturnOutletId, ccNumber, paidAmt);
+
+                        System.out.println("Your reservation " + reservationId + " is successful!");
+                        
+                    }
+                } else {
+                    System.out.println("There is currently no available cars for the specified period.");
+                    
+                }
+                
+                System.out.print("Do you want to try with another period?(Y/N)>");
+                continueConfirmation = sc.nextLine().trim();
+                
+                
             } catch (CategoryNotFoundException ex1) {
                 System.out.println(ex1.getMessage());
             } catch (RentalRateNotFoundException ex2) {
                 System.out.println("Rental Rate is unavailable for the specified period!");
             } catch (NoResultFoundException ex3) {
                 System.out.println(ex3.getMessage());
-            }
-//            } catch (UnsuccessfulReservationException ex4){
-//                System.out.println(ex4.getMessage());
-//            }
+            } catch (UnsuccessfulReservationException ex4){
+                System.out.println(ex4.getMessage());
+            } catch (ModelNotFoundException ex5) {
+                System.out.println(ex5.getMessage());
+            } 
 
-        } while (confirmReservation.equals("Y"));
+        } while (continueConfirmation.equals("Y"));
     }
     
-    private Long doReserveCar(CarEntity car,double totalRentalRate, Long selectedModelId, Long selectedCategoryId, 
+    private Long doReserveCar(double totalRentalRate, Long selectedModelId, Long selectedCategoryId, 
             LocalDateTime pickupDateTime,LocalDateTime returnDateTime, Long selectedPickupOutletId, 
             Long selectedReturnOutletId,String ccNumber,double paidAmt) throws UnsuccessfulReservationException{
 
         try{
             
             ReservationRecordEntity reservationRecordEntity = new ReservationRecordEntity(totalRentalRate, pickupDateTime, returnDateTime,ccNumber,paidAmt);
-            Long reservationId = reservationRecordEntitySessionBeanRemote.createNewReservationRecord(reservationRecordEntity, selectedModelId, selectedModelId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
+            Long reservationId = reservationRecordEntitySessionBeanRemote.createNewReservationRecord(reservationRecordEntity,
+                    currentCustomerEntity.getCustomerId(),selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
             return reservationId;
             
         } catch(ReservationCreationException ex){
@@ -316,19 +348,14 @@ public class MainApp {
     
     
 
-    public CarEntity searchCar(Long selectedCategoryId, Long selectedModelId, LocalDateTime pickupDateTime,
+    public Boolean searchCar(Long selectedCategoryId, Long selectedModelId, LocalDateTime pickupDateTime,
             LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId) throws NoResultFoundException, CategoryNotFoundException {
 
         //filter to get cars with specified category and model
-        List<CarEntity> availableCars = carEntitySessionBeanRemote.retrieveAvailableCars(pickupDateTime, returnDateTime, selectedPickupOutletId, selectedReturnOutletId);
-        availableCars = carEntitySessionBeanRemote.filterCarsBasedOnCategoryId(availableCars, selectedCategoryId);
-        availableCars = carEntitySessionBeanRemote.filterCarsBasedOnModelId(availableCars, selectedModelId);
+        Boolean canReserve = carEntitySessionBeanRemote.checkCarAvailability(pickupDateTime, returnDateTime, 
+                selectedPickupOutletId, selectedReturnOutletId, selectedCategoryId,selectedModelId);
 
-        if (availableCars.isEmpty()) {
-            throw new NoResultFoundException("No result found!");
-        } else {
-            return availableCars.get(0);
-        }
+        return canReserve;
 
     }
 
@@ -342,18 +369,29 @@ public class MainApp {
         }
     }
 
-    private void printAvailableModel(long selectedCategory) throws CategoryNotFoundException {
-        try {
-            CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(selectedCategory);
+    private void printAvailableModel(long selectedCategoryId) throws CategoryNotFoundException {
+        
+        if (selectedCategoryId == -1){
+            List<ModelEntity> models = modelEntitySessionBeanRemote.retrieveAllModel();
             System.out.printf("%10s%20s%n", "Model ID", "Model Name");
             //get list of models under the category
-           // <ModelEntity> models = categoryEntitySessionBeanRemote.retrieveAllModelsUnderCategory(category);
-            for (ModelEntity model : category.getModels()) {
+            // <ModelEntity> models = categoryEntitySessionBeanRemote.retrieveAllModelsUnderCategory(category);
+            for (ModelEntity model : models) {
                 System.out.printf("%10s%20s%n", model.getModelId(), model.getModelName());
             }
+        } else {
+            try {
+                CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(selectedCategoryId);
+                System.out.printf("%10s%20s%n", "Model ID", "Model Name");
+                //get list of models under the category
+                // <ModelEntity> models = categoryEntitySessionBeanRemote.retrieveAllModelsUnderCategory(category);
+                for (ModelEntity model : category.getModels()) {
+                    System.out.printf("%10s%20s%n", model.getModelId(), model.getModelName());
+                }
 
-        } catch (CategoryNotFoundException ex) {
-            throw new CategoryNotFoundException("The selected category does not exist.");
+            } catch (CategoryNotFoundException ex) {
+                throw new CategoryNotFoundException("The selected category does not exist.");
+            }
         }
 
     }

@@ -61,23 +61,31 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
 
     @Override
     public Long createNewReservationRecord(ReservationRecordEntity reservationRecordEntity, Long customerId, 
-            Long carId, Long modelId, Long categoryId, Long pickupOutletId, Long returnOutletId) throws ReservationCreationException{
+            Long modelId, Long categoryId, Long pickupOutletId, Long returnOutletId) throws ReservationCreationException{
 
         try{
             em.persist(reservationRecordEntity);
-            em.flush();
 
+            System.out.println("here1");
+            ModelEntity model;
+            if(modelId.equals(-1)){
+                model = null;
+            } else {
+                model = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
+            }
+            
+            System.out.println("here2");
             CustomerEntity customer = customerEntitySessionBeanLocal.retrieveCustomerByCustomerId(customerId);
-            ModelEntity model = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
+            System.out.println("here3");
             CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
+            System.out.println("here4");
             OutletEntity pickupOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(pickupOutletId);
+            System.out.println("here5");
             OutletEntity returnOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(returnOutletId);
-            CarEntity car = carEntitySessionBeanLocal.retrieveCarByCarId(carId);
-
+            
+            
             reservationRecordEntity.setCategory(category);
             reservationRecordEntity.setModel(model);
-            reservationRecordEntity.setCarEntity(car);
-            car.setReservationRecordEntity(reservationRecordEntity);
             reservationRecordEntity.setPickUpOutlet(pickupOutlet);
             reservationRecordEntity.setReturnOutlet(returnOutlet);
             reservationRecordEntity.setCustomerEntity(customer);
@@ -95,8 +103,6 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
         } catch (CategoryNotFoundException ex4){
             throw new ReservationCreationException("");
         } catch (OutletNotFoundException ex5){
-            throw new ReservationCreationException("");
-        } catch (CarNotFoundException ex6){
             throw new ReservationCreationException("");
         }
 
@@ -184,76 +190,6 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
         
     }
     
-    
-//    @Override
-//    public void cancelReservation(Long reservationRecordId) throws ReservationAlreadyCancelledException {
-//        try {
-//            ReservationRecordEntity reservationRecord = retrieveReservationBylId(reservationRecordId);
-//            if (!reservationRecord.getIsCancelled()) {
-//                //check when is this method being called
-//                //if at least 14 days before pickup - 0%
-//                //if less than 14 days but at least 7 days before pickup -20%
-//                //if less than 7 days but at least 3 days before pickup -50%
-//                //less than 3 days before pickup -70%
-//
-//                LocalDateTime currentDateTime = LocalDateTime.now();
-//                LocalDateTime reservationTime = reservationRecord.getPickUpDateTime();
-//                LocalDateTime threeDays = reservationTime.minusDays(3);
-//                LocalDateTime sevenDays = reservationTime.minusDays(7);
-//                LocalDateTime fourteenDays = reservationTime.minusDays(14);
-//                if (currentDateTime.isBefore(fourteenDays) || currentDateTime.isEqual(fourteenDays)) {
-//                    if (reservationRecord.getPaidAmount() != 0) {
-//                        reservationRecord.setRefund(reservationRecord.getPaidAmount());
-//                        reservationRecord.setPaidAmount(0.00);
-//                    } else {
-//                        reservationRecord.setRefund(0.00);
-//                    }
-//                } else if (currentDateTime.isBefore(sevenDays) && currentDateTime.isAfter(fourteenDays)) {
-//                    //20%
-//                    if (reservationRecord.getPaidAmount() != 0) {
-//                        reservationRecord.setPaidAmount(0.00);
-//                        reservationRecord.setRefund(reservationRecord.getPaidAmount() * 0.8);
-//                    } else {
-//                        reservationRecord.setRefund(0.00 - (reservationRecord.getPaidAmount() * 0.2));
-//                    }
-//                } else if (currentDateTime.isBefore(threeDays) && currentDateTime.isAfter(sevenDays)) {
-//                    //50%
-//                    if (reservationRecord.getPaidAmount() != 0) {
-//                        reservationRecord.setPaidAmount(0.00);
-//                        reservationRecord.setRefund(reservationRecord.getPaidAmount() * 0.5);
-//                    } else {
-//                        reservationRecord.setRefund(0.00 - (reservationRecord.getPaidAmount() * 0.5));
-//                    }
-//                } else if (currentDateTime.isAfter(threeDays)) {
-//                    //70%
-//                    if (reservationRecord.getPaidAmount() != 0) {
-//                        reservationRecord.setPaidAmount(0.00);
-//                        reservationRecord.setRefund(reservationRecord.getPaidAmount() * 0.3);
-//                    } else {
-//                        reservationRecord.setRefund(0.00 - (reservationRecord.getPaidAmount() * 0.7));
-//                    }
-//                }
-//                //unset relationship
-//                reservationRecord.setCarEntity(null);
-//                reservationRecord.setModel(null);
-//                reservationRecord.setCategory(null);
-////                List<RentalDayEntity> rds = reservationRecord.getRentalDays();
-////                for (RentalDayEntity rd : rds) {
-////                    reservationRecord.setRentalDays(null);
-////                }
-//                reservationRecord.setPickUpOutlet(null);
-//                reservationRecord.setReturnOutlet(null);
-//                reservationRecord.setCustomer(null);
-//                reservationRecord.setPartner(null);
-//                //reservationRecord.setDispatchRecord(null);
-//                reservationRecord.setIsCancelled(true);
-//            } else {
-//                throw new ReservationAlreadyCancelledException("reservation has already been cancelled!");
-//            }
-//        } catch (ReservationRecordNotFoundException ex) {
-//            System.out.println("reservation not found!");
-//        }
-//    }
 }
 
 

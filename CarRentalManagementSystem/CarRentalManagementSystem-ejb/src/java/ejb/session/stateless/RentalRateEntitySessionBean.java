@@ -163,7 +163,6 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
         
         while(next24HourDateTime.isBefore(returnDateTime)){
             
-            System.out.println(next24HourDateTime + " : " + returnDateTime);
             rentalRateExist = false;
             List<Double> rates = new ArrayList<>();
             for(RentalRateEntity rentalRate:rentalRates){
