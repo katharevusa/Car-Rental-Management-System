@@ -66,7 +66,7 @@ public class ReservationRecordEntity implements Serializable {
     @JoinColumn(nullable = true)
     private PartnerEntity partner;
     
-    @OneToOne
+    @OneToOne(mappedBy = "reservationRecord")
     private TransitDriverDispatchRecordEntity tddr;
 
     

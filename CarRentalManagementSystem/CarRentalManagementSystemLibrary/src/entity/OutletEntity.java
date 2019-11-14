@@ -35,7 +35,7 @@ public class OutletEntity implements Serializable {
     private String address;
 
     private LocalTime openingTime;
-  
+
     private LocalTime closingTime;
 
     //bidirectional
@@ -46,23 +46,14 @@ public class OutletEntity implements Serializable {
     private List<EmployeeEntity> employees;
     @OneToMany(mappedBy = "outletEntity")
     private List<TransitDriverDispatchRecordEntity> dispatchRecord;
-    
 
-    public OutletEntity(){
+    public OutletEntity() {
         employees = new ArrayList<>();
         cars = new ArrayList<>();
         dispatchRecord = new ArrayList<>();
     }
 
-    public List<TransitDriverDispatchRecordEntity> getDispatchRecord() {
-        return dispatchRecord;
-    }
-
-    public void setDispatchRecord(List<TransitDriverDispatchRecordEntity> dispatchRecord) {
-        this.dispatchRecord = dispatchRecord;
-    }
-    
-    public OutletEntity(String name, String address,LocalTime openingTime, LocalTime closingTime) {
+    public OutletEntity(String name, String address, LocalTime openingTime, LocalTime closingTime) {
         this();
         this.name = name;
         this.address = address;
@@ -88,6 +79,14 @@ public class OutletEntity implements Serializable {
             return false;
         }
         return true;
+    }
+
+    public List<TransitDriverDispatchRecordEntity> getDispatchRecord() {
+        return dispatchRecord;
+    }
+
+    public void setDispatchRecord(List<TransitDriverDispatchRecordEntity> dispatchRecord) {
+        this.dispatchRecord = dispatchRecord;
     }
 
     @Override
@@ -150,5 +149,5 @@ public class OutletEntity implements Serializable {
     public void setEmployees(List<EmployeeEntity> employees) {
         this.employees = employees;
     }
-    
+
 }

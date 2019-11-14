@@ -2,6 +2,7 @@ package ejb.session.singleton;
 
 import ejb.session.stateless.CarEntitySessionBeanLocal;
 import ejb.session.stateless.CategoryEntitySessionBeanLocal;
+import ejb.session.stateless.CustomerEntitySessionBeanLocal;
 import ejb.session.stateless.EmployeeEntitySessionBeanLocal;
 import ejb.session.stateless.ModelEntitySessionBeanLocal;
 import ejb.session.stateless.OutletEntitySessionBeanLocal;
@@ -13,6 +14,7 @@ import entity.OutletEntity;
 import entity.EmployeeEntity;
 import entity.PartnerEntity;
 import entity.CategoryEntity;
+import entity.CustomerEntity;
 import entity.ModelEntity;
 
 import entity.RentalRateEntity;
@@ -34,14 +36,19 @@ import util.exception.CategoryNotFoundException;
 import util.exception.CreateNewModelFailureException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.GeneralException;
+import util.exception.InvalidFieldEnteredException;
 import util.exception.ModelNotFoundException;
 import util.exception.NewCarCreationException;
 import util.exception.OutletNotFoundException;
+import util.exception.UnknownPersistenceException;
 
 @Singleton
 @LocalBean
 @Startup
 public class DataInitializationSessionBean {
+
+    @EJB(name = "CustomerEntitySessionBeanLocal")
+    private CustomerEntitySessionBeanLocal customerEntitySessionBeanLocal;
 
     @EJB(name = "RentalRateEntitySessionBeanLocal")
     private RentalRateEntitySessionBeanLocal rentalRateEntitySessionBeanLocal;
@@ -130,6 +137,7 @@ public class DataInitializationSessionBean {
                 modelEntitySessionBeanLocal.createNewModel(new ModelEntity("Mercedes", "E Class"), Long.valueOf(1));
                 modelEntitySessionBeanLocal.createNewModel(new ModelEntity("BMW", "5 Series"), Long.valueOf(1));
                 modelEntitySessionBeanLocal.createNewModel(new ModelEntity("Audi", "A6"), Long.valueOf(1));
+           
             } catch (CreateNewModelFailureException ex) {
                 Logger.getLogger(DataInitializationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -144,9 +152,10 @@ public class DataInitializationSessionBean {
                 carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00C1NS", "Nissan", "Sunny", CarStatusEnum.AVAILABLE), "Nissan", "Sunny", Long.valueOf(3));
                 carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00C2NS", "Nissan", "Sunny", CarStatusEnum.AVAILABLE), "Nissan", "Sunny", Long.valueOf(3));
                 carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00C3NS", "Nissan", "Sunny", CarStatusEnum.REPAIR), "Nissan", "Sunny", Long.valueOf(3));
-                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00A4ME", "Mercedes", "E Class", CarStatusEnum.AVAILABLE), "Mercedes", "E Class", Long.valueOf(4));
-                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00B4B5", "BMW", "5 Series", CarStatusEnum.AVAILABLE), "BMW", "5 Series", Long.valueOf(5));
-                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00C4A6", "Audi", "A6", CarStatusEnum.AVAILABLE), "Audi", "A6", Long.valueOf(6));
+                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00A4ME", "Mercedes", "E Class", CarStatusEnum.AVAILABLE), "Mercedes", "E Class", Long.valueOf(1));
+                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00B4B5", "BMW", "5 Series", CarStatusEnum.AVAILABLE), "BMW", "5 Series", Long.valueOf(2));
+                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00C4A6", "Audi", "A6", CarStatusEnum.AVAILABLE), "Audi", "A6", Long.valueOf(3));
+                
             } catch (NewCarCreationException ex) {
                 Logger.getLogger(DataInitializationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
             } catch (OutletNotFoundException ex) {
@@ -163,8 +172,16 @@ public class DataInitializationSessionBean {
             rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("Tuesday", 320.00, LocalDateTime.parse("03/12/2019 00:00", formatter), LocalDateTime.parse("03/12/2019 23:59", formatter)));
             rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("Wednesday", 330.00, LocalDateTime.parse("04/12/2019 00:00", formatter), LocalDateTime.parse("04/12/2019 23:59", formatter)));
             rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("Weekday Promo", 250.00, LocalDateTime.parse("04/12/2019 12:00", formatter), LocalDateTime.parse("05/12/2019 12:00", formatter)));
-
+           //
+            rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("test1", 500.00, LocalDateTime.parse("04/12/2019 00:00", formatter), LocalDateTime.parse("05/12/2019 00:00", formatter)));
+            rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(3), new RentalRateEntity("test2", 1.00, LocalDateTime.parse("04/12/2019 00:00", formatter), LocalDateTime.parse("05/12/2019 00:00", formatter)));
+            rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(3), new RentalRateEntity("test3", 230.00, LocalDateTime.parse("04/12/2019 00:00", formatter), LocalDateTime.parse("05/12/2019 00:00", formatter)));
+            customerEntitySessionBeanLocal.createNewCustomer(new CustomerEntity("tester","password","test@gamil.com","12341234"));
         } catch (CategoryNotFoundException | GeneralException ex) {
+            Logger.getLogger(DataInitializationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidFieldEnteredException ex) {
+            Logger.getLogger(DataInitializationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnknownPersistenceException ex) {
             Logger.getLogger(DataInitializationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
         }
 

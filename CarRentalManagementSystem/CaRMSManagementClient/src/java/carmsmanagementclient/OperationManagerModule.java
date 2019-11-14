@@ -144,7 +144,7 @@ class OperationManagerModule {
                 }
             }
 
-            if (response == 11) {
+            if (response == 12) {
                 break;
             }
         }
@@ -155,12 +155,15 @@ class OperationManagerModule {
     }
 
     private void doViewTDDR() {
-        List<TransitDriverDispatchRecordEntity> dispatchRecord = outletEntitySessionBeanRemote.retrieveAllDispatchRecord(currentEmployee.getOutletEntity());
-        Scanner sc = new Scanner(System.in);
 
+        List<TransitDriverDispatchRecordEntity> dispatchRecord = outletEntitySessionBeanRemote.retrieveAllDispatchRecord(currentEmployee.getOutletEntity());
+        System.out.println(dispatchRecord);
+       // System.out.println(currentEmployee.getOutletEntity());
+        Scanner sc = new Scanner(System.in);
         System.out.printf("%8s%20s%20s%20s%20s\n", "Id", "Outlet", "Status", "Reservation Id", "Assigned Driver");
+       
         for (TransitDriverDispatchRecordEntity r : dispatchRecord) {
-            System.out.printf("%8s%20s%20s%20s%20s\n", r.getId(), r.getOutlet().getName(), r.getDispatchRecordEnum(), r.getReservationRecords().getReservationRecordId(), r.getEmployee());
+            System.out.printf("%8s%20s%20s%20s%20s\n", r.getId(), r.getOutlet().getName(), r.getDispatchRecordEnum(), r.getReservationRecord().getReservationRecordId(), r.getEmployeeEntity());
         }
 
         System.out.print("Press any key to continue...> ");
@@ -183,7 +186,7 @@ class OperationManagerModule {
         System.out.println("Enter the employee ID>");
         EmployeeEntity e = employeeEntitySessionBeanRemote.retrieveEmployeeByEmployeeId(sc.nextLong());
         sc.nextLine();
-        dispatchRecord.setEmployee(e);
+        dispatchRecord.setEmployeeEntity(e);
         dispatchRecord.setDispatchRecordEnum(DispatchRecordEnum.ASSIGNED);
         e.getDispatchRecord().add(dispatchRecord);
         System.out.println("Employee with ID of " + e.getEmployeeId() + "is successfully assigned to the reservation");

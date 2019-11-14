@@ -42,6 +42,7 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
         OutletEntity outlet = em.find(OutletEntity.class, outletId);
         
         if (outlet != null){
+            outlet.getDispatchRecord().size();
             return outlet;
         } else {
             throw new OutletNotFoundException("Outlet ID " + outletId + " does not exist!");
@@ -88,8 +89,12 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
     }
     @Override
     public List<TransitDriverDispatchRecordEntity> retrieveAllDispatchRecord(OutletEntity outletEntity){
-        em.merge(outletEntity);
-        return outletEntity.getDispatchRecord();
+        
+      //  em.merge(outletEntity);
+    
+        List<TransitDriverDispatchRecordEntity> list = outletEntity.getDispatchRecord();
+        list.size();
+        return list;
     }
     public List<EmployeeEntity> retrieveAllEmployee(OutletEntity outlet){
         em.merge(outlet);

@@ -51,7 +51,7 @@ public class EmployeeEntity implements Serializable {
     private OutletEntity outletEntity;
     //@OneToMany(mappedBy = "employee")
    // private DispatchRecord dispatchRecord;
-    @OneToMany
+    @OneToMany(mappedBy = "employeeEntity")
     private List<TransitDriverDispatchRecordEntity> dispatchRecord;
 
     public List<TransitDriverDispatchRecordEntity> getDispatchRecord() {

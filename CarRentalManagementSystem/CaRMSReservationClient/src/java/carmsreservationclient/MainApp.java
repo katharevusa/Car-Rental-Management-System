@@ -45,7 +45,6 @@ public class MainApp {
     private ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote;
     private RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote;
     private ModelEntitySessionBeanRemote modelEntitySessionBeanRemote;
-    
 
     public MainApp() {
     }
@@ -53,7 +52,7 @@ public class MainApp {
     public MainApp(ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote,
             OutletEntitySessionBeanRemote outletEntitySessionBeanRemote, CustomerEntitySessionBeanRemote customerEntitySessionBeanRemote,
             CarEntitySessionBeanRemote carEntitySessionBeanRemote, CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote,
-            RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote,ModelEntitySessionBeanRemote modelEntitySessionBeanRemote) {
+            RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote, ModelEntitySessionBeanRemote modelEntitySessionBeanRemote) {
 
         this();
 
@@ -176,9 +175,9 @@ public class MainApp {
                 response = sc.nextInt();
 
                 if (response == 1) {
-                      doSearchCar();
+                    doSearchCar();
                 } else if (response == 2) {
-                      doSearchCar();
+                    doSearchCar();
                 } else if (response == 3) {
                     doViewReservationDetails();
                 } else if (response == 4) {
@@ -199,8 +198,6 @@ public class MainApp {
         }
     }
 
-    
-
     private void doSearchCar() {
         Scanner sc = new Scanner(System.in);
         String confirmReservation;
@@ -212,20 +209,19 @@ public class MainApp {
             confirmReservation = "";
             continueConfirmation = "";
             try {
-                
+
                 printAllCategory();
-                System.out.print("Any car category?(Y/N)>");
+                System.out.print("Any preferred car category?(Y/N)>");
                 option = sc.nextLine().trim();
-                
+
                 long selectedCategoryId;
-                if (option.equals("Y")) {
+                if (option.equals("N")) {
                     selectedCategoryId = -1;
                 } else {
                     System.out.print("Please select a category>");
                     selectedCategoryId = sc.nextLong();
                     sc.nextLine();
                 }
-
 
                 long selectedModelId;
                 printAvailableModel(selectedCategoryId);
@@ -247,12 +243,10 @@ public class MainApp {
                     }
                 }
 
-
                 System.out.print("Enter pick up date/time(yyyy-MM-dd HH:mm:ss)>");
                 String pickupDateTimeString = sc.nextLine().trim();
-                LocalDateTime pickupDateTime = LocalDateTime.parse("2019-12-06 12:00:00",formatter);
-                
-                
+                LocalDateTime pickupDateTime = LocalDateTime.parse(pickupDateTimeString, formatter);
+
                 printAvailableOutlet(pickupDateTime);
                 System.out.print("Please select a pickup outlet>");
                 long selectedPickupOutletId = sc.nextLong();
@@ -260,9 +254,8 @@ public class MainApp {
 
                 System.out.print("Enter return date/time(yyyy-MM-dd HH:mm:ss)>");
                 String returnDateTimeString = sc.nextLine().trim();
-                LocalDateTime returnDateTime = LocalDateTime.parse("2019-12-08 00:00:00",formatter);
-                
-                
+                LocalDateTime returnDateTime = LocalDateTime.parse(returnDateTimeString, formatter);
+
                 printAvailableOutlet(returnDateTime);
                 System.out.print("Please select a return outlet>");
                 long selectedReturnOutletId = sc.nextLong();
@@ -273,87 +266,81 @@ public class MainApp {
                 //second check availability of cars
                 Boolean canReserve = searchCar(selectedCategoryId, selectedModelId, pickupDateTime,
                         returnDateTime, selectedPickupOutletId, selectedReturnOutletId);
-                
+
                 if (canReserve) {
-                    
+
                     System.out.print("Found a car!Do you want to reserve it?(Y/N)>");
                     confirmReservation = sc.nextLine().trim();
                     if (confirmReservation.equals("Y")) {
 
                         System.out.println("The total rental rate for the current reservation is " + totalRentalRate);
+                        System.out.println("Please enter your credit card number");
+                        String ccNumber = sc.nextLine().trim();
                         System.out.println("Please select the payment option:");
                         System.out.println("1: Pay Now");
                         System.out.println("2: Pay at the outlet");
                         System.out.print("> ");
                         Long paymentOption = sc.nextLong();
                         sc.nextLine();
-                        String ccNumber;
-                        double paidAmt;
-                        if (paymentOption == 2) {
-                            paidAmt = 0;
-                            System.out.print("Please provide your creadit card number>");
-                            ccNumber = sc.nextLine().trim();
-                        } else {
+                        double paidAmt = 0;
+                        if (paymentOption == 1) {
                             paidAmt = totalRentalRate;
-                            ccNumber = "";
+                        } else if (paymentOption == 2) {
+                            paidAmt = 0;
                         }
-                        
-                        
+
                         Long reservationId = doReserveCar(totalRentalRate, selectedModelId, selectedCategoryId,
                                 pickupDateTime, returnDateTime, selectedPickupOutletId, selectedReturnOutletId, ccNumber, paidAmt);
 
                         System.out.println("Your reservation " + reservationId + " is successful!");
-                        
+
                     }
                 } else {
                     System.out.println("There is currently no available cars for the specified period.");
-                    
+
                 }
-                
+
                 System.out.print("Do you want to try with another period?(Y/N)>");
                 continueConfirmation = sc.nextLine().trim();
-                
-                
+
             } catch (CategoryNotFoundException ex1) {
                 System.out.println(ex1.getMessage());
             } catch (RentalRateNotFoundException ex2) {
                 System.out.println("Rental Rate is unavailable for the specified period!");
             } catch (NoResultFoundException ex3) {
                 System.out.println(ex3.getMessage());
-            } catch (UnsuccessfulReservationException ex4){
+            } catch (UnsuccessfulReservationException ex4) {
                 System.out.println(ex4.getMessage());
             } catch (ModelNotFoundException ex5) {
                 System.out.println(ex5.getMessage());
-            } 
+            }
 
         } while (continueConfirmation.equals("Y"));
     }
-    
-    private Long doReserveCar(double totalRentalRate, Long selectedModelId, Long selectedCategoryId, 
-            LocalDateTime pickupDateTime,LocalDateTime returnDateTime, Long selectedPickupOutletId, 
-            Long selectedReturnOutletId,String ccNumber,double paidAmt) throws UnsuccessfulReservationException{
 
-        try{
-            
-            ReservationRecordEntity reservationRecordEntity = new ReservationRecordEntity(totalRentalRate, pickupDateTime, returnDateTime,ccNumber,paidAmt);
+    private Long doReserveCar(double totalRentalRate, Long selectedModelId, Long selectedCategoryId,
+            LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId,
+            Long selectedReturnOutletId, String ccNumber, double paidAmt) throws UnsuccessfulReservationException {
+
+        try {
+
+            ReservationRecordEntity reservationRecordEntity = new ReservationRecordEntity(totalRentalRate, pickupDateTime, returnDateTime, ccNumber, paidAmt);
             Long reservationId = reservationRecordEntitySessionBeanRemote.createNewReservationRecord(reservationRecordEntity,
-                    currentCustomerEntity.getCustomerId(),selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
+                    currentCustomerEntity.getCustomerId(), selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
             return reservationId;
-            
-        } catch(ReservationCreationException ex){
+
+        } catch (ReservationCreationException ex) {
             throw new UnsuccessfulReservationException("Sorry! Your reservation is unsuccessful.");
         }
-        
+
     }
-    
-    
 
     public Boolean searchCar(Long selectedCategoryId, Long selectedModelId, LocalDateTime pickupDateTime,
             LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId) throws NoResultFoundException, CategoryNotFoundException {
 
         //filter to get cars with specified category and model
-        Boolean canReserve = carEntitySessionBeanRemote.checkCarAvailability(pickupDateTime, returnDateTime, 
-                selectedPickupOutletId, selectedReturnOutletId, selectedCategoryId,selectedModelId);
+        Boolean canReserve = carEntitySessionBeanRemote.checkCarAvailability(pickupDateTime, returnDateTime,
+                selectedPickupOutletId, selectedReturnOutletId, selectedCategoryId, selectedModelId);
 
         return canReserve;
 
@@ -370,23 +357,23 @@ public class MainApp {
     }
 
     private void printAvailableModel(long selectedCategoryId) throws CategoryNotFoundException {
-        
-        if (selectedCategoryId == -1){
+
+        if (selectedCategoryId == -1) {
             List<ModelEntity> models = modelEntitySessionBeanRemote.retrieveAllModel();
-            System.out.printf("%10s%20s%n", "Model ID", "Model Name");
+            System.out.printf("%10s%20s%20s%n", "Model ID", "Model Make", "Model Name");
             //get list of models under the category
             // <ModelEntity> models = categoryEntitySessionBeanRemote.retrieveAllModelsUnderCategory(category);
             for (ModelEntity model : models) {
-                System.out.printf("%10s%20s%n", model.getModelId(), model.getModelName());
+                System.out.printf("%10s%20s%20s%n", model.getModelId(), model.getMake(), model.getModelName());
             }
         } else {
             try {
                 CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(selectedCategoryId);
-                System.out.printf("%10s%20s%n", "Model ID", "Model Name");
+                System.out.printf("%10s%20s%20s%n", "Model ID", "Model Make", "Model Name");
                 //get list of models under the category
                 // <ModelEntity> models = categoryEntitySessionBeanRemote.retrieveAllModelsUnderCategory(category);
                 for (ModelEntity model : category.getModels()) {
-                    System.out.printf("%10s%20s%n", model.getModelId(), model.getModelName());
+                    System.out.printf("%10s%20s%20s%n", model.getModelId(), model.getMake(), model.getModelName());
                 }
 
             } catch (CategoryNotFoundException ex) {
@@ -397,22 +384,21 @@ public class MainApp {
     }
 
     private void printAvailableOutlet(LocalDateTime pickupDateTime) {
-        
+
         List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveOutletByPickupDateTime(pickupDateTime);
         System.out.printf("%10s%100s%20s%20s%n", "Outlet ID", "Address", "Open At", "Close At");
         for (OutletEntity outlet : outlets) {
-            if (outlet.getOpeningTime() == null){
+            if (outlet.getOpeningTime() == null) {
                 System.out.printf("%10d%100s%20s%20s%n", outlet.getOutletId(), outlet.getAddress(), "(opens 24 hours)", "(opens 24 hours)");
             } else {
                 System.out.printf("%10d%100s%20s%20s%n", outlet.getOutletId(), outlet.getAddress(), outlet.getOpeningTime().toString(), outlet.getClosingTime().toString());
             }
-            
+
         }
     }
 
-    
-    public void doCancelReservation(Long reservationId){
-        
+    public void doCancelReservation(Long reservationId) {
+
         Scanner sc = new Scanner(System.in);
         String input;
 
@@ -438,7 +424,6 @@ public class MainApp {
 
     }
 
-    
     private void doViewAllReservation() {
         Scanner scanner = new Scanner(System.in);
 
@@ -458,16 +443,15 @@ public class MainApp {
         scanner.nextLine();
     }
 
-    
     private void doViewReservationDetails() {
-        
+
         Scanner sc = new Scanner(System.in);
         Integer response = 0;
 
         System.out.println("*** :: View Reservation Details ***\n");
         System.out.print("Enter Reservation ID> ");
         Long reservationId = sc.nextLong();
-        
+
         try {
             ReservationRecordEntity reservationRecordEntity = reservationRecordEntitySessionBeanRemote.retrieveReservationBylId(reservationId);
             System.out.printf("%8s%20s%20s%20s%20s\n", "Reservation id", "pickup date/time", "pickup outlet", "return date/time", "return outlet");
@@ -486,7 +470,7 @@ public class MainApp {
             if (response == 1) {
                 doCancelReservation(reservationId);
             }
-            
+
         } catch (ReservationRecordNotFoundException ex) {
             System.out.println("An error has occurred while retrieving rental rate: " + ex.getMessage() + "\n");
         }

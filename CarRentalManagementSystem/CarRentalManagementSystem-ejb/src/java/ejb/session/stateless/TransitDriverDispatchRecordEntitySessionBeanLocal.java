@@ -8,10 +8,12 @@ package ejb.session.stateless;
 import entity.OutletEntity;
 import entity.ReservationRecordEntity;
 import entity.TransitDriverDispatchRecordEntity;
+import java.util.List;
 
 public interface TransitDriverDispatchRecordEntitySessionBeanLocal {
 
     public void createNewDispatchRecord(OutletEntity pickUpOutlet, ReservationRecordEntity rr, TransitDriverDispatchRecordEntity newDispatchRecord);
 
     public TransitDriverDispatchRecordEntity retrieveDispatchRecordById(Long id);
+    public List<TransitDriverDispatchRecordEntity> retrieveDispatchRecordsByOutletId(Long outletId);
 }

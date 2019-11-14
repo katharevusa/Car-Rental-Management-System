@@ -32,9 +32,9 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
     @ManyToOne
     private OutletEntity outletEntity;
     @OneToOne
-    private ReservationRecordEntity reservationRecords;
+    private ReservationRecordEntity reservationRecord;
     @ManyToOne
-    private EmployeeEntity employee;
+    private EmployeeEntity employeeEntity;
 
     public TransitDriverDispatchRecordEntity() {
         this.dispatchRecordEnum = DispatchRecordEnum.UNASSIGNED;
@@ -73,22 +73,22 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
         this.dispatchRecordEnum = dispatchRecordEnum;
     }
 
-    public ReservationRecordEntity getReservationRecords() {
-        return reservationRecords;
+    public ReservationRecordEntity getReservationRecord() {
+        return reservationRecord;
     }
 
-    public void setReservationRecords(ReservationRecordEntity reservationRecords) {
-        this.reservationRecords = reservationRecords;
+    public void setReservationRecord(ReservationRecordEntity reservationRecord) {
+        this.reservationRecord = reservationRecord;
     }
 
 
 
-    public EmployeeEntity getEmployee() {
-        return employee;
+    public EmployeeEntity getEmployeeEntity() {
+        return employeeEntity;
     }
 
-    public void setEmployee(EmployeeEntity employee) {
-        this.employee = employee;
+    public void setEmployeeEntity(EmployeeEntity employeeEntity) {
+        this.employeeEntity = employeeEntity;
     }
 
     @Override
