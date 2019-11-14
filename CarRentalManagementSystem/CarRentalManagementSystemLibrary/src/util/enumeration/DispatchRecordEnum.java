@@ -12,5 +12,5 @@ package util.enumeration;
 public enum DispatchRecordEnum {
     UNASSIGNED,
     ASSIGNED,
-    COMPLETE
+    COMPLETE,
 }
