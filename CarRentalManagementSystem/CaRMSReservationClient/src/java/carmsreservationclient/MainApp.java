@@ -218,7 +218,7 @@ public class MainApp {
 
                 printAvailableModel(selectedCategoryId);
                 System.out.print("Do you want to skip selecting a specific car model?(Y/N)>");
-                String option = sc.nextLine();
+                String option = sc.nextLine().trim();
                 long selectedModelId;
                 if (option.equals("Y")) {
                     selectedModelId = -1;
@@ -300,6 +300,8 @@ public class MainApp {
         try {
             CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(selectedCategory);
             System.out.printf("%10s%20s%n", "Model ID", "Model Name");
+            //get list of models under the category
+           // <ModelEntity> models = categoryEntitySessionBeanRemote.retrieveAllModelsUnderCategory(category);
             for (ModelEntity model : category.getModels()) {
                 System.out.printf("%10s%20s%n", model.getModelId(), model.getModelName());
             }
