@@ -62,6 +62,7 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
         }
         
     }
+    
     @Override
     public List<OutletEntity> retrieveAllOutlet(){
         
@@ -75,7 +76,9 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
         List<OutletEntity> allOutlets = retrieveAllOutlet();
         List<OutletEntity> availableOutlets = new ArrayList<>();
         for(OutletEntity outlet:allOutlets){
-            if(outlet.getOpeningTime().isBefore(pickupDateTime.toLocalTime()) && outlet.getClosingTime().isAfter(pickupDateTime.toLocalTime())){
+            if (outlet.getOpeningTime() == null){
+                availableOutlets.add(outlet);
+            } else if(outlet.getOpeningTime().isBefore(pickupDateTime.toLocalTime()) || outlet.getOpeningTime().compareTo(pickupDateTime.toLocalTime()) == 0){
                 availableOutlets.add(outlet);
             }
         }

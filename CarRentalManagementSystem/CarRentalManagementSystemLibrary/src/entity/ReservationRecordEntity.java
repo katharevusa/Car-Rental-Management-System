@@ -39,8 +39,9 @@ public class ReservationRecordEntity implements Serializable {
     private LocalDateTime returnDateTime;
     private double rentalRate;
     private Boolean isCancelled = false;
-    private Double paidAmount;
     private Double refund;
+    private String ccNumber;
+    private Double paidAmount;
 
     //uni
     @OneToOne
@@ -75,12 +76,15 @@ public class ReservationRecordEntity implements Serializable {
         
     }
 
-    public ReservationRecordEntity(Double rentalRate, LocalDateTime pickUpDateTime, LocalDateTime returnDateTime) {
+    public ReservationRecordEntity(Double rentalRate, LocalDateTime pickUpDateTime, LocalDateTime returnDateTime,String ccNumber, double paidAmount) {
         
         this();
         this.rentalRate = rentalRate;
         this.pickUpDateTime = pickUpDateTime;
         this.returnDateTime = returnDateTime;
+        this.ccNumber = ccNumber;
+        this.paidAmount = paidAmount;
+        
     }
 
     @Override
@@ -224,6 +228,14 @@ public double getRentalRate() {
 
     public void setPartner(PartnerEntity partner) {
         this.partner = partner;
+    }
+
+    public String getCcNumber() {
+        return ccNumber;
+    }
+
+    public void setCcNumber(String ccNumber) {
+        this.ccNumber = ccNumber;
     }
 
     

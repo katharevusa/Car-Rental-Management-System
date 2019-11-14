@@ -53,6 +53,7 @@ public class CategoryEntitySessionBean implements CategoryEntitySessionBeanRemot
         if(category != null)
         {
             category.getModels().size();
+            category.getRentalRate().size();
             return category;
        }
         else
