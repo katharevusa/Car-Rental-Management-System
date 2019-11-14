@@ -22,11 +22,15 @@ import java.util.List;
 import java.util.Scanner;
 import util.exception.CategoryNotFoundException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.ModelNotFoundException;
 import util.exception.NoResultFoundException;
+import util.exception.OutletNotFoundException;
 import util.exception.RegistrationFailureException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.ReservationAlreadyCancelledException;
+import util.exception.ReservationCreationException;
 import util.exception.ReservationRecordNotFoundException;
+import util.exception.UnsuccessfulReservationException;
 
 public class MainApp {
 
@@ -37,6 +41,7 @@ public class MainApp {
     private OutletEntitySessionBeanRemote outletEntitySessionBeanRemote;
     private ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote;
     private RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote;
+    private ModelEntitySessionBeanRemote modelEntitySessionBeanRemote;
 
     public MainApp() {
     }
@@ -44,7 +49,7 @@ public class MainApp {
     public MainApp(ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote,
             OutletEntitySessionBeanRemote outletEntitySessionBeanRemote, CustomerEntitySessionBeanRemote customerEntitySessionBeanRemote,
             CarEntitySessionBeanRemote carEntitySessionBeanRemote, CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote,
-            RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote) {
+            RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote,ModelEntitySessionBeanRemote modelEntitySessionBeanRemote) {
 
         this();
 
@@ -53,9 +58,8 @@ public class MainApp {
         this.customerEntitySessionBeanRemote = customerEntitySessionBeanRemote;
         this.carEntitySessionBeanRemote = carEntitySessionBeanRemote;
         this.categoryEntitySessionBeanRemote = categoryEntitySessionBeanRemote;
-  
-this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
-
+        this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
+        this.modelEntitySessionBeanRemote = modelEntitySessionBeanRemote;
 
     }
 
@@ -171,9 +175,9 @@ this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
                 } else if (response == 2) {
                     //  doReserveCar();
                 } else if (response == 3) {
-                    doViewReservationDetails();
+//                    doViewReservationDetails();
                 } else if (response == 4) {
-                    doViewAllReservation();
+//                    doViewAllReservation();
                 } else if (response == 5) {
                     break;
                 } else {
@@ -242,46 +246,42 @@ this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
                 long selectedReturnOutletId = sc.nextLong();
                 sc.nextLine();
 
+                
+                double totalRentalRate = rentalRateEntitySessionBeanRemote.checkForExistenceOfRentalRate(selectedCategoryId, pickupDateTime, returnDateTime);
                 CarEntity car = searchCar(selectedCategoryId, selectedModelId, pickupDateTime,
                         returnDateTime, selectedPickupOutletId, selectedReturnOutletId);
                 System.out.print("Found a car!Do you want to reserve it?(Y/N)");
                 confirmReservation = sc.nextLine().trim();
                 if (confirmReservation.equals("Y")) {
-                    doReserveCar(car);
+                    doReserveCar(car,totalRentalRate,selectedModelId,selectedCategoryId,
+                            pickupDateTime,returnDateTime,selectedPickupOutletId,selectedReturnOutletId);
                 }
 
             } catch (CategoryNotFoundException ex1) {
                 System.out.println(ex1.getMessage());
             } catch (RentalRateNotFoundException ex2) {
-                System.out.println(ex2.getMessage());
+                System.out.println("Rental Rate is unavailable for the specified period!");
             } catch (NoResultFoundException ex3) {
                 System.out.println(ex3.getMessage());
+            } catch (UnsuccessfulReservationException ex4){
+                System.out.println(ex4.getMessage());
             }
 
         } while (confirmReservation.equals("Y"));
     }
 
     public CarEntity searchCar(Long selectedCategoryId, Long selectedModelId, LocalDateTime pickupDateTime,
-            LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId) throws NoResultFoundException, CategoryNotFoundException, RentalRateNotFoundException {
+            LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId) throws NoResultFoundException, CategoryNotFoundException {
 
-        try {
+        //filter to get cars with specified category and model
+        List<CarEntity> availableCars = carEntitySessionBeanRemote.retrieveAvailableCars(pickupDateTime, returnDateTime, selectedPickupOutletId, selectedReturnOutletId);
+        availableCars = carEntitySessionBeanRemote.filterCarsBasedOnCategoryId(availableCars, selectedCategoryId);
+        availableCars = carEntitySessionBeanRemote.filterCarsBasedOnModelId(availableCars, selectedModelId);
 
-            //check for rental rate
-            double totalRentalRate = rentalRateEntitySessionBeanRemote.checkForExistenceOfRentalRate(selectedCategoryId, pickupDateTime, returnDateTime);
-
-            //filter to get cars with specified category and model
-            List<CarEntity> availableCars = carEntitySessionBeanRemote.retrieveAvailableCars(pickupDateTime, returnDateTime, selectedPickupOutletId, selectedReturnOutletId);
-            availableCars = carEntitySessionBeanRemote.filterCarsBasedOnCategoryId(availableCars, selectedCategoryId);
-            availableCars = carEntitySessionBeanRemote.filterCarsBasedOnModelId(availableCars, selectedModelId);
-
-            if (availableCars.isEmpty()) {
-                throw new NoResultFoundException("No result found!");
-            } else {
-                return availableCars.get(0);
-            }
-
-        } catch (RentalRateNotFoundException ex) {
-            throw new RentalRateNotFoundException("Rental Rate is unavailable for the specified period!");
+        if (availableCars.isEmpty()) {
+            throw new NoResultFoundException("No result found!");
+        } else {
+            return availableCars.get(0);
         }
 
     }
@@ -321,84 +321,95 @@ this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
         }
     }
 
-    private void doReserveCar(CarEntity car) {
+    private void doReserveCar(CarEntity car,double totalRentalRate, Long selectedModelId, Long selectedCategoryId, 
+            LocalDateTime pickupDateTime,LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId) throws UnsuccessfulReservationException{
 
-    }
-
-    private void doViewReservationDetails() {
-        Scanner scanner = new Scanner(System.in);
-        Integer response = 0;
-
-        System.out.println("*** :: View Reservation Details ***\n");
-        System.out.print("Enter Reservation ID> ");
-        Long reservationId = scanner.nextLong();
-
-        try {
-            ReservationRecordEntity reservationRecordEntity = reservationRecordEntitySessionBeanRemote.retrieveReservationBylId(reservationId);
-            System.out.printf("%8s%20s%20s%20s%20s\n", "Reservation id", "pickup date/time", "pickup outlet", "return date/time", "return outlet");
-            System.out.printf("%8s%20s%20s%20s%20s\n", reservationRecordEntity.getReservationRecordId(),
-                    reservationRecordEntity.getPickUpDateTime(),
-                    reservationRecordEntity.getPickUpOutlet().getName(),
-                    reservationRecordEntity.getReturnDateTime(),
-                    reservationRecordEntity.getReturnOutlet().getName());
-
-            System.out.println("------------------------");
-            System.out.println("1: Cancel Reservation");
-            System.out.println("2: Back\n");
-            System.out.print("> ");
-            response = scanner.nextInt();
-
-            if (response == 1) {
-                doCancelReservation(reservationRecordEntity);
-            }
-        } catch (ReservationRecordNotFoundException ex) {
-            System.out.println("An error has occurred while retrieving rental rate: " + ex.getMessage() + "\n");
+        try{
+            
+            ReservationRecordEntity reservationRecordEntity = new ReservationRecordEntity(totalRentalRate, pickupDateTime, returnDateTime);
+            reservationRecordEntitySessionBeanRemote.createNewReservationRecord(reservationRecordEntity, selectedModelId, selectedModelId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
+            
+        } catch(ReservationCreationException ex){
+            throw new UnsuccessfulReservationException("Sorry! Your reservation is unsuccessful.");
         }
+        
+        
     }
-
-    private void doViewAllReservation() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("*** :: View All Rental Rate ***\n");
-
-        List<ReservationRecordEntity> reservationRecordEntities = reservationRecordEntitySessionBeanRemote.retrieveAllReservationRecord();
-        System.out.printf("%8s%20s%20s%20s%20s\n", "Reservation id", "pickup date/time", "pickup outlet", "return date/time", "return outlet");
-
-        for (ReservationRecordEntity reservationRecordEntity : reservationRecordEntities) {
-            System.out.printf("%8s%20s%20s%20s%20s\n", reservationRecordEntity.getReservationRecordId(),
-                    reservationRecordEntity.getPickUpDateTime(),
-                    reservationRecordEntity.getPickUpOutlet().getName(),
-                    reservationRecordEntity.getReturnDateTime(),
-                    reservationRecordEntity.getReturnOutlet().getName());
-        }
-        System.out.print("Press any key to continue...> ");
-        scanner.nextLine();
-    }
-
-    private void doCancelReservation(ReservationRecordEntity reservationRecordEntity) {
-
-        Scanner scanner = new Scanner(System.in);
-        String input;
-
-        System.out.println("*** :: View Rental Rate Details :: Cancel Reservation ***\n");
-        System.out.printf("Confirm Cancel Reservation %s ID  (Enter 'Y' to Delete)> ", reservationRecordEntity.getReservationRecordId());
-        input = scanner.nextLine().trim();
-
-        if (input.equals("Y")) {
-            try {
-                reservationRecordEntitySessionBeanRemote.cancelReservation(reservationRecordEntity.getReservationRecordId());
-                if (reservationRecordEntity.getRefund() < 0) {
-                    System.out.println(-1 * (reservationRecordEntity.getRefund()) + " is being charged to your credit card for cancellation penalty!");
-                } else {
-                    System.out.println("Your reservation is being cancelled with the refund of " + reservationRecordEntity.getRefund() + " to your credit card!");
-                }
-                System.out.println("Reservation cancelled successfully!\n");
-
-            } catch (ReservationAlreadyCancelledException ex) {
-                System.out.println(ex.getMessage());
-            }
-        } else {
-            System.out.println("Reservation NOT cancelled!\n");
-        }
-    }
+//
+//    private void doViewReservationDetails() {
+//        Scanner scanner = new Scanner(System.in);
+//        Integer response = 0;
+//
+//        System.out.println("*** :: View Reservation Details ***\n");
+//        System.out.print("Enter Reservation ID> ");
+//        Long reservationId = scanner.nextLong();
+//
+//        try {
+//            ReservationRecordEntity reservationRecordEntity = reservationRecordEntitySessionBeanRemote.retrieveReservationBylId(reservationId);
+//            System.out.printf("%8s%20s%20s%20s%20s\n", "Reservation id", "pickup date/time", "pickup outlet", "return date/time", "return outlet");
+//            System.out.printf("%8s%20s%20s%20s%20s\n", reservationRecordEntity.getReservationRecordId(),
+//                    reservationRecordEntity.getPickUpDateTime(),
+//                    reservationRecordEntity.getPickUpOutlet().getName(),
+//                    reservationRecordEntity.getReturnDateTime(),
+//                    reservationRecordEntity.getReturnOutlet().getName());
+//
+//            System.out.println("------------------------");
+//            System.out.println("1: Cancel Reservation");
+//            System.out.println("2: Back\n");
+//            System.out.print("> ");
+//            response = scanner.nextInt();
+//
+//            if (response == 1) {
+//                doCancelReservation(reservationRecordEntity);
+//            }
+//        } catch (ReservationRecordNotFoundException ex) {
+//            System.out.println("An error has occurred while retrieving rental rate: " + ex.getMessage() + "\n");
+//        }
+//    }
+//
+//    private void doViewAllReservation() {
+//        Scanner scanner = new Scanner(System.in);
+//
+//        System.out.println("*** :: View All Rental Rate ***\n");
+//
+//        List<ReservationRecordEntity> reservationRecordEntities = reservationRecordEntitySessionBeanRemote.retrieveAllReservationRecord();
+//        System.out.printf("%8s%20s%20s%20s%20s\n", "Reservation id", "pickup date/time", "pickup outlet", "return date/time", "return outlet");
+//
+//        for (ReservationRecordEntity reservationRecordEntity : reservationRecordEntities) {
+//            System.out.printf("%8s%20s%20s%20s%20s\n", reservationRecordEntity.getReservationRecordId(),
+//                    reservationRecordEntity.getPickUpDateTime(),
+//                    reservationRecordEntity.getPickUpOutlet().getName(),
+//                    reservationRecordEntity.getReturnDateTime(),
+//                    reservationRecordEntity.getReturnOutlet().getName());
+//        }
+//        System.out.print("Press any key to continue...> ");
+//        scanner.nextLine();
+//    }
+//
+//    private void doCancelReservation(ReservationRecordEntity reservationRecordEntity) {
+//
+//        Scanner scanner = new Scanner(System.in);
+//        String input;
+//
+//        System.out.println("*** :: View Rental Rate Details :: Cancel Reservation ***\n");
+//        System.out.printf("Confirm Cancel Reservation %s ID  (Enter 'Y' to Delete)> ", reservationRecordEntity.getReservationRecordId());
+//        input = scanner.nextLine().trim();
+//
+//        if (input.equals("Y")) {
+//            try {
+//                reservationRecordEntitySessionBeanRemote.cancelReservation(reservationRecordEntity.getReservationRecordId());
+//                if (reservationRecordEntity.getRefund() < 0) {
+//                    System.out.println(-1 * (reservationRecordEntity.getRefund()) + " is being charged to your credit card for cancellation penalty!");
+//                } else {
+//                    System.out.println("Your reservation is being cancelled with the refund of " + reservationRecordEntity.getRefund() + " to your credit card!");
+//                }
+//                System.out.println("Reservation cancelled successfully!\n");
+//
+//            } catch (ReservationAlreadyCancelledException ex) {
+//                System.out.println(ex.getMessage());
+//            }
+//        } else {
+//            System.out.println("Reservation NOT cancelled!\n");
+//        }
+//    }
 }
