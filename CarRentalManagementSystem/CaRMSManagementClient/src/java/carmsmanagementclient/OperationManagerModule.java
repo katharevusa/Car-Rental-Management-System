@@ -25,6 +25,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.enumeration.AccessRightEnum;
+import util.enumeration.CarStatusEnum;
 import util.exception.CarNotFoundException;
 import util.exception.CreateNewModelFailureException;
 import util.exception.DeleteCarException;
@@ -231,7 +232,13 @@ class OperationManagerModule {
         Long outletId = sc.nextLong();
         sc.nextLine();
         System.out.println("Enter status (Availble/Repair)>");
-        newCarEntity.setStatus(sc.nextLine().trim());
+        CarStatusEnum status;
+        if(sc.nextLine().trim().equals("Availble")){
+            status = CarStatusEnum.AVAILABLE;
+        } else {
+            status = CarStatusEnum.REPAIR;
+        }
+        newCarEntity.setStatus(status);
         System.out.println("Enter make>");
         String make = sc.nextLine().trim();
         newCarEntity.setMake(make);

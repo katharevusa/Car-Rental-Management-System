@@ -17,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.enumeration.CarStatusEnum;
 import util.exception.CarNotFoundException;
 import util.exception.DeleteCarException;
 import util.exception.InvalidFieldEnteredException;
@@ -129,7 +130,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
         //only those active reservation would be taken into consideration
         Query query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.isCancelled = false");
         List<ReservationRecordEntity> reservations = query.getResultList();
-//        List<ReservationRecordEntity> reservations = reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
+        
         for (ReservationRecordEntity reservation : reservations) {
             if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)) {
                 overlappedReservations.add(reservation);
@@ -144,27 +145,45 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
             }
         }
 
-        List<CarEntity> availableCars = retrieveAllCars();
-        for (ReservationRecordEntity reservation : overlappedReservations) {
-            availableCars.remove(reservation.getCarEntity());
-        }
-
-        for(CarEntity car:availableCars){
-            if(car.getStatus().equals("Repair")){
-                availableCars.remove(car);
+   
+        List<CarEntity> allAvailableCars = retrieveAllCars();
+        List<CarEntity> filteredCars = new ArrayList<>();
+        boolean found;
+        for (CarEntity car : allAvailableCars) {
+            found = false;
+            for (ReservationRecordEntity reservation : overlappedReservations) {
+                if (car.getCarId() == reservation.getCarEntity().getCarId()){
+                    found = true;
+                }
+            }
+            if(!found){
+                filteredCars.add(car);
             }
         }
         
-        return availableCars;
+        List<CarEntity> finalResult = new ArrayList<>();
+
+        for(CarEntity car:filteredCars){
+            if(car.getStatus() == CarStatusEnum.AVAILABLE){
+                finalResult.add(car);
+            }
+        }
+        
+        return finalResult;
     }
     
     @Override
     public List<CarEntity> filterCarsBasedOnCategoryId(List<CarEntity> cars, Long categoryId){
         
-        List<CarEntity> filtered = new ArrayList<>(cars);
-        for(CarEntity car:cars){
-            if(car.getModelEntity().getCategoryEntity().getCategoryId() != categoryId){
-                filtered.remove(car);
+        List<CarEntity> allCars = new ArrayList<>(cars);
+        List<CarEntity> filtered = new ArrayList<>();
+        
+        
+        for(CarEntity car:allCars){
+            em.merge(car);
+            System.out.println(car.getModelEntity().getCategoryEntity().getCategoryId());
+            if(car.getModelEntity().getCategoryEntity().getCategoryId().equals(categoryId)){
+                filtered.add(car);
             }
         }
         return filtered;
@@ -173,14 +192,18 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     @Override
     public List<CarEntity> filterCarsBasedOnModelId(List<CarEntity> cars, Long modelId){
      
-        List<CarEntity> filtered = new ArrayList<>(cars);
+        
+        List<CarEntity> allCars = new ArrayList<>(cars);
+        List<CarEntity> filtered = new ArrayList<>();
+        
         if (modelId == -1) {
-            return filtered;
+            return allCars;
         } else {
             
             for (CarEntity car : cars) {
-                if (car.getModelEntity().getModelId() != modelId) {
-                    filtered.remove(car);
+                em.merge(car);
+                if (car.getModelEntity().getModelId().equals(modelId)) {
+                    filtered.add(car);
                 }
             }
             return filtered;

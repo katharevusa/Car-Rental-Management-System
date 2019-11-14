@@ -234,7 +234,7 @@ public class MainApp {
 
                 System.out.print("Enter pick up date/time(yyyy-MM-dd HH:mm:ss)>");
                 String pickupDateTimeString = sc.nextLine().trim();
-                LocalDateTime pickupDateTime = LocalDateTime.parse(pickupDateTimeString,formatter);
+                LocalDateTime pickupDateTime = LocalDateTime.parse("2019-12-06 12:00:00",formatter);
                 
                 
                 printAvailableOutlet(pickupDateTime);
@@ -244,46 +244,45 @@ public class MainApp {
 
                 System.out.print("Enter return date/time(yyyy-MM-dd HH:mm:ss)>");
                 String returnDateTimeString = sc.nextLine().trim();
-                LocalDateTime returnDateTime = LocalDateTime.parse(returnDateTimeString,formatter);
+                LocalDateTime returnDateTime = LocalDateTime.parse("2019-12-08 00:00:00",formatter);
                 
                 
                 printAvailableOutlet(returnDateTime);
                 System.out.print("Please select a return outlet>");
                 long selectedReturnOutletId = sc.nextLong();
-                sc.nextLine();
 
                 
                 double totalRentalRate = rentalRateEntitySessionBeanRemote.checkForExistenceOfRentalRate(selectedCategoryId, pickupDateTime, returnDateTime);
                 CarEntity car = searchCar(selectedCategoryId, selectedModelId, pickupDateTime,
                         returnDateTime, selectedPickupOutletId, selectedReturnOutletId);
-                System.out.print("Found a car!Do you want to reserve it?(Y/N)");
-                confirmReservation = sc.nextLine().trim();
-                if (confirmReservation.equals("Y")) {
-                    
-                    System.out.println("The total rental rate for the current reservation is " + totalRentalRate);
-                    System.out.println("Please select the payment option:");
-                    System.out.println("1: Pay Now");
-                    System.out.println("2: Pay at the outlet");
-                    System.out.print("> ");
-                    Long paymentOption = sc.nextLong();
-                    sc.nextLine();
-                    String ccNumber;
-                    double paidAmt;
-                    if(paymentOption == 2){
-                        paidAmt = 0;
-                        System.out.print("Please provide your creadit card number>");
-                        ccNumber = sc.nextLine().trim();
-                    } else {
-                        paidAmt = totalRentalRate;
-                        ccNumber = "";
-                    }
-                    Long reservationId = doReserveCar(car,totalRentalRate,selectedModelId,selectedCategoryId,
-                            pickupDateTime,returnDateTime,selectedPickupOutletId,selectedReturnOutletId,ccNumber,paidAmt);
-                    
-                    System.out.println("Your reservation " + reservationId + " is successful!");
-                    System.out.print("Press any key to continue...> ");
-                    sc.nextLine();
-                }
+//                System.out.print("Found a car!Do you want to reserve it?(Y/N)");
+//                confirmReservation = sc.nextLine().trim();
+//                if (confirmReservation.equals("Y")) {
+//                    
+//                    System.out.println("The total rental rate for the current reservation is " + totalRentalRate);
+//                    System.out.println("Please select the payment option:");
+//                    System.out.println("1: Pay Now");
+//                    System.out.println("2: Pay at the outlet");
+//                    System.out.print("> ");
+//                    Long paymentOption = sc.nextLong();
+//                    sc.nextLine();
+//                    String ccNumber;
+//                    double paidAmt;
+//                    if(paymentOption == 2){
+//                        paidAmt = 0;
+//                        System.out.print("Please provide your creadit card number>");
+//                        ccNumber = sc.nextLine().trim();
+//                    } else {
+//                        paidAmt = totalRentalRate;
+//                        ccNumber = "";
+//                    }
+//                    Long reservationId = doReserveCar(car,totalRentalRate,selectedModelId,selectedCategoryId,
+//                            pickupDateTime,returnDateTime,selectedPickupOutletId,selectedReturnOutletId,ccNumber,paidAmt);
+//                    
+//                    System.out.println("Your reservation " + reservationId + " is successful!");
+//                    System.out.print("Press any key to continue...> ");
+//                    sc.nextLine();
+//                }
 
             } catch (CategoryNotFoundException ex1) {
                 System.out.println(ex1.getMessage());
@@ -291,9 +290,10 @@ public class MainApp {
                 System.out.println("Rental Rate is unavailable for the specified period!");
             } catch (NoResultFoundException ex3) {
                 System.out.println(ex3.getMessage());
-            } catch (UnsuccessfulReservationException ex4){
-                System.out.println(ex4.getMessage());
             }
+//            } catch (UnsuccessfulReservationException ex4){
+//                System.out.println(ex4.getMessage());
+//            }
 
         } while (confirmReservation.equals("Y"));
     }

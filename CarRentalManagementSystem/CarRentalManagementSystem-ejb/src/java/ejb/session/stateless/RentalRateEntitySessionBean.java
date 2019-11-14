@@ -154,11 +154,16 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
         
         boolean rentalRateExist;
         LocalDateTime currStartDateTime = pickupDateTime;
-        LocalDateTime next24HourDateTime = currStartDateTime.plusHours(24);
+        LocalDateTime next24HourDateTime = currStartDateTime.plusDays(1);
         double totalRate = 0;
         
         List<RentalRateEntity> rentalRates = category.getRentalRate();
-        while(next24HourDateTime.compareTo(returnDateTime) <= 0){
+        int count = 0;
+        
+        
+        while(next24HourDateTime.isBefore(returnDateTime)){
+            
+            System.out.println(next24HourDateTime + " : " + returnDateTime);
             rentalRateExist = false;
             List<Double> rates = new ArrayList<>();
             for(RentalRateEntity rentalRate:rentalRates){
@@ -183,16 +188,24 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
                 totalRate += minimumRate;
             }
             
-            next24HourDateTime.plusHours(24);
+            next24HourDateTime = next24HourDateTime.plusDays(1);
+            count++;
+            
+            if(count == 10000){
+                break;
+            }
+            
                 
         }
         
-        
+        if(count == 10000){
+            System.out.println("break becos of count");
+        }
         
         //after exit from the previous while loop, next24HourDateTime can only be after returnDateTime
         //check for the last period of reservation time one more time through the same process
-        if(next24HourDateTime.isAfter(returnDateTime)){
-            currStartDateTime = next24HourDateTime.minusHours(24);
+        if(next24HourDateTime.isAfter(returnDateTime) || next24HourDateTime.isEqual(returnDateTime)){
+            currStartDateTime = next24HourDateTime.minusDays(1);
             next24HourDateTime = returnDateTime;
             
             rentalRateExist = false;
