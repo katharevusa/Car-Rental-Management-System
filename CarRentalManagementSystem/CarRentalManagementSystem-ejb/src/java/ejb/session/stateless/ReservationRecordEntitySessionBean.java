@@ -19,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.exception.CancelReservationFailureException;
 import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerNotFoundException;
@@ -107,20 +108,82 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
         Query query = em.createQuery("SELECT rr FROM ReservationRecordEntity rr");
         return query.getResultList();
     }
-//    
-//    @Override
-//    public ReservationRecordEntity retrieveReservationBylId(Long reservationId) throws ReservationRecordNotFoundException {
-//        
-//        ReservationRecordEntity reservationRecordEntity = em.find(ReservationRecordEntity.class, reservationId);
-//
-//        if (reservationRecordEntity != null) {
-//            return reservationRecordEntity;
-//        } else {
-//            throw new ReservationRecordNotFoundException("Reservation ID " + reservationId + " does not exist!");
-//        }
-//    }
-//
-//    
+    
+    @Override
+    public ReservationRecordEntity retrieveReservationBylId(Long reservationId) throws ReservationRecordNotFoundException {
+        
+        ReservationRecordEntity reservationRecordEntity = em.find(ReservationRecordEntity.class, reservationId);
+
+        if (reservationRecordEntity != null) {
+            return reservationRecordEntity;
+        } else {
+            throw new ReservationRecordNotFoundException("Reservation ID " + reservationId + " does not exist!");
+        }
+    }
+
+    @Override
+    public ReservationRecordEntity cancelReservation(Long reservationId) throws CancelReservationFailureException{
+        
+        try{
+            
+            ReservationRecordEntity reservationRecord = retrieveReservationBylId(reservationId);
+            if (!reservationRecord.getIsCancelled()) {
+                
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                LocalDateTime reservationTime = reservationRecord.getPickUpDateTime();
+                LocalDateTime threeDays = reservationTime.minusDays(3);
+                LocalDateTime sevenDays = reservationTime.minusDays(7);
+                LocalDateTime fourteenDays = reservationTime.minusDays(14);
+                
+                if(currentDateTime.isBefore(threeDays)){
+                    //70%
+                    if (reservationRecord.getPaidAmount() != 0) {
+                        reservationRecord.setPaidAmount(0.00);
+                        reservationRecord.setRefund(reservationRecord.getPaidAmount() * 0.3);
+                    } else {
+                        reservationRecord.setRefund(0.00 - (reservationRecord.getPaidAmount() * 0.7));
+                    }
+                } else if(currentDateTime.isBefore(sevenDays)){
+                    //50%
+                    if (reservationRecord.getPaidAmount() != 0) {
+                        reservationRecord.setPaidAmount(0.00);
+                        reservationRecord.setRefund(reservationRecord.getPaidAmount() * 0.5);
+                    } else {
+                        reservationRecord.setRefund(0.00 - (reservationRecord.getPaidAmount() * 0.5));
+                    }
+                } else if(currentDateTime.isBefore(fourteenDays)){
+                    //20%
+                    if (reservationRecord.getPaidAmount() != 0) {
+                        reservationRecord.setPaidAmount(0.00);
+                        reservationRecord.setRefund(reservationRecord.getPaidAmount() * 0.8);
+                    } else {
+                        reservationRecord.setRefund(0.00 - (reservationRecord.getPaidAmount() * 0.2));
+                    }
+                } else {
+                    //full refund
+                    if (reservationRecord.getPaidAmount() != 0) {
+                        reservationRecord.setPaidAmount(0.00);
+                        reservationRecord.setRefund(reservationRecord.getPaidAmount());
+                    } else {
+                        reservationRecord.setRefund(0.00);
+                    }
+                }
+
+                reservationRecord.setIsCancelled(true);
+                return reservationRecord;
+                
+            }else {
+                throw new ReservationAlreadyCancelledException("Reservation " + reservationId + " has already been cancelled!");
+            }
+            
+        } catch(ReservationRecordNotFoundException ex1){
+            throw new CancelReservationFailureException("Reservation ID " + reservationId + " not found!");
+        } catch (ReservationAlreadyCancelledException ex2){
+            throw new CancelReservationFailureException(ex2.getMessage());
+        }
+        
+    }
+    
     
 //    @Override
 //    public void cancelReservation(Long reservationRecordId) throws ReservationAlreadyCancelledException {

@@ -126,13 +126,16 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
         
 
         List<ReservationRecordEntity> overlappedReservations = new ArrayList<>();
-        List<ReservationRecordEntity> reservations = reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
+        //only those active reservation would be taken into consideration
+        Query query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.isCancelled = false");
+        List<ReservationRecordEntity> reservations = query.getResultList();
+//        List<ReservationRecordEntity> reservations = reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
         for (ReservationRecordEntity reservation : reservations) {
             if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)) {
                 overlappedReservations.add(reservation);
             } else if (reservation.getReturnDateTime().isAfter(pickupDateTime) && reservation.getReturnDateTime().isBefore(returnDateTime)) {
                 overlappedReservations.add(reservation);
-            } else if(reservation.getReturnDateTime().compareTo(pickupDateTime) == 0 && reservation.getReturnOutlet().getOutletId() != selectedPickupOutletId){
+            } else if(reservation.getReturnDateTime().isEqual(pickupDateTime) && reservation.getReturnOutlet().getOutletId() != selectedPickupOutletId){
                 overlappedReservations.add(reservation);
             } else if(reservation.getReturnDateTime().isBefore(pickupDateTime) && reservation.getReturnDateTime().isAfter(pickupDateTime.minusHours(2))){
                 if(reservation.getReturnOutlet().getOutletId() != selectedPickupOutletId){

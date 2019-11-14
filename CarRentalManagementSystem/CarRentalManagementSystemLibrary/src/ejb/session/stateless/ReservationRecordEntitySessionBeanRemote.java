@@ -3,6 +3,7 @@ package ejb.session.stateless;
 import entity.ReservationRecordEntity;
 import java.time.LocalDateTime;
 import java.util.List;
+import util.exception.CancelReservationFailureException;
 import util.exception.InvalidFieldEnteredException;
 import util.exception.NoReservationAvailable;
 import util.exception.ReservationAlreadyCancelledException;
@@ -25,4 +26,8 @@ public interface ReservationRecordEntitySessionBeanRemote {
 //   // public void cancelReservation(Long reservationRecordId);
 
     public Long createNewReservationRecord(ReservationRecordEntity reservationRecordEntity, Long customerId, Long carId, Long modelId, Long categoryId, Long pickupOutletId, Long returnOutletId) throws ReservationCreationException;
+
+    public ReservationRecordEntity retrieveReservationBylId(Long reservationId) throws ReservationRecordNotFoundException;
+
+    public ReservationRecordEntity cancelReservation(Long reservationId) throws CancelReservationFailureException;
 }
