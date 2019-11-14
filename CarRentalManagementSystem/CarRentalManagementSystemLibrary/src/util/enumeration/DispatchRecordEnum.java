@@ -3,9 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ejb.session.stateless;
+package util.enumeration;
 
-
-public interface EjbTimerSessionBeanRemote {
-    
+/**
+ *
+ * @author admin
+ */
+public enum DispatchRecordEnum {
+    UNASSIGNED,
+    ASSIGNED,
+    COMPLETE
 }

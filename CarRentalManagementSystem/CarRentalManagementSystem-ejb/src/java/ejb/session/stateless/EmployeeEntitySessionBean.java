@@ -78,6 +78,7 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
         
         try
         {
+            
             return (EmployeeEntity)query.getSingleResult();
         }
         catch(NoResultException | NonUniqueResultException ex)

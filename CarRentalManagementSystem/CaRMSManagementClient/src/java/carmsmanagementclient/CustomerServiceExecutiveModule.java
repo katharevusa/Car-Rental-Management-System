@@ -5,10 +5,16 @@
 */
 package carmsmanagementclient;
 
+import ejb.session.stateless.ReservationRecordEntitySessionBeanRemote;
 import entity.EmployeeEntity;
+import entity.ReservationRecordEntity;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.enumeration.AccessRightEnum;
+import util.enumeration.CarStatusEnum;
 import util.exception.InvalidAccessRightException;
+import util.exception.ReservationRecordNotFoundException;
 
 /**
  *
@@ -17,8 +23,10 @@ import util.exception.InvalidAccessRightException;
 class CustomerServiceExecutiveModule {
     private EmployeeEntity currentEmployee;
     
-    public CustomerServiceExecutiveModule(EmployeeEntity currentEmployee) {
+    private ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote;
+    public CustomerServiceExecutiveModule(EmployeeEntity currentEmployee, ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote) {
         this.currentEmployee = currentEmployee;
+        this.reservationRecordEntitySessionBeanRemote = reservationRecordEntitySessionBeanRemote;
     }
     
     public void menuCustomerServiceExecutiveModule() throws InvalidAccessRightException{ {
@@ -71,10 +79,31 @@ class CustomerServiceExecutiveModule {
     }
 
     private void doPickupCar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Enter reservation id>");
+            ReservationRecordEntity reservation = reservationRecordEntitySessionBeanRemote.retrieveReservationBylId(sc.nextLong());
+            reservation.getCarEntity().setStatus(CarStatusEnum.ONRENTAL);
+            reservation.getCarEntity().setOutletEntity(null);
+            if(reservation.getPaidAmount()==0){
+                System.out.println("Please collect the payment of "+reservation.getRentalRate());
+            }
+        } catch (ReservationRecordNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
+            
+        
     }
 
     private void doReturnCar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try{
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Enter reservation id>");
+            ReservationRecordEntity reservation = reservationRecordEntitySessionBeanRemote.retrieveReservationBylId(sc.nextLong());
+            reservation.getCarEntity().setStatus(CarStatusEnum.AVAILABLE);
+            reservation.getCarEntity().setOutletEntity(currentEmployee.getOutletEntity());
+        }catch(ReservationRecordNotFoundException ex){
+            System.out.println(ex.getMessage());
+        }
     }
 }

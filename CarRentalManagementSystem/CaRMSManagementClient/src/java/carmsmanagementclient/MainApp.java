@@ -5,6 +5,7 @@
  */
 package carmsmanagementclient;
 
+import ejb.session.stateless.CarAllocationSessionBeanRemote;
 import ejb.session.stateless.CarEntitySessionBeanRemote;
 import ejb.session.stateless.CategoryEntitySessionBeanRemote;
 import ejb.session.stateless.EmployeeEntitySessionBeanRemote;
@@ -12,7 +13,10 @@ import ejb.session.stateless.ModelEntitySessionBeanRemote;
 import ejb.session.stateless.OutletEntitySessionBeanRemote;
 import ejb.session.stateless.PartnerEntitySessionBeanRemote;
 import ejb.session.stateless.RentalRateEntitySessionBeanRemote;
+import ejb.session.stateless.ReservationRecordEntitySessionBeanRemote;
+import ejb.session.stateless.TransitDriverDispatchRecordEntitySessionBeanRemote;
 import entity.EmployeeEntity;
+import entity.ReservationRecordEntity;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,13 +44,20 @@ class MainApp {
     private OperationManagerModule operationManagerModule;
     private CustomerServiceExecutiveModule customerServiceExecutiveModule;
     private ModelEntitySessionBeanRemote modelEntitySessionBeanRemote;
+    private ReservationRecordEntitySessionBeanRemote reservationRecordSessionBeanEntityRemote;
+    private CarAllocationSessionBeanRemote carAllocationSessionBeanRemote;
+    private TransitDriverDispatchRecordEntitySessionBeanRemote transitDriverDispatchRecordEntitySessionBeanRemote;
 
     
     public MainApp() {
     }
 
     public MainApp(OutletEntitySessionBeanRemote outletEntitySessionBeanRemote, EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote,
-            CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote, ModelEntitySessionBeanRemote modelEntitySessionBeanRemote, RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote, CarEntitySessionBeanRemote carEntitySessionBeanRemote) {
+            CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote, ModelEntitySessionBeanRemote modelEntitySessionBeanRemote, RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote, 
+            CarEntitySessionBeanRemote carEntitySessionBeanRemote,
+            ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote,
+            CarAllocationSessionBeanRemote carAllocationSessionBeanRemote,
+            TransitDriverDispatchRecordEntitySessionBeanRemote transitDriverDispatchRecordEntitySessionBeanRemote) {
         
         this();
         
@@ -57,7 +68,9 @@ class MainApp {
         this.categoryEntitySessionBeanRemote = categoryEntitySessionBeanRemote;
         this.rentalRateEntitySessionBeanRemote = rentalRateEntitySessionBeanRemote;
         this.carEntitySessionBeanRemote = carEntitySessionBeanRemote;
-
+        this.reservationRecordSessionBeanEntityRemote = reservationRecordEntitySessionBeanRemote;
+        this.carAllocationSessionBeanRemote = carAllocationSessionBeanRemote;
+        this.transitDriverDispatchRecordEntitySessionBeanRemote = transitDriverDispatchRecordEntitySessionBeanRemote;
     }
 
     public void runApp()
@@ -94,7 +107,7 @@ class MainApp {
                             }
                         }
                         else if(currentEmployee.getAccessRightEnum() == AccessRightEnum.OPERATIONSMANAGER){
-                        operationManagerModule = new OperationManagerModule(currentEmployee,modelEntitySessionBeanRemote,outletEntitySessionBeanRemote,carEntitySessionBeanRemote);
+                        operationManagerModule = new OperationManagerModule(currentEmployee,modelEntitySessionBeanRemote,outletEntitySessionBeanRemote,carEntitySessionBeanRemote, carAllocationSessionBeanRemote,transitDriverDispatchRecordEntitySessionBeanRemote,employeeEntitySessionBeanRemote);
                          try {
                                 operationManagerModule.menuOperationManagerModule();
                             } catch (InvalidAccessRightException ex) {
@@ -102,7 +115,7 @@ class MainApp {
                             }
                         }
                         else if(currentEmployee.getAccessRightEnum() == AccessRightEnum.CUSTOMERSERVICEEXECUTIVE){
-                        customerServiceExecutiveModule = new CustomerServiceExecutiveModule(currentEmployee);
+                        customerServiceExecutiveModule = new CustomerServiceExecutiveModule(currentEmployee,reservationRecordSessionBeanEntityRemote);
                         try {
                                 customerServiceExecutiveModule.menuCustomerServiceExecutiveModule();
                             } catch (InvalidAccessRightException ex) {

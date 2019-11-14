@@ -6,6 +6,8 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -49,13 +51,24 @@ public class EmployeeEntity implements Serializable {
     private OutletEntity outletEntity;
     //@OneToMany(mappedBy = "employee")
    // private DispatchRecord dispatchRecord;
+    @OneToMany
+    private List<TransitDriverDispatchRecordEntity> dispatchRecord;
+
+    public List<TransitDriverDispatchRecordEntity> getDispatchRecord() {
+        return dispatchRecord;
+    }
+
+    public void setDispatchRecord(List<TransitDriverDispatchRecordEntity> dispatchRecord) {
+        this.dispatchRecord = dispatchRecord;
+    }
     
     public EmployeeEntity(){
+        dispatchRecord = new ArrayList<>();
         
     }
     
     public EmployeeEntity(String firstName, String lastName, String role, AccessRightEnum accessRightEnum, String username, String password) {
-        
+        this();
         this.firstName = firstName;
         this.lastName = lastName;
         this.role = role;
