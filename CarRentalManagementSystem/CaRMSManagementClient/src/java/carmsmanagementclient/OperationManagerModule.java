@@ -7,11 +7,13 @@ package carmsmanagementclient;
 
 import ejb.session.stateless.CarAllocationSessionBeanRemote;
 import ejb.session.stateless.CarEntitySessionBeanRemote;
+import ejb.session.stateless.CategoryEntitySessionBeanRemote;
 import ejb.session.stateless.EmployeeEntitySessionBeanRemote;
 import ejb.session.stateless.ModelEntitySessionBeanRemote;
 import ejb.session.stateless.OutletEntitySessionBeanRemote;
 import ejb.session.stateless.TransitDriverDispatchRecordEntitySessionBeanRemote;
 import entity.CarEntity;
+import entity.CategoryEntity;
 import entity.EmployeeEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
@@ -32,6 +34,7 @@ import util.enumeration.AccessRightEnum;
 import util.enumeration.CarStatusEnum;
 import util.enumeration.DispatchRecordEnum;
 import util.exception.CarNotFoundException;
+import util.exception.CategoryNotFoundException;
 import util.exception.CreateNewModelFailureException;
 import util.exception.DeleteCarException;
 import util.exception.DeleteModelException;
@@ -42,6 +45,8 @@ import util.exception.ModelNotFoundException;
 import util.exception.NewCarCreationException;
 import util.exception.OutletNotFoundException;
 import util.exception.UpdateCarException;
+import util.exception.UpdateCarFailureException;
+import util.exception.UpdateModelFailureException;
 
 /**
  *
@@ -59,6 +64,7 @@ class OperationManagerModule {
     private CarAllocationSessionBeanRemote carAllocationSessionBeanRemote;
     private TransitDriverDispatchRecordEntitySessionBeanRemote transitDriverDispatchRecordEntitySessionBeanRemote;
     private EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote;
+    private CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
 
     public OperationManagerModule() {
 
@@ -68,7 +74,7 @@ class OperationManagerModule {
 
     public OperationManagerModule(EmployeeEntity currentEmployee, ModelEntitySessionBeanRemote modelEntitySessionBeanRemote, OutletEntitySessionBeanRemote outletEntitySessionBeanRemote, CarEntitySessionBeanRemote carEntitySessionBeanRemote,
             CarAllocationSessionBeanRemote carAllocationSessionBeanRemote, TransitDriverDispatchRecordEntitySessionBeanRemote transitDriverDispatchRecordEntitySessionBeanRemote,
-            EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote) {
+            EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote,CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote) {
         this();
 
         this.currentEmployee = currentEmployee;
@@ -78,6 +84,7 @@ class OperationManagerModule {
         this.carAllocationSessionBeanRemote = carAllocationSessionBeanRemote;
         this.transitDriverDispatchRecordEntitySessionBeanRemote = transitDriverDispatchRecordEntitySessionBeanRemote;
         this.employeeEntitySessionBeanRemote = employeeEntitySessionBeanRemote;
+        this.categoryEntitySessionBeanRemote = categoryEntitySessionBeanRemote;
     }
 
     public void menuOperationManagerModule() throws InvalidAccessRightException {
@@ -150,9 +157,7 @@ class OperationManagerModule {
         }
     }
 
-    private void doUpdateModel() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     private void doViewTDDR() {
         List<TransitDriverDispatchRecordEntity> dispatchRecord = outletEntitySessionBeanRemote.retrieveAllDispatchRecord(currentEmployee.getOutletEntity());
@@ -229,6 +234,51 @@ class OperationManagerModule {
             System.out.println(ex.getMessage());
         }
 
+    }
+    
+    private void doUpdateModel() {
+        
+        Scanner sc = new Scanner(System.in);
+        String input;
+        Long longInput;
+        
+        System.out.print("Enter model ID>");
+        Long modelId = sc.nextLong();
+        sc.nextLine();
+        
+        try{
+            
+            ModelEntity modelToUpdate = modelEntitySessionBeanRemote.retrieveModelByModelId(modelId);
+            System.out.print("Enter new model name (blank if no changes>)");
+            input = sc.nextLine().trim();
+            if(input.length() > 0){
+                modelToUpdate.setModelName(input);
+            }
+            
+            System.out.print("Enter new make name (blank if no changes>)");
+            input = sc.nextLine().trim();
+            if(input.length() > 0){
+                modelToUpdate.setMake(input);
+            }
+            
+            System.out.print("Enter category ID (negative number if no change)>)");
+            longInput = sc.nextLong();
+            if(longInput > 0){
+                CategoryEntity category  = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(longInput);
+            }
+            
+            modelEntitySessionBeanRemote.updateModel(modelToUpdate,longInput);
+            System.out.println("Model updated successfully!\n");
+            
+        } catch (ModelNotFoundException ex1){
+            System.out.println("An error has occurred while retrieving product: " + ex1.getMessage() + "\n");
+        } catch(CategoryNotFoundException ex2){
+            System.out.println("An error has occurred while retrieving product: " + ex2.getMessage() + "\n");
+        } catch (UpdateModelFailureException ex3){
+            System.out.println(ex3.getMessage());
+        }
+        
+    
     }
 
     private void doViewAllModels() {
@@ -377,62 +427,50 @@ class OperationManagerModule {
 
     }
 
-  /*  private void doUpdateCar(CarEntity car) {
-        Scanner scanner = new Scanner(System.in);
+    
+    private void doUpdateCar(CarEntity car) {
+        Scanner sc = new Scanner(System.in);
         String input;
+        Long longInput1,longInput2;
 
         System.out.println("*** :: View Car Details :: Update Car ***\n");
-        System.out.print("Enter Make (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if (input.length() > 0) {
-            car.setMake(input);
-        }
 
-        System.out.print("Enter Model (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if (input.length() > 0) {
-            car.setModel(input);
-        }
-        //set the model as well
-        System.out.print("Enter Plate Number (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if (input.length() > 0) {
-            car.setPlateNumber(input);
-        }
-        System.out.print("Enter Car status (blank if no change)> ");
-        input = scanner.nextLine().trim();
-        if (input.length() > 0) {
-            car.setStatus(CarStatusEnum.valueOf(input));
-        }
-        System.out.println("Enter Outlet (blank if no change)> ");
-        List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveAllOutlet();
-        for (OutletEntity o : outlets) {
-            System.out.println(o.getOutletId() + " " + o.getName());
-        }
-        input = scanner.nextLine().trim();
-        OutletEntity outlet;
         try {
-            outlet = outletEntitySessionBeanRemote.retrieveOutletByOutletId(Long.parseLong(input));
-        } catch (OutletNotFoundException ex) {
-            System.out.println("outlet not found!");
-        }
-        car.setOutletEntity(outlet);
-
-        Set<ConstraintViolation<CarEntity>> constraintViolations = validator.validate(carEntity);
-
-        if (constraintViolations.isEmpty()) {
-            try {
-                carEntitySessionBeanRemote.updateCar(car);
-                System.out.println("Product updated successfully!\n");
-            } catch (CarNotFoundException | UpdateCarException ex) {
-                System.out.println("An error has occurred while updating car: " + ex.getMessage() + "\n");
-            } catch (InputDataValidationException ex) {
-                System.out.println(ex.getMessage() + "\n");
+            System.out.print("Enter Plate Number (blank if no change)> ");
+            input = sc.nextLine().trim();
+            if (input.length() > 0) {
+                car.setPlateNumber(input);
             }
-        } else {
-            showInputDataValidationErrorsForCarEntity(constraintViolations);
+
+            System.out.print("Enter Car status (blank if no change)> ");
+            input = sc.nextLine().trim();
+            if (input.length() > 0) {
+                car.setStatus(CarStatusEnum.valueOf(input));
+            }
+
+            System.out.print("Enter Model Id(negative number if no change)>");
+            longInput1 = sc.nextLong();
+            if (longInput1 > 0) {
+                ModelEntity modelEntity = modelEntitySessionBeanRemote.retrieveModelByModelId(longInput1);
+            }
+            
+            System.out.print("Enter Outlet Id(negative number if no change)>");
+            longInput2 = sc.nextLong();
+            if (longInput2 > 0) {
+                OutletEntity outletEntity = outletEntitySessionBeanRemote.retrieveOutletByOutletId(longInput2);
+            }
+            
+            carEntitySessionBeanRemote.updateCar(car, longInput1, longInput2);
+            System.out.println("Car updated successfully!\n");
+            
+        } catch (ModelNotFoundException ex1){
+            System.out.println(ex1.getMessage());
+        } catch (OutletNotFoundException ex2){
+            System.out.println(ex2.getMessage());
+        } catch (UpdateCarFailureException ex3){
+            System.out.println(ex3.getMessage());
         }
-    }*/
+    }
 
     private void doAllocateCars() {
         carAllocationSessionBeanRemote.carAllocationCheckTimer();

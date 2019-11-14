@@ -74,13 +74,9 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
                 model = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
             }
             
-            System.out.println("here2");
             CustomerEntity customer = customerEntitySessionBeanLocal.retrieveCustomerByCustomerId(customerId);
-            System.out.println("here3");
             CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
-            System.out.println("here4");
             OutletEntity pickupOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(pickupOutletId);
-            System.out.println("here5");
             OutletEntity returnOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(returnOutletId);
             
             

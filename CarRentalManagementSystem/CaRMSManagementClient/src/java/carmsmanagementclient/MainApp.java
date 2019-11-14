@@ -107,7 +107,7 @@ class MainApp {
                             }
                         }
                         else if(currentEmployee.getAccessRightEnum() == AccessRightEnum.OPERATIONSMANAGER){
-                        operationManagerModule = new OperationManagerModule(currentEmployee,modelEntitySessionBeanRemote,outletEntitySessionBeanRemote,carEntitySessionBeanRemote, carAllocationSessionBeanRemote,transitDriverDispatchRecordEntitySessionBeanRemote,employeeEntitySessionBeanRemote);
+                        operationManagerModule = new OperationManagerModule(currentEmployee,modelEntitySessionBeanRemote,outletEntitySessionBeanRemote,carEntitySessionBeanRemote, carAllocationSessionBeanRemote,transitDriverDispatchRecordEntitySessionBeanRemote,employeeEntitySessionBeanRemote,categoryEntitySessionBeanRemote);
                          try {
                                 operationManagerModule.menuOperationManagerModule();
                             } catch (InvalidAccessRightException ex) {

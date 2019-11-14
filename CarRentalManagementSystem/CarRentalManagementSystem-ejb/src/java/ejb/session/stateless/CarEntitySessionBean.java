@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.ejb.EJB;
+import javax.ejb.EJBContext;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -28,6 +30,7 @@ import util.exception.ModelNotFoundException;
 import util.exception.NewCarCreationException;
 import util.exception.OutletNotFoundException;
 import util.exception.UpdateCarException;
+import util.exception.UpdateCarFailureException;
 
 /**
  *
@@ -42,6 +45,8 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     @EJB
     private ReservationRecordEntitySessionBeanLocal reservationRecordEntitySessionBeanLocal;
 
+    @Resource
+    private EJBContext eJBContext;
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
 
@@ -280,28 +285,41 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
         }
 
     }
-    /*@Override
-    public void updateCar(CarEntity car) throws CarNotFoundException{
-        if (car != null && car.getCarId()!= null) {
-            Set<ConstraintViolation<CarEntity>> constraintViolations = validator.validate(car);
-
-            if (constraintViolations.isEmpty()) {
-                CarEntity carToUpdate = retrieveCarByCarId(car.getCarId());
-
-                if (carToUpdate.getCarId().equals(car.getCarId())) {
-                    carToUpdate.setMake(car.getMake());
-                    carToUpdate.setModel(car.getModel());
-                    carToUpdate.setPlateNumber(car.getPlateNumber());
-                    carToUpdate.setStatus(car.getStatus());
-                } else {
-                    throw new UpdateRentalRateException("ID of rental rate to be updated does not match the existing rental rate");
+    
+    @Override
+    public void updateCar(CarEntity carEntity,Long modelId,Long outletId) throws UpdateCarFailureException{
+        
+        try{
+            if (carEntity != null && carEntity.getCarId() != null){
+                CarEntity carToUpdate = retrieveCarByCarId(carEntity.getCarId());
+                carToUpdate.setPlateNumber(carEntity.getPlateNumber());
+                carToUpdate.setStatus(carEntity.getStatus());
+                
+                if(!(carToUpdate.getModelEntity().getModelId().equals(modelId))){
+                    ModelEntity modelEntity = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
+                    carToUpdate.getModelEntity().getCars().remove(carToUpdate);
+                    modelEntity.getCars().add(carToUpdate);
+                    carToUpdate.setModelEntity(modelEntity);
                 }
-            } else {
-                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+                
+                if(!(carToUpdate.getOutletEntity().getOutletId().equals(outletId))){
+                    OutletEntity outletEntity = outletEntitySessionBeanLocal.retrieveOutletByOutletId(outletId);
+                    carToUpdate.getOutletEntity().getCars().remove(carToUpdate);
+                    outletEntity.getCars().add(carToUpdate);
+                    carToUpdate.setOutletEntity(outletEntity);
+                }
             }
-        } else {
-            throw new RentalRateNotFoundException("Rental rate ID not provided for product to be updated");
+        } catch (CarNotFoundException ex1){
+            eJBContext.setRollbackOnly();
+            throw new UpdateCarFailureException(ex1.getMessage());
+        } catch (ModelNotFoundException ex2){
+            eJBContext.setRollbackOnly();
+            throw new UpdateCarFailureException(ex2.getMessage());
+        } catch (OutletNotFoundException ex3){
+            eJBContext.setRollbackOnly();
+            throw new UpdateCarFailureException(ex3.getMessage());
         }
-    }*/
+        
+    }
 
 }

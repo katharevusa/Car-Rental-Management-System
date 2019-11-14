@@ -250,7 +250,7 @@ public class MainApp {
 
                 System.out.print("Enter pick up date/time(yyyy-MM-dd HH:mm:ss)>");
                 String pickupDateTimeString = sc.nextLine().trim();
-                LocalDateTime pickupDateTime = LocalDateTime.parse("2019-12-06 12:00:00",formatter);
+                LocalDateTime pickupDateTime = LocalDateTime.parse(pickupDateTimeString,formatter);
                 
                 
                 printAvailableOutlet(pickupDateTime);
@@ -260,7 +260,7 @@ public class MainApp {
 
                 System.out.print("Enter return date/time(yyyy-MM-dd HH:mm:ss)>");
                 String returnDateTimeString = sc.nextLine().trim();
-                LocalDateTime returnDateTime = LocalDateTime.parse("2019-12-08 00:00:00",formatter);
+                LocalDateTime returnDateTime = LocalDateTime.parse(returnDateTimeString,formatter);
                 
                 
                 printAvailableOutlet(returnDateTime);
