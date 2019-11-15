@@ -36,7 +36,7 @@ import util.exception.UnsuccessfulReservationException;
 
 public class MainApp {
 
-    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private CustomerEntitySessionBeanRemote customerEntitySessionBeanRemote;
     private CarEntitySessionBeanRemote carEntitySessionBeanRemote;
     private CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
@@ -234,7 +234,7 @@ public class MainApp {
                     System.out.print("Any car model?(Y/N)>");
                     option = sc.nextLine().trim();
 
-                    if (option.equals("Y")) {
+                    if (option.equals("N")) {
                         selectedModelId = -1;
                     } else {
                         System.out.print("Please select a category>");
@@ -243,7 +243,7 @@ public class MainApp {
                     }
                 }
 
-                System.out.print("Enter pick up date/time(yyyy-MM-dd HH:mm:ss)>");
+                System.out.print("Enter pickup date/time in the format of (dd/MM/yyyy HH:mm)>");
                 String pickupDateTimeString = sc.nextLine().trim();
                 LocalDateTime pickupDateTime = LocalDateTime.parse(pickupDateTimeString, formatter);
 
@@ -252,7 +252,7 @@ public class MainApp {
                 long selectedPickupOutletId = sc.nextLong();
                 sc.nextLine();
 
-                System.out.print("Enter return date/time(yyyy-MM-dd HH:mm:ss)>");
+                System.out.print("Enter return date/time in the format of (dd/MM/yyyy HH:mm)>");
                 String returnDateTimeString = sc.nextLine().trim();
 
                 LocalDateTime returnDateTime = LocalDateTime.parse(returnDateTimeString,formatter);

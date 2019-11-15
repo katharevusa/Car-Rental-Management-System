@@ -83,6 +83,7 @@ class CustomerServiceExecutiveModule {
             Scanner sc = new Scanner(System.in);
             System.out.println("Enter reservation id>");
             ReservationRecordEntity reservation = reservationRecordEntitySessionBeanRemote.retrieveReservationBylId(sc.nextLong());
+            
             reservation.getCarEntity().setStatus(CarStatusEnum.ONRENTAL);
             reservation.getCarEntity().setOutletEntity(null);
             if(reservation.getPaidAmount()==0){

@@ -368,9 +368,9 @@ class OperationManagerModule {
         Scanner sc = new Scanner(System.in);
 
         List<CarEntity> cars = carEntitySessionBeanRemote.retrieveAllCars();
-        System.out.printf("%8s%20s%20s%20s%20s%20s\n", "Id", "Car Category", "Make", "Model", "Status", "License Plate Number");
+        System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", "Id", "Car Category", "Make", "Model", "Status", "License Plate Number","Outlet");
         for (CarEntity car : cars) {
-            System.out.printf("%8s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getModelEntity().getCategoryEntity().getName(), car.getMake(), car.getModel(), car.getStatus(), car.getPlateNumber());
+            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getModelEntity().getCategoryEntity().getName(), car.getMake(), car.getModel(), car.getStatus(), car.getPlateNumber(),car.getOutletEntity());
         }
 
         System.out.print("Press any key to continue...> ");
@@ -390,9 +390,9 @@ class OperationManagerModule {
             CarEntity car = carEntitySessionBeanRemote.retrieveCarByCarId(carId);
             System.out.println("Current car :" + car.getCarId());
 
-            System.out.printf("%8s%20s%20s%20s%20s%20s\n", "Id", "Car Category", "Make", "Model", "Status", "License Plate Number");
-            System.out.printf("%8s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getModelEntity().getCategoryEntity().getName(), car.getMake(), car.getModel(), car.getStatus(), car.getPlateNumber());
-            System.out.print("Press any key to continue...>");
+            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", "Id", "Car Category", "Make", "Model", "Status", "License Plate Number","Outlet");
+            System.out.printf("%8s%20s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getModelEntity().getCategoryEntity().getName(), car.getMake(), car.getModel(), car.getStatus(), car.getPlateNumber(),car.getOutletEntity());
+            System.out.print("Press any key to continue...>\n");
             sc.nextLine();
 
             System.out.println("1: Update Car");
@@ -402,11 +402,9 @@ class OperationManagerModule {
             response = sc.nextInt();
 
             if (response == 1) {
-           //     doUpdateCar(car);
+                doUpdateCar(car);
             } else if (response == 2) {
                 doDeleteCar(car);
-            } else {
-                System.out.println("Invalid Option");
             }
 
         } catch (CarNotFoundException ex) {
@@ -445,7 +443,7 @@ class OperationManagerModule {
                 car.setPlateNumber(input);
             }
 
-            System.out.print("Enter Car status (blank if no change)> ");
+            System.out.print("Enter Car status REPAIR/AVAILABLE (blank if no change)> ");
             input = sc.nextLine().trim();
             if (input.length() > 0) {
                 car.setStatus(CarStatusEnum.valueOf(input));

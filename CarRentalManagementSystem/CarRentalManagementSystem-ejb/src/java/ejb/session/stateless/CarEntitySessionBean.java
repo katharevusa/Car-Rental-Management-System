@@ -71,7 +71,6 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
             modelEntity.getCars().add(newCarEntity);
             em.flush();
             return newCarEntity.getCarId();
-
         } catch (PersistenceException ex) {
             throw new NewCarCreationException("License plate number " + newCarEntity.getPlateNumber() + " already exists!");
         } catch (OutletNotFoundException ex) {
