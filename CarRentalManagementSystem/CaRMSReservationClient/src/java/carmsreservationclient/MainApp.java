@@ -254,7 +254,9 @@ public class MainApp {
 
                 System.out.print("Enter return date/time(yyyy-MM-dd HH:mm:ss)>");
                 String returnDateTimeString = sc.nextLine().trim();
-                LocalDateTime returnDateTime = LocalDateTime.parse(returnDateTimeString, formatter);
+
+                LocalDateTime returnDateTime = LocalDateTime.parse(returnDateTimeString,formatter);
+                
 
                 printAvailableOutlet(returnDateTime);
                 System.out.print("Please select a return outlet>");

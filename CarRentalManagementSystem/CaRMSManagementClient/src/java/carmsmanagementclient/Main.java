@@ -20,15 +20,12 @@ import javax.ejb.EJB;
 
 public class Main {
 
-    @EJB(name = "TransitDriverDispatchRecordEntitySessionBeanRemote")
+    @EJB
     private static TransitDriverDispatchRecordEntitySessionBeanRemote transitDriverDispatchRecordEntitySessionBeanRemote;
-
-    @EJB(name = "CarAllocationSessionBeanRemote")
+    @EJB
     private static CarAllocationSessionBeanRemote carAllocationSessionBeanRemote;
-
-    @EJB(name = "ReservationRecordEntitySessionBeanRemote")
+    @EJB
     private static ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote;
-
     @EJB
     private static OutletEntitySessionBeanRemote outletEntitySessionBeanRemote;
     @EJB
@@ -43,11 +40,12 @@ public class Main {
     private static ModelEntitySessionBeanRemote modelEntitySessionBeanRemote;
     @EJB
     private static CarEntitySessionBeanRemote carEntitySessionBeanRemote;
+    
 
     public static void main(String[] args) {
         MainApp mainApp = new MainApp(outletEntitySessionBeanRemote, employeeEntitySessionBeanRemote, partnerEntitySessionBeanRemote,
                 categoryEntitySessionBeanRemote, modelEntitySessionBeanRemote, rentalRateEntitySessionBeanRemote, carEntitySessionBeanRemote,
-                 reservationRecordEntitySessionBeanRemote, carAllocationSessionBeanRemote, transitDriverDispatchRecordEntitySessionBeanRemote);
+                reservationRecordEntitySessionBeanRemote, carAllocationSessionBeanRemote, transitDriverDispatchRecordEntitySessionBeanRemote);
         mainApp.runApp();
     }
 

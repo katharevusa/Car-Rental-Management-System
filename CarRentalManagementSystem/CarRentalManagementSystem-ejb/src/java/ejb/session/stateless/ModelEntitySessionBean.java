@@ -30,6 +30,7 @@ import util.exception.InputDataValidationException;
 import util.exception.InvalidFieldEnteredException;
 import util.exception.ModelNotFoundException;
 import util.exception.UpdateModelException;
+import util.exception.UpdateModelFailureException;
 
 /**
  *
@@ -44,6 +45,8 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
     @EJB
     private CategoryEntitySessionBeanLocal categoryEntitySessionBeanLlocal;
 
+    @Resource
+    private EJBContext eJBContext;
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
 
@@ -161,4 +164,32 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
 
         return new ArrayList<ModelEntity>(models);
     }
+    
+    @Override
+    public void updateModel(ModelEntity modelEntity,Long categoryId) throws UpdateModelFailureException{
+       
+        try {
+            if (modelEntity != null && modelEntity.getModelId() != null) {
+                ModelEntity modelToUpdate = retrieveModelByModelId(modelEntity.getModelId());
+                modelToUpdate.setMake(modelEntity.getMake());
+                modelToUpdate.setModelName(modelEntity.getModelName());
+                
+                if(!(modelToUpdate.getCategoryEntity().getCategoryId().equals(categoryId))){
+                    CategoryEntity categoryEntity = categoryEntitySessionBeanLlocal.retrieveCategoryByCategoryId(categoryId);
+                    modelToUpdate.getCategoryEntity().getModels().remove(modelToUpdate);
+                    categoryEntity.getModels().add(modelToUpdate);
+                    modelToUpdate.setCategoryEntity(categoryEntity);
+                }
+            }
+        } catch (ModelNotFoundException ex1) {
+            eJBContext.setRollbackOnly();
+            throw new UpdateModelFailureException(ex1.getMessage());
+        } catch (CategoryNotFoundException ex2){
+            eJBContext.setRollbackOnly();
+            throw new UpdateModelFailureException(ex2.getMessage());
+        }
+        
+        
+    } 
+    
 }

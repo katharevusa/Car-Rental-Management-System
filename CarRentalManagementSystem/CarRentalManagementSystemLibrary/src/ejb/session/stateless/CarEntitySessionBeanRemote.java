@@ -8,6 +8,7 @@ import util.exception.DeleteCarException;
 import util.exception.ModelNotFoundException;
 import util.exception.NewCarCreationException;
 import util.exception.OutletNotFoundException;
+import util.exception.UpdateCarFailureException;
 
 public interface CarEntitySessionBeanRemote {
     
@@ -24,5 +25,7 @@ public interface CarEntitySessionBeanRemote {
     public List<CarEntity> filterCarsBasedOnModelId(List<CarEntity> cars, Long modelId);
 
     public Boolean checkCarAvailability(LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId, Long selectedCategoryId, Long selectedModelId);
+
+    public void updateCar(CarEntity carEntity, Long modelId, Long outletId) throws UpdateCarFailureException;
     
 }
