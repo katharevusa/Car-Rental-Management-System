@@ -18,6 +18,7 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -447,7 +448,14 @@ public class MainApp {
         List<ReservationRecordEntity> reservationRecordEntities = reservationRecordEntitySessionBeanRemote.retrieveAllReservationRecord();
         System.out.printf("%8s%20s%20s%20s%20s\n", "Reservation id", "pickup date/time", "pickup outlet", "return date/time", "return outlet");
 
-        for (ReservationRecordEntity reservationRecordEntity : reservationRecordEntities) {
+        List<ReservationRecordEntity> reservations = new ArrayList<>();
+        for (ReservationRecordEntity reservation:reservationRecordEntities){
+            if (reservation.getCustomerEntity().getCustomerId().equals(currentCustomerEntity.getCustomerId())){
+                reservations.add(reservation);
+            }
+        }
+        
+        for (ReservationRecordEntity reservationRecordEntity : reservations) {
             System.out.printf("%8s%20s%20s%20s%20s\n", reservationRecordEntity.getReservationRecordId(),
                     reservationRecordEntity.getPickUpDateTime(),
                     reservationRecordEntity.getPickUpOutlet().getName(),

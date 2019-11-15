@@ -144,9 +144,9 @@ public class DataInitializationSessionBean {
                 carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00C1NS", "Nissan", "Sunny", CarStatusEnum.AVAILABLE), "Nissan", "Sunny", Long.valueOf(3));
                 carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00C2NS", "Nissan", "Sunny", CarStatusEnum.AVAILABLE), "Nissan", "Sunny", Long.valueOf(3));
                 carEntitySessionBeanLocal.createNewCar(new CarEntity("SS00C3NS", "Nissan", "Sunny", CarStatusEnum.REPAIR), "Nissan", "Sunny", Long.valueOf(3));
-                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00A4ME", "Mercedes", "E Class", CarStatusEnum.AVAILABLE), "Mercedes", "E Class", Long.valueOf(4));
-                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00B4B5", "BMW", "5 Series", CarStatusEnum.AVAILABLE), "BMW", "5 Series", Long.valueOf(5));
-                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00C4A6", "Audi", "A6", CarStatusEnum.AVAILABLE), "Audi", "A6", Long.valueOf(6));
+                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00A4ME", "Mercedes", "E Class", CarStatusEnum.AVAILABLE), "Mercedes", "E Class", Long.valueOf(1));
+                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00B4B5", "BMW", "5 Series", CarStatusEnum.AVAILABLE), "BMW", "5 Series", Long.valueOf(2));
+                carEntitySessionBeanLocal.createNewCar(new CarEntity("LS00C4A6", "Audi", "A6", CarStatusEnum.AVAILABLE), "Audi", "A6", Long.valueOf(3));
             } catch (NewCarCreationException ex) {
                 Logger.getLogger(DataInitializationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
             } catch (OutletNotFoundException ex) {

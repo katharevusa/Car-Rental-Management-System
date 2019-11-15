@@ -402,7 +402,7 @@ class OperationManagerModule {
             response = sc.nextInt();
 
             if (response == 1) {
-           //     doUpdateCar(car);
+                doUpdateCar(car);
             } else if (response == 2) {
                 doDeleteCar(car);
             } else {
