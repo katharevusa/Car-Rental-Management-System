@@ -86,6 +86,7 @@ class CustomerServiceExecutiveModule {
             ReservationRecordEntity reservation = reservationRecordEntitySessionBeanRemote.retrieveReservationBylId(sc.nextLong());
             reservation.getCarEntity().setStatus(CarStatusEnum.ONRENTAL);
             reservation.getCarEntity().setOutletEntity(null);
+            reservation.setHasPast(true);
             if(reservation.getPaidAmount()==0){
                 System.out.println("Please collect the payment of "+reservation.getRentalRate());
             }
@@ -106,7 +107,6 @@ class CustomerServiceExecutiveModule {
             car.setOutletEntity(reservation.getReturnOutlet());
             car.setReservationRecordEntity(null);
             reservation.setCarEntity(null);
-            
         }catch(ReservationRecordNotFoundException ex){
             System.out.println(ex.getMessage());
         }

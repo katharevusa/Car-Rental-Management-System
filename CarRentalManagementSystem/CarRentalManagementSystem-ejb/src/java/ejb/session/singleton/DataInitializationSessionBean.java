@@ -163,7 +163,10 @@ public class DataInitializationSessionBean {
             rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("Tuesday", 320.00, LocalDateTime.parse("03/12/2019 00:00", formatter), LocalDateTime.parse("03/12/2019 23:59", formatter)));
             rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("Wednesday", 330.00, LocalDateTime.parse("04/12/2019 00:00", formatter), LocalDateTime.parse("04/12/2019 23:59", formatter)));
             rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("Weekday Promo", 250.00, LocalDateTime.parse("04/12/2019 12:00", formatter), LocalDateTime.parse("05/12/2019 12:00", formatter)));
-
+            
+            PartnerEntity partner = new PartnerEntity("Holiday.com","password");
+            em.persist(partner);
+            em.flush();
         } catch (CategoryNotFoundException | GeneralException ex) {
             Logger.getLogger(DataInitializationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
         }

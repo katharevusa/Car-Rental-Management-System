@@ -50,7 +50,7 @@ public class CarEntity implements Serializable {
         
 
     }
-    public CarEntity(String plateNumber, String model, String make, CarStatusEnum status) {
+    public CarEntity(String plateNumber,String make,String model, CarStatusEnum status) {
         
         this();
         

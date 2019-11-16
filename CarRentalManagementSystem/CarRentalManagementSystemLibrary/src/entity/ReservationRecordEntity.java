@@ -20,7 +20,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -34,10 +36,13 @@ public class ReservationRecordEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationRecordId;
     @Column(nullable = false)
+    @Future
     private LocalDateTime pickUpDateTime;
     @Column(nullable = false)
+    @Future
     private LocalDateTime returnDateTime;
     private double rentalRate;
+    private Boolean hasPast = false;
     private Boolean isCancelled = false;
     private Double refund = 0.0;
     private String ccNumber = "";
@@ -85,6 +90,7 @@ public class ReservationRecordEntity implements Serializable {
         this.paidAmount = paidAmount;
         
     }
+
 
     @Override
     public int hashCode() {
@@ -220,7 +226,7 @@ public double getRentalRate() {
     public void setCustomerEntity(CustomerEntity customerEntity) {
         this.customerEntity = customerEntity;
     }
-
+    @XmlTransient
     public PartnerEntity getPartner() {
         return partner;
     }
@@ -235,6 +241,14 @@ public double getRentalRate() {
 
     public void setCcNumber(String ccNumber) {
         this.ccNumber = ccNumber;
+    }
+
+    public Boolean getHasPast() {
+        return hasPast;
+    }
+
+    public void setHasPast(Boolean hasPast) {
+        this.hasPast = hasPast;
     }
 
     

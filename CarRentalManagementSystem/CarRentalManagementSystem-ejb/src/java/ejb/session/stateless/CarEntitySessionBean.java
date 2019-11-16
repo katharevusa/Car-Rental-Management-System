@@ -22,9 +22,14 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.CarStatusEnum;
+import util.exception.CarIsDisabledException;
 import util.exception.CarNotFoundException;
 import util.exception.DeleteCarException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidFieldEnteredException;
 import util.exception.ModelNotFoundException;
 import util.exception.NewCarCreationException;
@@ -49,13 +54,16 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     private EJBContext eJBContext;
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
-
+ private final ValidatorFactory validatorFactory;
+    private final Validator validator;
     @EJB(name = "OutletEntitySessionBeanLocal")
     private OutletEntitySessionBeanLocal outletEntitySessionBeanLocal;
     @EJB(name = "ModelEntitySessionBeanLocal")
     private ModelEntitySessionBeanLocal modelEntitySessionBeanLocal;
 
     public CarEntitySessionBean() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
     @Override
@@ -125,25 +133,25 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
         } catch (CarNotFoundException ex1) {
             throw new DeleteCarException("Car ID " + carId + "does not exist!");
         } catch (DeleteCarException ex2) {
-            throw new DeleteCarException("The car is currently in usage and cannot be deleted, but it has been disabled for fruther rental.");
+            throw new DeleteCarException("The car is currently in usage and cannot be deleted, but it has been disabled for future rental.");
         }
 
     }
 
     @Override
-    public Boolean checkCarAvailability(LocalDateTime pickupDateTime,LocalDateTime returnDateTime,
-            Long selectedPickupOutletId, Long selectedReturnOutletId, Long selectedCategoryId, Long selectedModelId){
-        
+    public Boolean checkCarAvailability(LocalDateTime pickupDateTime, LocalDateTime returnDateTime,
+            Long selectedPickupOutletId, Long selectedReturnOutletId, Long selectedCategoryId, Long selectedModelId) {
+
         Query query;
         int totalAvailableCars;
-        if(selectedModelId.equals(-1)){
+        if (selectedModelId.equals(-1)) {
             query = em.createQuery("SELECT c FROM CarEntity c WHERE c.disabled = FALSE "
                     + "AND c.modelEntity.categoryEntity.categoryId = :inCategoryId");
             query.setParameter("inCategoryId", selectedCategoryId);
             totalAvailableCars = query.getResultList().size();
-            
+
             System.out.println("************" + totalAvailableCars);
-            
+
             query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.isCancelled = FALSE AND r.category.categoryId = :inCategoryId");
             query.setParameter("inCategoryId", selectedCategoryId);
             List<ReservationRecordEntity> reservations = query.getResultList();
@@ -151,129 +159,123 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
 
             //check for reservation made on the selected category that overlap with the new reservation
             for (ReservationRecordEntity reservation : reservations) {
-                
-                
-                if(reservation.getPickUpDateTime().isBefore(pickupDateTime)){
-                    if(reservation.getReturnDateTime().isAfter(pickupDateTime)){
+
+                if (reservation.getPickUpDateTime().isBefore(pickupDateTime)) {
+                    if (reservation.getReturnDateTime().isAfter(pickupDateTime)) {
                         overlappedReservations.add(reservation);
-                    } else if (reservation.getReturnDateTime().isEqual(pickupDateTime)){
-                        if(!(reservation.getReturnOutlet().getOutletId().equals(selectedPickupOutletId))){
+                    } else if (reservation.getReturnDateTime().isEqual(pickupDateTime)) {
+                        if (!(reservation.getReturnOutlet().getOutletId().equals(selectedPickupOutletId))) {
                             overlappedReservations.add(reservation);
                         }
-                    } else if(reservation.getReturnDateTime().isBefore(pickupDateTime)){
-                        if(reservation.getReturnDateTime().isAfter(pickupDateTime.plusHours(2))){
-                            if(!(reservation.getReturnOutlet().equals(selectedPickupOutletId))){
+                    } else if (reservation.getReturnDateTime().isBefore(pickupDateTime)) {
+                        if (reservation.getReturnDateTime().isAfter(pickupDateTime.plusHours(2))) {
+                            if (!(reservation.getReturnOutlet().equals(selectedPickupOutletId))) {
                                 overlappedReservations.add(reservation);
                             }
                         }
                     }
-                } else if(reservation.getPickUpDateTime().isEqual(pickupDateTime)){
+                } else if (reservation.getPickUpDateTime().isEqual(pickupDateTime)) {
                     overlappedReservations.add(reservation);
-                } else if(reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)){
+                } else if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)) {
                     overlappedReservations.add(reservation);
-                } else if(reservation.getPickUpDateTime().isEqual(returnDateTime)){
-                    if(!(reservation.getPickUpOutlet().equals(selectedReturnOutletId))){
+                } else if (reservation.getPickUpDateTime().isEqual(returnDateTime)) {
+                    if (!(reservation.getPickUpOutlet().equals(selectedReturnOutletId))) {
                         overlappedReservations.add(reservation);
                     }
-                } else if(reservation.getPickUpDateTime().isAfter(returnDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime.plusHours(2))){
-                    if(!(reservation.getPickUpOutlet().getOutletId().equals(selectedReturnOutletId))){
+                } else if (reservation.getPickUpDateTime().isAfter(returnDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime.plusHours(2))) {
+                    if (!(reservation.getPickUpOutlet().getOutletId().equals(selectedReturnOutletId))) {
                         overlappedReservations.add(reservation);
                     }
                 }
-                
+
             }
-            
+
             totalAvailableCars = totalAvailableCars - overlappedReservations.size();
             System.out.println("************" + totalAvailableCars);
-            
+
         } else {
             query = em.createQuery("SELECT c FROM CarEntity c WHERE c.disabled = FALSE "
                     + "AND c.modelEntity.modelId = :inModelId");
             query.setParameter("inModelId", selectedModelId);
             totalAvailableCars = query.getResultList().size();
-            
+
             System.out.println("************" + totalAvailableCars);
-            
+
             query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.model.modelId = :inModelId AND r.isCancelled = FALSE");
             query.setParameter("inModelId", selectedModelId);
             List<ReservationRecordEntity> reservations = query.getResultList();
             List<ReservationRecordEntity> overlappedReservations = new ArrayList<>();
-            
+
             for (ReservationRecordEntity reservation : reservations) {
-                
-                
-                if(reservation.getPickUpDateTime().isBefore(pickupDateTime)){
-                    if(reservation.getReturnDateTime().isAfter(pickupDateTime)){
+
+                if (reservation.getPickUpDateTime().isBefore(pickupDateTime)) {
+                    if (reservation.getReturnDateTime().isAfter(pickupDateTime)) {
                         overlappedReservations.add(reservation);
-                    } else if (reservation.getReturnDateTime().isEqual(pickupDateTime)){
-                        if(!(reservation.getReturnOutlet().getOutletId().equals(selectedPickupOutletId))){
+                    } else if (reservation.getReturnDateTime().isEqual(pickupDateTime)) {
+                        if (!(reservation.getReturnOutlet().getOutletId().equals(selectedPickupOutletId))) {
                             overlappedReservations.add(reservation);
                         }
-                    } else if(reservation.getReturnDateTime().isBefore(pickupDateTime)){
-                        if(reservation.getReturnDateTime().isAfter(pickupDateTime.plusHours(2))){
-                            if(!(reservation.getReturnOutlet().equals(selectedPickupOutletId))){
+                    } else if (reservation.getReturnDateTime().isBefore(pickupDateTime)) {
+                        if (reservation.getReturnDateTime().isAfter(pickupDateTime.plusHours(2))) {
+                            if (!(reservation.getReturnOutlet().equals(selectedPickupOutletId))) {
                                 overlappedReservations.add(reservation);
                             }
                         }
                     }
-                } else if(reservation.getPickUpDateTime().isEqual(pickupDateTime)){
+                } else if (reservation.getPickUpDateTime().isEqual(pickupDateTime)) {
                     overlappedReservations.add(reservation);
-                } else if(reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)){
+                } else if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)) {
                     overlappedReservations.add(reservation);
-                } else if(reservation.getPickUpDateTime().isEqual(returnDateTime)){
-                    if(!(reservation.getPickUpOutlet().equals(selectedReturnOutletId))){
+                } else if (reservation.getPickUpDateTime().isEqual(returnDateTime)) {
+                    if (!(reservation.getPickUpOutlet().equals(selectedReturnOutletId))) {
                         overlappedReservations.add(reservation);
                     }
-                } else if(reservation.getPickUpDateTime().isAfter(returnDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime.plusHours(2))){
-                    if(!(reservation.getPickUpOutlet().getOutletId().equals(selectedReturnOutletId))){
+                } else if (reservation.getPickUpDateTime().isAfter(returnDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime.plusHours(2))) {
+                    if (!(reservation.getPickUpOutlet().getOutletId().equals(selectedReturnOutletId))) {
                         overlappedReservations.add(reservation);
                     }
                 }
-                
-               
+
             }
-            
+
             totalAvailableCars = totalAvailableCars - overlappedReservations.size();
             System.out.println("************" + totalAvailableCars);
         }
-        
-        
-        if(totalAvailableCars > 0){
+
+        if (totalAvailableCars > 0) {
             return true;
         } else {
             return false;
         }
-        
+
     }
-    
+
     @Override
-    public List<CarEntity> filterCarsBasedOnCategoryId(List<CarEntity> cars, Long categoryId){
-        
+    public List<CarEntity> filterCarsBasedOnCategoryId(List<CarEntity> cars, Long categoryId) {
+
         List<CarEntity> allCars = new ArrayList<>(cars);
         List<CarEntity> filtered = new ArrayList<>();
-        
-        
-        for(CarEntity car:allCars){
+
+        for (CarEntity car : allCars) {
             em.merge(car);
             System.out.println(car.getModelEntity().getCategoryEntity().getCategoryId());
-            if(car.getModelEntity().getCategoryEntity().getCategoryId().equals(categoryId)){
+            if (car.getModelEntity().getCategoryEntity().getCategoryId().equals(categoryId)) {
                 filtered.add(car);
             }
         }
         return filtered;
     }
-    
+
     @Override
-    public List<CarEntity> filterCarsBasedOnModelId(List<CarEntity> cars, Long modelId){
-     
-        
+    public List<CarEntity> filterCarsBasedOnModelId(List<CarEntity> cars, Long modelId) {
+
         List<CarEntity> allCars = new ArrayList<>(cars);
         List<CarEntity> filtered = new ArrayList<>();
-        
+
         if (modelId == -1) {
             return allCars;
         } else {
-            
+
             for (CarEntity car : cars) {
                 em.merge(car);
                 if (car.getModelEntity().getModelId().equals(modelId)) {
@@ -285,8 +287,8 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
         }
 
     }
-    
-    @Override
+
+    /*  @Override
     public void updateCar(CarEntity carEntity,Long modelId,Long outletId) throws UpdateCarFailureException{
         
         try{
@@ -320,6 +322,48 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
             throw new UpdateCarFailureException(ex3.getMessage());
         }
         
+    }*/
+    @Override
+    public void updateCar(CarEntity car)throws UpdateCarFailureException, InputDataValidationException {
+        try {
+            if (car != null && car.getCarId() != null && !car.isDisabled()) {
+                Set<ConstraintViolation<CarEntity>> constraintViolations = validator.validate(car);
+
+                if (constraintViolations.isEmpty()) {
+                    CarEntity carToUpdate = retrieveCarByCarId(car.getCarId());
+
+                    if (carToUpdate.getCarId().equals(car.getCarId())) {
+                        carToUpdate.setPlateNumber(car.getPlateNumber());
+                        carToUpdate.setMake(car.getMake());
+                        carToUpdate.setModel(car.getModel());
+                        carToUpdate.setModelEntity(car.getModelEntity());
+                        carToUpdate.setStatus(car.getStatus());
+                        carToUpdate.setOutletEntity(car.getOutletEntity());
+                    } else {
+                        throw new UpdateCarFailureException("ID of car to be updated does not match the existing car");
+                    }
+                } else {
+                    throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+                }
+            } else {
+                throw new CarIsDisabledException("Car cannot be updated as it is being disabled!");
+            }
+        } catch (CarNotFoundException ex1) {
+            eJBContext.setRollbackOnly();
+            throw new UpdateCarFailureException(ex1.getMessage());
+        } catch (CarIsDisabledException ex2) {
+            eJBContext.setRollbackOnly();
+            throw new UpdateCarFailureException(ex2.getMessage());
+        }
+    }
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CarEntity>> constraintViolations) {
+        String msg = "Input data validation error!:";
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+
+        return msg;
     }
 
 }

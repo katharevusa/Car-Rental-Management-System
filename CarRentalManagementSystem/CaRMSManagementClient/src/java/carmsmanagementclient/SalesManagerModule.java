@@ -50,7 +50,6 @@ class SalesManagerModule {
     public SalesManagerModule() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
-
         this.enteredCategory = enteredCategory;
         formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     }
@@ -86,12 +85,9 @@ class SalesManagerModule {
                 response = scanner.nextInt();
 
                 if (response == 1) {
-
                     doCreateNewRentalRate();
-
                 } else if (response == 2) {
                     doViewRentalRateDetails();
-
                 } else if (response == 3) {
                     doViewAllRentalRate();
                 } else if (response == 4) {
@@ -130,28 +126,28 @@ class SalesManagerModule {
                     try {
                         enteredCategory = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(Long.valueOf(1));
                     } catch (CategoryNotFoundException ex) {
-                        System.out.println("category cannot be found");
+                        System.out.println("Category cannot be found");
                     }
                     enterRentalRateDetails(enteredCategory);
                 } else if (response == 2) {
                     try {
                         enteredCategory = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(Long.valueOf(2));
                     } catch (CategoryNotFoundException ex) {
-                        System.out.println("category cannot be found");
+                        System.out.println("Category cannot be found");
                     }
                     enterRentalRateDetails(enteredCategory);
                 } else if (response == 3) {
                     try {
                         enteredCategory = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(Long.valueOf(3));
                     } catch (CategoryNotFoundException ex) {
-                        System.out.println("category cannot be found");
+                        System.out.println("Category cannot be found");
                     }
                     enterRentalRateDetails(enteredCategory);
                 } else if (response == 4) {
                     try {
                         enteredCategory = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(Long.valueOf(4));
                     } catch (CategoryNotFoundException ex) {
-                        System.out.println("category cannot be found");
+                        System.out.println("Category cannot be found");
                     }
                     enterRentalRateDetails(enteredCategory);
                 } else if (response == 5) {
@@ -177,7 +173,6 @@ class SalesManagerModule {
         System.out.print("Enter rental rate per day> ");
         newRentalRateEntity.setRatePerDay(scanner.nextDouble());
         scanner.nextLine();
-
         System.out.print("Enter validity period: enter starting date time (dd/MM/yyyy HH:mm) > ");
         String startDate = scanner.nextLine().trim();
         LocalDateTime dateTime1;
@@ -187,7 +182,7 @@ class SalesManagerModule {
             dateTime1 = LocalDateTime.parse(startDate, formatter);
         }
         newRentalRateEntity.setStartDateTime(dateTime1);
-
+        //the ending must be after the starting date
         System.out.print("Enter validity period: enter ending date (dd/mm/yyyy HH:mm) > ");
         String endDate = scanner.nextLine().trim();
         LocalDateTime dateTime2;
