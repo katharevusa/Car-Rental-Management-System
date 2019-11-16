@@ -33,8 +33,8 @@ public class PartnerEntity implements Serializable {
     //bidirectional
     @OneToMany(mappedBy = "partner")
     private List<ReservationRecordEntity> reservationRecord;
-//    @OneToMany(mappedBy = "partner")
-//    private List<CustomerEntity> customer;
+    @OneToMany(mappedBy = "partner")
+    private List<CustomerEntity> customer;
 
     public PartnerEntity() {
     }

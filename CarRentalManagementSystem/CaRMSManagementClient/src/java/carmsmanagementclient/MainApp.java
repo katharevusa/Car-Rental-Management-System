@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package carmsmanagementclient;
 
 import ejb.session.stateless.CarAllocationSessionBeanRemote;
@@ -16,22 +11,14 @@ import ejb.session.stateless.RentalRateEntitySessionBeanRemote;
 import ejb.session.stateless.ReservationRecordEntitySessionBeanRemote;
 import ejb.session.stateless.TransitDriverDispatchRecordEntitySessionBeanRemote;
 import entity.EmployeeEntity;
-import entity.ReservationRecordEntity;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.enumeration.AccessRightEnum;
 
 import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
 
-/**
- *
- * @author admin
- */
 class MainApp {
 
-   
     private OutletEntitySessionBeanRemote outletEntitySessionBeanRemote;
     private CarEntitySessionBeanRemote carEntitySessionBeanRemote;
     private EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote;
@@ -39,7 +26,7 @@ class MainApp {
     private CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
     private RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote;
     private EmployeeEntity currentEmployee;
-    private  AccessRightEnum currentAccessRight;
+    private AccessRightEnum currentAccessRight;
     private SalesManagerModule salesManagerModule;
     private OperationManagerModule operationManagerModule;
     private CustomerServiceExecutiveModule customerServiceExecutiveModule;
@@ -48,19 +35,18 @@ class MainApp {
     private CarAllocationSessionBeanRemote carAllocationSessionBeanRemote;
     private TransitDriverDispatchRecordEntitySessionBeanRemote transitDriverDispatchRecordEntitySessionBeanRemote;
 
-    
     public MainApp() {
     }
 
     public MainApp(OutletEntitySessionBeanRemote outletEntitySessionBeanRemote, EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote,
-            CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote, ModelEntitySessionBeanRemote modelEntitySessionBeanRemote, RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote, 
+            CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote, ModelEntitySessionBeanRemote modelEntitySessionBeanRemote, RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote,
             CarEntitySessionBeanRemote carEntitySessionBeanRemote,
             ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote,
             CarAllocationSessionBeanRemote carAllocationSessionBeanRemote,
             TransitDriverDispatchRecordEntitySessionBeanRemote transitDriverDispatchRecordEntitySessionBeanRemote) {
-        
+
         this();
-        
+
         this.modelEntitySessionBeanRemote = modelEntitySessionBeanRemote;
         this.outletEntitySessionBeanRemote = outletEntitySessionBeanRemote;
         this.employeeEntitySessionBeanRemote = employeeEntitySessionBeanRemote;
@@ -73,105 +59,81 @@ class MainApp {
         this.transitDriverDispatchRecordEntitySessionBeanRemote = transitDriverDispatchRecordEntitySessionBeanRemote;
     }
 
-    public void runApp()
-    {
+    public void runApp() {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
-        
-        while(true)
-        {
+
+        while (true) {
             System.out.println("*** Welcome to Car Rental Management System  ***\n");
             System.out.println("1: Login");
             System.out.println("2: Exit\n");
             response = 0;
-            
-            while(response < 1 || response > 2)
-            {
+
+            while (response < 1 || response > 2) {
                 System.out.print("> ");
 
                 response = scanner.nextInt();
 
-                if(response == 1)
-                {
-                    try
-                    {
+                if (response == 1) {
+                    try {
                         doLogin();
                         System.out.println("Login successful!\n");
-                        
-                        if(currentEmployee.getAccessRightEnum() == AccessRightEnum.SALESMANAGER){
-                        salesManagerModule = new SalesManagerModule(currentEmployee, rentalRateEntitySessionBeanRemote,categoryEntitySessionBeanRemote);
+
+                        if (currentEmployee.getAccessRightEnum() == AccessRightEnum.SALESMANAGER) {
+                            salesManagerModule = new SalesManagerModule(currentEmployee, rentalRateEntitySessionBeanRemote, categoryEntitySessionBeanRemote);
                             try {
                                 salesManagerModule.menuSalesManagerModule();
                             } catch (InvalidAccessRightException ex) {
                                 System.out.println("invalid access");
                             }
-                        }
-                        else if(currentEmployee.getAccessRightEnum() == AccessRightEnum.OPERATIONSMANAGER){
-                        operationManagerModule = new OperationManagerModule(currentEmployee,modelEntitySessionBeanRemote,outletEntitySessionBeanRemote,carEntitySessionBeanRemote, carAllocationSessionBeanRemote,transitDriverDispatchRecordEntitySessionBeanRemote,employeeEntitySessionBeanRemote,categoryEntitySessionBeanRemote);
-                         try {
+                        } else if (currentEmployee.getAccessRightEnum() == AccessRightEnum.OPERATIONSMANAGER) {
+                            operationManagerModule = new OperationManagerModule(currentEmployee, modelEntitySessionBeanRemote, outletEntitySessionBeanRemote, carEntitySessionBeanRemote, carAllocationSessionBeanRemote, transitDriverDispatchRecordEntitySessionBeanRemote, employeeEntitySessionBeanRemote, categoryEntitySessionBeanRemote);
+                            try {
                                 operationManagerModule.menuOperationManagerModule();
                             } catch (InvalidAccessRightException ex) {
                                 System.out.println("invalid access");
                             }
-                        }
-                        else if(currentEmployee.getAccessRightEnum() == AccessRightEnum.CUSTOMERSERVICEEXECUTIVE){
-                        customerServiceExecutiveModule = new CustomerServiceExecutiveModule(currentEmployee,reservationRecordSessionBeanEntityRemote);
-                        try {
+                        } else if (currentEmployee.getAccessRightEnum() == AccessRightEnum.CUSTOMERSERVICEEXECUTIVE) {
+                            customerServiceExecutiveModule = new CustomerServiceExecutiveModule(currentEmployee, reservationRecordSessionBeanEntityRemote);
+                            try {
                                 customerServiceExecutiveModule.menuCustomerServiceExecutiveModule();
                             } catch (InvalidAccessRightException ex) {
                                 System.out.println("invalid access");
                             }
                         }
-                        
-                    }
-                    catch(InvalidLoginCredentialException ex) 
-                    {
+
+                    } catch (InvalidLoginCredentialException ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                     }
-                }
-                else if (response == 2)
-                {
+                } else if (response == 2) {
                     break;
-                }
-                else
-                {
-                    System.out.println("Invalid option, please try again!\n");                
+                } else {
+                    System.out.println("Invalid option, please try again!\n");
                 }
             }
-            
-            if(response == 2)
-            {
+
+            if (response == 2) {
                 break;
             }
         }
-        
+
     }
-    
-        private void doLogin() throws InvalidLoginCredentialException 
-    {
+
+    private void doLogin() throws InvalidLoginCredentialException {
         Scanner scanner = new Scanner(System.in);
         String username = "";
         String password = "";
-        
+
         System.out.println("*** CaRMSystem :: Login ***\n");
         System.out.print("Enter username> ");
         username = scanner.nextLine().trim();
         System.out.print("Enter password> ");
         password = scanner.nextLine().trim();
-        
-        if(username.length() > 0 && password.length() > 0)
-        {
+
+        if (username.length() > 0 && password.length() > 0) {
             currentEmployee = employeeEntitySessionBeanRemote.employeeLogin(username, password);
-        }
-        else
-        {
+        } else {
             throw new InvalidLoginCredentialException("Missing login credential!");
         }
     }
-    }
-
-  
-    
-    
-    
-
+}

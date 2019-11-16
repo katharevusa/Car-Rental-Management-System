@@ -1,15 +1,11 @@
 package ejb.session.stateless;
 
-
-import entity.CarEntity;
 import entity.CategoryEntity;
 import entity.CustomerEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
 import entity.ReservationRecordEntity;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -20,13 +16,11 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.CancelReservationFailureException;
-import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerNotFoundException;
-import util.exception.InvalidFieldEnteredException;
 import util.exception.ModelNotFoundException;
-import util.exception.NoReservationAvailable;
 import util.exception.OutletNotFoundException;
+import util.exception.PastReservationException;
 import util.exception.ReservationAlreadyCancelledException;
 import util.exception.ReservationCreationException;
 import util.exception.ReservationRecordNotFoundException;
@@ -51,8 +45,7 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
     private CarEntitySessionBeanLocal carEntitySessionBeanLocal;
     @EJB
     private ModelEntitySessionBeanLocal modelEntitySessionBeanLocal;
-    
-    
+
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
 
@@ -60,60 +53,58 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
     }
 
     @Override
-    public Long createNewReservationRecord(ReservationRecordEntity reservationRecordEntity, Long customerId, 
-            Long modelId, Long categoryId, Long pickupOutletId, Long returnOutletId) throws ReservationCreationException{
+    public Long createNewReservationRecord(ReservationRecordEntity reservationRecordEntity, Long customerId,
+            Long modelId, Long categoryId, Long pickupOutletId, Long returnOutletId) throws ReservationCreationException {
 
-        try{
+        try {
             em.persist(reservationRecordEntity);
 
             System.out.println("here1");
             ModelEntity model;
-            if(modelId.equals(-1)){
+            if (modelId.equals(-1)) {
                 model = null;
             } else {
                 model = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
             }
-            
+
             CustomerEntity customer = customerEntitySessionBeanLocal.retrieveCustomerByCustomerId(customerId);
             CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
             OutletEntity pickupOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(pickupOutletId);
             OutletEntity returnOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(returnOutletId);
-            
-            
+
             reservationRecordEntity.setCategory(category);
             reservationRecordEntity.setModel(model);
             reservationRecordEntity.setPickUpOutlet(pickupOutlet);
             reservationRecordEntity.setReturnOutlet(returnOutlet);
             reservationRecordEntity.setCustomerEntity(customer);
             customer.getReservations().add(reservationRecordEntity);
-            
+
             em.flush();
             return reservationRecordEntity.getReservationRecordId();
-            
+
         } catch (PersistenceException ex1) {
             throw new ReservationCreationException("");
-        } catch (CustomerNotFoundException ex2){
+        } catch (CustomerNotFoundException ex2) {
             throw new ReservationCreationException("");
-        } catch (ModelNotFoundException ex3){
+        } catch (ModelNotFoundException ex3) {
             throw new ReservationCreationException("");
-        } catch (CategoryNotFoundException ex4){
+        } catch (CategoryNotFoundException ex4) {
             throw new ReservationCreationException("");
-        } catch (OutletNotFoundException ex5){
+        } catch (OutletNotFoundException ex5) {
             throw new ReservationCreationException("");
         }
 
     }
 
-    
     @Override
     public List<ReservationRecordEntity> retrieveAllReservationRecord() {
         Query query = em.createQuery("SELECT rr FROM ReservationRecordEntity rr");
         return query.getResultList();
     }
-    
+
     @Override
     public ReservationRecordEntity retrieveReservationBylId(Long reservationId) throws ReservationRecordNotFoundException {
-        
+
         ReservationRecordEntity reservationRecordEntity = em.find(ReservationRecordEntity.class, reservationId);
 
         if (reservationRecordEntity != null) {
@@ -124,20 +115,20 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
     }
 
     @Override
-    public ReservationRecordEntity cancelReservation(Long reservationId) throws CancelReservationFailureException{
-        
-        try{
-            
+    public ReservationRecordEntity cancelReservation(Long reservationId) throws CancelReservationFailureException {
+
+        try {
+
             ReservationRecordEntity reservationRecord = retrieveReservationBylId(reservationId);
-            if (!reservationRecord.getIsCancelled()) {
-                
+            if (!reservationRecord.getIsCancelled() && !reservationRecord.getHasPast()) {
+
                 LocalDateTime currentDateTime = LocalDateTime.now();
                 LocalDateTime reservationTime = reservationRecord.getPickUpDateTime();
                 LocalDateTime threeDays = reservationTime.minusDays(3);
                 LocalDateTime sevenDays = reservationTime.minusDays(7);
                 LocalDateTime fourteenDays = reservationTime.minusDays(14);
-                
-                if(currentDateTime.isBefore(threeDays)){
+
+                if (currentDateTime.isBefore(threeDays)) {
                     //70%
                     if (reservationRecord.getPaidAmount() != 0) {
                         reservationRecord.setPaidAmount(0.00);
@@ -145,7 +136,7 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
                     } else {
                         reservationRecord.setRefund(0.00 - (reservationRecord.getPaidAmount() * 0.7));
                     }
-                } else if(currentDateTime.isBefore(sevenDays)){
+                } else if (currentDateTime.isBefore(sevenDays)) {
                     //50%
                     if (reservationRecord.getPaidAmount() != 0) {
                         reservationRecord.setPaidAmount(0.00);
@@ -153,7 +144,7 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
                     } else {
                         reservationRecord.setRefund(0.00 - (reservationRecord.getPaidAmount() * 0.5));
                     }
-                } else if(currentDateTime.isBefore(fourteenDays)){
+                } else if (currentDateTime.isBefore(fourteenDays)) {
                     //20%
                     if (reservationRecord.getPaidAmount() != 0) {
                         reservationRecord.setPaidAmount(0.00);
@@ -173,19 +164,20 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
 
                 reservationRecord.setIsCancelled(true);
                 return reservationRecord;
-                
-            }else {
+
+            } else if (reservationRecord.getIsCancelled()) {
                 throw new ReservationAlreadyCancelledException("Reservation " + reservationId + " has already been cancelled!");
+            } else {
+                throw new PastReservationException("Past reservation cannot be cancelled!");
             }
-            
-        } catch(ReservationRecordNotFoundException ex1){
+        } catch (ReservationRecordNotFoundException ex1) {
             throw new CancelReservationFailureException("Reservation ID " + reservationId + " not found!");
-        } catch (ReservationAlreadyCancelledException ex2){
+        } catch (ReservationAlreadyCancelledException ex2) {
             throw new CancelReservationFailureException(ex2.getMessage());
+        } catch (PastReservationException ex3) {
+            throw new CancelReservationFailureException(ex3.getMessage());
         }
-        
+
     }
-    
+
 }
-
-

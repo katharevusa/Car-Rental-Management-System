@@ -31,6 +31,7 @@ import util.exception.InvalidFieldEnteredException;
 import util.exception.ModelNotFoundException;
 import util.exception.UpdateModelException;
 import util.exception.UpdateModelFailureException;
+import util.exception.ModelIsDisabledException;
 
 /**
  *
@@ -49,9 +50,12 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
     private EJBContext eJBContext;
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
 
     public ModelEntitySessionBean() {
-
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
     @Override
@@ -69,7 +73,7 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
             return newModelEntity;
         } catch (PersistenceException ex1) {
 //            eJBContext.setRollbackOnly();
-            throw new CreateNewModelFailureException(ex1.getMessage());
+            throw new CreateNewModelFailureException("Model exists! Cannot create this new Model!");
         } catch (CategoryNotFoundException ex2) {
 //            eJBContext.setRollbackOnly();
             throw new CreateNewModelFailureException(ex2.getMessage());
@@ -105,7 +109,7 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
         if (modelEntity != null) {
             return modelEntity;
         } else {
-            throw new ModelNotFoundException("Model ID " + modelId + "does not exist!");
+            throw new ModelNotFoundException("Model ID " + modelId + " does not exist!");
         }
     }
 
@@ -118,7 +122,7 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
         try {
             return (ModelEntity) query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
-            throw new ModelNotFoundException("Model name " + modelName + "does not exist!");
+            throw new ModelNotFoundException("Model name " + modelName + " does not exist!");
         }
 
     }
@@ -146,11 +150,10 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
                 modelToDelete.setDisabled(true);
                 throw new DeleteModelException();
             }
-
         } catch (ModelNotFoundException ex1) {
-            throw new DeleteModelException("Model ID " + modelId + "does not exist.");
+            throw new DeleteModelException("Model ID " + modelId + " does not exist.");
         } catch (DeleteModelException ex2) {
-            throw new DeleteModelException("Model " + modelId + "cannot be deleted, but it has been marked as disabled.");
+            throw new DeleteModelException("Model " + modelId + " cannot be deleted, but it has been marked as disabled.");
         }
 
     }
@@ -164,32 +167,36 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
 
         return new ArrayList<ModelEntity>(models);
     }
-    
+
     @Override
-    public void updateModel(ModelEntity modelEntity,Long categoryId) throws UpdateModelFailureException{
-       
+    public void updateModel(ModelEntity model) throws UpdateModelFailureException, InputDataValidationException {
         try {
-            if (modelEntity != null && modelEntity.getModelId() != null) {
-                ModelEntity modelToUpdate = retrieveModelByModelId(modelEntity.getModelId());
-                modelToUpdate.setMake(modelEntity.getMake());
-                modelToUpdate.setModelName(modelEntity.getModelName());
-                
-                if(!(modelToUpdate.getCategoryEntity().getCategoryId().equals(categoryId))){
-                    CategoryEntity categoryEntity = categoryEntitySessionBeanLlocal.retrieveCategoryByCategoryId(categoryId);
-                    modelToUpdate.getCategoryEntity().getModels().remove(modelToUpdate);
-                    categoryEntity.getModels().add(modelToUpdate);
-                    modelToUpdate.setCategoryEntity(categoryEntity);
+            if (model != null && model.getModelId() != null && !model.isDisabled()) {
+                Set<ConstraintViolation<ModelEntity>> constraintViolations = validator.validate(model);
+
+                if (constraintViolations.isEmpty()) {
+                    ModelEntity modelToUpdate = retrieveModelByModelId(model.getModelId());
+
+                    if (modelToUpdate.getModelId().equals(model.getModelId())) {
+                        modelToUpdate.setMake(model.getMake());
+                        modelToUpdate.setModelName(model.getModelName());
+                        modelToUpdate.setCategoryEntity(model.getCategoryEntity());
+                    } else {
+                        throw new UpdateModelFailureException("ID of model to be updated does not match the existing model");
+                    }
+                } else {
+                    throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
                 }
+            } else {
+                throw new ModelIsDisabledException("Model cannot be updated as it is being disabled!");
             }
         } catch (ModelNotFoundException ex1) {
             eJBContext.setRollbackOnly();
             throw new UpdateModelFailureException(ex1.getMessage());
-        } catch (CategoryNotFoundException ex2){
+        } catch (ModelIsDisabledException ex2) {
             eJBContext.setRollbackOnly();
             throw new UpdateModelFailureException(ex2.getMessage());
         }
-        
-        
-    } 
-    
+    }
+
 }
