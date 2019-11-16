@@ -12,8 +12,10 @@ import entity.CustomerEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
 import entity.ReservationRecordEntity;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -241,8 +243,20 @@ public class MainApp {
 
                 System.out.print("Enter pick up date/time(dd/MM/yyyy HH:mm:ss)>");
 
-                String pickupDateTimeString = sc.nextLine().trim();
-                LocalDateTime pickupDateTime = LocalDateTime.parse(pickupDateTimeString, formatter);
+                boolean isCorrectFormat = false;
+                LocalDateTime pickupDateTime = LocalDateTime.now();
+                while (!isCorrectFormat) {
+                    try {
+                        String pickupDateTimeString = sc.nextLine().trim();
+                        pickupDateTime = LocalDateTime.parse(pickupDateTimeString, formatter);
+                        isCorrectFormat = true;
+                    } catch (DateTimeParseException ex) {
+                        System.out.print("Incorrect date format!");
+                        System.out.print("Enter pick up date/time(dd/MM/yyyy HH:mm:ss)>");
+                    }
+                }
+                
+                
 
                 try {
                     printAvailableOutlet(pickupDateTime);
@@ -254,8 +268,20 @@ public class MainApp {
                 sc.nextLine();
 
                 System.out.print("Enter return date/time(dd/MM/yyyy HH:mm:ss))>");
-                String returnDateTimeString = sc.nextLine().trim();
-                LocalDateTime returnDateTime = LocalDateTime.parse(returnDateTimeString, formatter);
+
+                isCorrectFormat = false;
+                LocalDateTime returnDateTime = LocalDateTime.now();
+                while (!isCorrectFormat) {
+                    try {
+                        String returnDateTimeString = sc.nextLine().trim();
+                        returnDateTime = LocalDateTime.parse(returnDateTimeString, formatter);
+                        isCorrectFormat = true;
+                    } catch (DateTimeParseException ex) {
+                        System.out.print("Incorrect date format!");
+                        System.out.print("Enter pick up date/time(dd/MM/yyyy HH:mm:ss)>");
+                    }
+                }
+
 
                 try {
                     printAvailableOutlet(returnDateTime);

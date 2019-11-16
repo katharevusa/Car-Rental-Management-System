@@ -154,32 +154,30 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
         
         boolean rentalRateExist;
         LocalDateTime currStartDateTime = pickupDateTime;
-        LocalDateTime next24HourDateTime = currStartDateTime.plusDays(1);
+        LocalDateTime endOfCurrentDayDateTime = currStartDateTime.plusDays(1);
         double totalRate = 0;
         
         List<RentalRateEntity> rentalRates = category.getRentalRate();
         int count = 0;
         
         
-        while(next24HourDateTime.isBefore(returnDateTime)){
+        while(endOfCurrentDayDateTime.isBefore(returnDateTime)){
             
             rentalRateExist = false;
             List<Double> rates = new ArrayList<>();
-            for(RentalRateEntity rentalRate:rentalRates){
-                if(currStartDateTime.compareTo(rentalRate.getStartDateTime())==0 || currStartDateTime.isAfter(rentalRate.getStartDateTime())){
-                    if(next24HourDateTime.compareTo(rentalRate.getEndDateTime()) == 0 || next24HourDateTime.isBefore(rentalRate.getEndDateTime())){
-                        rentalRateExist = true;
-                        rates.add(rentalRate.getRatePerDay());
-                    }
+            for (RentalRateEntity rentalRate : rentalRates) {
+                if (!(currStartDateTime.isBefore(rentalRate.getStartDateTime())) && currStartDateTime.isBefore(rentalRate.getEndDateTime())) {
+                    rentalRateExist = true;
+                    rates.add(rentalRate.getRatePerDay());
                 }
             }
-            
+
             
             if(!rentalRateExist){
                 throw new RentalRateNotFoundException();
             } else {
                 
-                
+                System.out.println("here1");
                 double minimumRate = rates.get(0);
                 for(int i=0;i<rates.size();i++){
                     minimumRate = Math.min(minimumRate,rates.get(i));
@@ -187,7 +185,9 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
                 totalRate += minimumRate;
             }
             
-            next24HourDateTime = next24HourDateTime.plusDays(1);
+            currStartDateTime = endOfCurrentDayDateTime;
+            endOfCurrentDayDateTime = endOfCurrentDayDateTime.plusDays(1);
+            
             count++;
             
             if(count == 10000){
@@ -201,20 +201,20 @@ public class RentalRateEntitySessionBean implements RentalRateEntitySessionBeanR
             System.out.println("break becos of count");
         }
         
+        
         //after exit from the previous while loop, next24HourDateTime can only be after returnDateTime
         //check for the last period of reservation time one more time through the same process
-        if(next24HourDateTime.isAfter(returnDateTime) || next24HourDateTime.isEqual(returnDateTime)){
-            currStartDateTime = next24HourDateTime.minusDays(1);
-            next24HourDateTime = returnDateTime;
+        if(endOfCurrentDayDateTime.isAfter(returnDateTime) || endOfCurrentDayDateTime.isEqual(returnDateTime)){
+            
+            currStartDateTime = endOfCurrentDayDateTime.minusDays(1);
+            endOfCurrentDayDateTime = returnDateTime;
             
             rentalRateExist = false;
             List<Double> rates = new ArrayList<>();
-            for(RentalRateEntity rentalRate:rentalRates){
-                if(currStartDateTime.compareTo(rentalRate.getStartDateTime())==0 || currStartDateTime.isAfter(rentalRate.getStartDateTime())){
-                    if(next24HourDateTime.compareTo(rentalRate.getEndDateTime()) == 0 || next24HourDateTime.isBefore(rentalRate.getEndDateTime())){
-                        rentalRateExist = true;
-                        rates.add(rentalRate.getRatePerDay());
-                    }
+            for(RentalRateEntity rentalRate : rentalRates) {
+                if (!(currStartDateTime.isBefore(rentalRate.getStartDateTime())) && currStartDateTime.isBefore(rentalRate.getEndDateTime())) {
+                    rentalRateExist = true;
+                    rates.add(rentalRate.getRatePerDay());
                 }
             }
             
