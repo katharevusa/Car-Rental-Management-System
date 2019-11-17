@@ -116,6 +116,7 @@ public class ModelEntity implements Serializable {
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
     }
+    @XmlTransient
     public CategoryEntity getCategoryEntity() {
         return categoryEntity;
     }

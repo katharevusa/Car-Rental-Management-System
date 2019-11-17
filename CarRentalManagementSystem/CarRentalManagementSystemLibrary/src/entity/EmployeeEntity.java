@@ -81,6 +81,7 @@ public class EmployeeEntity implements Serializable {
         this.username = username;
         this.password = password;
     }
+    @XmlTransient
     public OutletEntity getOutletEntity() {
         return outletEntity;
     }

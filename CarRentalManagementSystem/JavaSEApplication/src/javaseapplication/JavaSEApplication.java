@@ -6,9 +6,12 @@
 package javaseapplication;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -308,7 +311,7 @@ public class JavaSEApplication {
                 System.out.print("Do you want to try with another period?(Y/N)>");
                 continueConfirmation = sc.nextLine().trim();
 
-            }  catch (ModelNotFoundException_Exception ex) {
+            } catch (ModelNotFoundException_Exception ex) {
                 Logger.getLogger(JavaSEApplication.class.getName()).log(Level.SEVERE, null, ex);
             } catch (DatatypeConfigurationException ex) {
                 Logger.getLogger(JavaSEApplication.class.getName()).log(Level.SEVERE, null, ex);
@@ -322,10 +325,14 @@ public class JavaSEApplication {
 
     }
 
-    private static Long doReserveCar(double totalRentalRate, long selectedModelId, long selectedCategoryId, XMLGregorianCalendar pickupDateTime, XMLGregorianCalendar returnDateTime, long selectedPickupOutletId, long selectedReturnOutletId, String ccNumber, double paidAmt)  {
+    private static Long doReserveCar(double totalRentalRate, long selectedModelId, long selectedCategoryId, XMLGregorianCalendar pickupDateTime, XMLGregorianCalendar returnDateTime, long selectedPickupOutletId, long selectedReturnOutletId, String ccNumber, double paidAmt) {
 
         Long reservationId = null;
         try {
+//            LocalDateTime dt = LocalDate.now().atStartOfDay();
+// 
+//            XMLGregorianCalendar xmlDateTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(dt.format(DateTimeFormatter.ISO_DATE_TIME));
+
             String isop = pickupDateTime.toString();
 //            if (pickupDateTime.getSecond() == 0 && pickupDateTime.getNano() == 0) {
 //                isop += ":00"; // necessary hack because the second part is not optional in XML
@@ -343,7 +350,7 @@ public class JavaSEApplication {
 //            reservationId = createNewReservationRecord(reservationRecordEntity,
 //                    currentPartner.getPartnerId(), selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
         } catch (ReservationRecordNotFoundException_Exception ex) {
-           System.out.println("Sorry! Your reservation is unsuccessful.");
+            System.out.println("Sorry! Your reservation is unsuccessful.");
         } catch (DatatypeConfigurationException ex) {
             Logger.getLogger(JavaSEApplication.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -401,12 +408,15 @@ public class JavaSEApplication {
 
     private static void printAvailableOutlet(LocalDateTime pickupDateTime) {
         try {
-            String isop = pickupDateTime.toString();
-            if (pickupDateTime.getSecond() == 0 && pickupDateTime.getNano() == 0) {
-                isop += ":00"; // necessary hack because the second part is not optional in XML
-            }
-            XMLGregorianCalendar xmlreturn = DatatypeFactory.newInstance().newXMLGregorianCalendar(iso‌​p);
-            List<OutletEntity> outlets = retrieveOutletByPickupDateTime(xmlreturn);
+
+            //XMLGregorianCalendar xmlreturn = DatatypeFactory.newInstance().newXMLGregorianCalendar(pickupDateTime.format(DateTimeFormatter.ISO_DATE_TIME));
+
+            Date date = Date.from(pickupDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            GregorianCalendar c = new GregorianCalendar();
+            c.setTime(date);
+            XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+       
+            List<OutletEntity> outlets = retrieveOutletByPickupDateTime(date2);
             if (outlets.isEmpty()) {
                 System.out.println("No outlet is opening at this hour!");
             } else {
@@ -520,7 +530,7 @@ public class JavaSEApplication {
         return port.retrieveModelByModelId(arg0);
     }
 
-    private static double checkForExistenceOfRentalRate(long arg0, XMLGregorianCalendar arg1, XMLGregorianCalendar arg2) throws CategoryNotFoundException_Exception, RentalRateNotFoundException_Exception {
+    private static double checkForExistenceOfRentalRate(long arg0, javax.xml.datatype.XMLGregorianCalendar arg1, javax.xml.datatype.XMLGregorianCalendar arg2) throws CategoryNotFoundException_Exception, RentalRateNotFoundException_Exception {
         ws.client.CaRMSWebService_Service service = new ws.client.CaRMSWebService_Service();
         ws.client.CaRMSWebService port = service.getCaRMSWebServicePort();
         return port.checkForExistenceOfRentalRate(arg0, arg1, arg2);
@@ -544,7 +554,7 @@ public class JavaSEApplication {
         return port.retrieveCategoryByCategoryId(arg0);
     }
 
-    private static java.util.List<ws.client.OutletEntity> retrieveOutletByPickupDateTime(XMLGregorianCalendar arg0) {
+    private static java.util.List<ws.client.OutletEntity> retrieveOutletByPickupDateTime(javax.xml.datatype.XMLGregorianCalendar arg0) {
         ws.client.CaRMSWebService_Service service = new ws.client.CaRMSWebService_Service();
         ws.client.CaRMSWebService port = service.getCaRMSWebServicePort();
         return port.retrieveOutletByPickupDateTime(arg0);
@@ -568,7 +578,7 @@ public class JavaSEApplication {
         return port.retrieveReservationBylId(arg0);
     }
 
-    private static Boolean checkCarAvailability(XMLGregorianCalendar arg0, XMLGregorianCalendar arg1, long arg2, long arg3, long arg4, long arg5) {
+    private static Boolean checkCarAvailability(javax.xml.datatype.XMLGregorianCalendar arg0, javax.xml.datatype.XMLGregorianCalendar arg1, long arg2, long arg3, long arg4, long arg5) {
         ws.client.CaRMSWebService_Service service = new ws.client.CaRMSWebService_Service();
         ws.client.CaRMSWebService port = service.getCaRMSWebServicePort();
         return port.checkCarAvailability(arg0, arg1, arg2, arg3, arg4, arg5);
@@ -586,12 +596,10 @@ public class JavaSEApplication {
         return port.registerationInWeb(arg0, arg1, arg2, arg3, arg4);
     }
 
-    private static ReservationRecordEntity createReservationInWebService(Long arg0, long arg1, long arg2, long arg3, long arg4, XMLGregorianCalendar arg5, XMLGregorianCalendar arg6, double arg7, String arg8, double arg9) throws ReservationRecordNotFoundException_Exception {
+    private static ReservationRecordEntity createReservationInWebService(Long arg0, long arg1, long arg2, long arg3, long arg4, javax.xml.datatype.XMLGregorianCalendar arg5, javax.xml.datatype.XMLGregorianCalendar arg6, double arg7, String arg8, double arg9) throws ReservationRecordNotFoundException_Exception {
         ws.client.CaRMSWebService_Service service = new ws.client.CaRMSWebService_Service();
         ws.client.CaRMSWebService port = service.getCaRMSWebServicePort();
         return port.createReservationInWebService(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
     }
-
-
 
 }

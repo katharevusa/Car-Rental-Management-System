@@ -134,7 +134,7 @@ public class ReservationRecordEntity implements Serializable {
     public void setRentalRate(double rentalRate) {
         this.rentalRate = rentalRate;
     }
-
+   @XmlTransient
     public TransitDriverDispatchRecordEntity getTddr() {
         return tddr;
     }
@@ -221,7 +221,6 @@ public class ReservationRecordEntity implements Serializable {
     public void setPickUpOutlet(OutletEntity pickUpOutlet) {
         this.pickUpOutlet = pickUpOutlet;
     }
-
     public OutletEntity getReturnOutlet() {
         return returnOutlet;
     }
@@ -229,7 +228,7 @@ public class ReservationRecordEntity implements Serializable {
     public void setReturnOutlet(OutletEntity returnOutlet) {
         this.returnOutlet = returnOutlet;
     }
-
+    @XmlTransient
     public CustomerEntity getCustomerEntity() {
         return customerEntity;
     }

@@ -100,6 +100,7 @@
 <xs:element name="isCancelled" type="xs:boolean" minOccurs="0"/>
 <xs:element name="model" type="tns:modelEntity" minOccurs="0"/>
 <xs:element name="paidAmount" type="xs:double" minOccurs="0"/>
+<xs:element name="partner" type="tns:partnerEntity" minOccurs="0"/>
 <xs:element name="pickUpDateTime" type="tns:localDateTime" minOccurs="0"/>
 <xs:element name="pickUpOutlet" type="tns:outletEntity" minOccurs="0"/>
 <xs:element name="refund" type="xs:double" minOccurs="0"/>
@@ -117,11 +118,17 @@
 <xs:element name="disabled" type="xs:boolean"/>
 <xs:element name="make" type="xs:string" minOccurs="0"/>
 <xs:element name="model" type="xs:string" minOccurs="0"/>
-<xs:element name="modelEntity" type="tns:modelEntity" minOccurs="0"/>
-<xs:element name="outletEntity" type="tns:outletEntity" minOccurs="0"/>
 <xs:element name="plateNumber" type="xs:string" minOccurs="0"/>
-<xs:element name="reservationRecordEntity" type="tns:reservationRecordEntity" minOccurs="0"/>
 <xs:element name="status" type="tns:carStatusEnum" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="categoryEntity">
+<xs:sequence>
+<xs:element name="categoryId" type="xs:long" minOccurs="0"/>
+<xs:element name="models" type="tns:modelEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="name" type="xs:string" minOccurs="0"/>
+<xs:element name="rentalRate" type="tns:rentalRateEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -133,15 +140,6 @@
 <xs:element name="make" type="xs:string" minOccurs="0"/>
 <xs:element name="modelId" type="xs:long" minOccurs="0"/>
 <xs:element name="modelName" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="categoryEntity">
-<xs:sequence>
-<xs:element name="categoryId" type="xs:long" minOccurs="0"/>
-<xs:element name="models" type="tns:modelEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-<xs:element name="name" type="xs:string" minOccurs="0"/>
-<xs:element name="rentalRate" type="tns:rentalRateEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -157,6 +155,27 @@
 
 <xs:complexType name="localDateTime" final="extension restriction">
 <xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="customerEntity">
+<xs:sequence>
+<xs:element name="customerId" type="xs:long" minOccurs="0"/>
+<xs:element name="email" type="xs:string" minOccurs="0"/>
+<xs:element name="mobileNumber" type="xs:string" minOccurs="0"/>
+<xs:element name="password" type="xs:string" minOccurs="0"/>
+<xs:element name="reservations" type="tns:reservationRecordEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="username" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="partnerEntity">
+<xs:sequence>
+<xs:element name="customer" type="tns:customerEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="partnerId" type="xs:long" minOccurs="0"/>
+<xs:element name="password" type="xs:string" minOccurs="0"/>
+<xs:element name="reservationRecord" type="tns:reservationRecordEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="username" type="xs:string" minOccurs="0"/>
+</xs:sequence>
 </xs:complexType>
 
 <xs:complexType name="outletEntity">
@@ -182,7 +201,6 @@
 <xs:element name="employeeId" type="xs:long" minOccurs="0"/>
 <xs:element name="firstName" type="xs:string" minOccurs="0"/>
 <xs:element name="lastName" type="xs:string" minOccurs="0"/>
-<xs:element name="outletEntity" type="tns:outletEntity" minOccurs="0"/>
 <xs:element name="password" type="xs:string" minOccurs="0"/>
 <xs:element name="role" type="xs:string" minOccurs="0"/>
 <xs:element name="username" type="xs:string" minOccurs="0"/>
@@ -193,30 +211,7 @@
 <xs:sequence>
 <xs:element name="dispatchRecordId" type="xs:long" minOccurs="0"/>
 <xs:element name="dispatchRecordStatus" type="tns:dispatchRecordEnum" minOccurs="0"/>
-<xs:element name="employee" type="tns:employeeEntity" minOccurs="0"/>
 <xs:element name="reservationRecord" type="tns:reservationRecordEntity" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="customerEntity">
-<xs:sequence>
-<xs:element name="customerId" type="xs:long" minOccurs="0"/>
-<xs:element name="email" type="xs:string" minOccurs="0"/>
-<xs:element name="mobileNumber" type="xs:string" minOccurs="0"/>
-<xs:element name="partner" type="tns:partnerEntity" minOccurs="0"/>
-<xs:element name="password" type="xs:string" minOccurs="0"/>
-<xs:element name="reservations" type="tns:reservationRecordEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-<xs:element name="username" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="partnerEntity">
-<xs:sequence>
-<xs:element name="customer" type="tns:customerEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-<xs:element name="partnerId" type="xs:long" minOccurs="0"/>
-<xs:element name="password" type="xs:string" minOccurs="0"/>
-<xs:element name="reservationRecord" type="tns:reservationRecordEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-<xs:element name="username" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -462,6 +457,16 @@
 </xs:sequence>
 </xs:complexType>
 
+<xs:simpleType name="carStatusEnum">
+<xs:restriction base="xs:string">
+<xs:enumeration value="REPAIR"/>
+<xs:enumeration value="AVAILABLE"/>
+<xs:enumeration value="INTRANSIT"/>
+<xs:enumeration value="ONRENTAL"/>
+<xs:enumeration value="RESERVED"/>
+</xs:restriction>
+</xs:simpleType>
+
 <xs:simpleType name="accessRightEnum">
 <xs:restriction base="xs:string">
 <xs:enumeration value="SALESMANAGER"/>
@@ -477,16 +482,6 @@
 <xs:enumeration value="UNASSIGNED"/>
 <xs:enumeration value="ASSIGNED"/>
 <xs:enumeration value="COMPLETED"/>
-</xs:restriction>
-</xs:simpleType>
-
-<xs:simpleType name="carStatusEnum">
-<xs:restriction base="xs:string">
-<xs:enumeration value="REPAIR"/>
-<xs:enumeration value="AVAILABLE"/>
-<xs:enumeration value="INTRANSIT"/>
-<xs:enumeration value="ONRENTAL"/>
-<xs:enumeration value="RESERVED"/>
 </xs:restriction>
 </xs:simpleType>
 </xs:schema>

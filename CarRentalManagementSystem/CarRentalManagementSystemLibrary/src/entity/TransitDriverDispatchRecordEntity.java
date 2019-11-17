@@ -77,7 +77,7 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
     }
 
 
-
+    @XmlTransient
     public EmployeeEntity getEmployee() {
         return employee;
     }

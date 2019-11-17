@@ -134,7 +134,7 @@ public class CarEntity implements Serializable {
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
     }
-
+    @XmlTransient
     public ModelEntity getModelEntity() {
         return modelEntity;
     }
@@ -142,7 +142,7 @@ public class CarEntity implements Serializable {
     public void setModelEntity(ModelEntity modelEntity) {
         this.modelEntity = modelEntity;
     }
-    
+    @XmlTransient
     public OutletEntity getOutletEntity() {
         return outletEntity;
     }
@@ -150,7 +150,7 @@ public class CarEntity implements Serializable {
     public void setOutletEntity(OutletEntity outletEntity) {
         this.outletEntity = outletEntity;
     }
-
+    @XmlTransient
     public ReservationRecordEntity getReservationRecordEntity() {
         return reservationRecordEntity;
     }

@@ -91,6 +91,7 @@ public class CustomerEntity implements Serializable {
     public String toString() {
         return "entity.CustomerEntity[ id=" + getCustomerId() + " ]";
     }
+    @XmlTransient
     public PartnerEntity getPartner() {
         return partner;
     }
