@@ -16,6 +16,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -134,7 +135,7 @@ public class OutletEntity implements Serializable {
     public void setClosingTime(LocalTime closingTime) {
         this.closingTime = closingTime;
     }
-
+@XmlTransient
     public List<CarEntity> getCars() {
         return cars;
     }

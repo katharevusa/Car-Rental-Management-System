@@ -23,6 +23,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -160,6 +161,7 @@ public class RentalRateEntity implements Serializable {
     /**
      * @return the category
      */
+    @XmlTransient
     public CategoryEntity getCategory() {
         return category;
     }

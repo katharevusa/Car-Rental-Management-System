@@ -27,4 +27,6 @@ public interface CarEntitySessionBeanLocal {
 
     public void updateCar(CarEntity car) throws UpdateCarFailureException, InputDataValidationException;
 
+    public Boolean checkCarAvailability(LocalDateTime pickupDateTime, LocalDateTime returnDateTime,
+            Long selectedPickupOutletId, Long selectedReturnOutletId, Long selectedCategoryId, Long selectedModelId);
 }

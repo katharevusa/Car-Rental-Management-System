@@ -23,6 +23,8 @@ import javax.persistence.OneToOne;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  *
@@ -70,27 +72,24 @@ public class ReservationRecordEntity implements Serializable {
     @ManyToOne
     @JoinColumn(nullable = true)
     private PartnerEntity partner;
-    
+
     @OneToOne
     private TransitDriverDispatchRecordEntity tddr;
 
-    
-
     public ReservationRecordEntity() {
-        
+
     }
 
-    public ReservationRecordEntity(Double rentalRate, LocalDateTime pickUpDateTime, LocalDateTime returnDateTime,String ccNumber, double paidAmount) {
-        
+    public ReservationRecordEntity(Double rentalRate, LocalDateTime pickUpDateTime, LocalDateTime returnDateTime, String ccNumber, double paidAmount) {
+
         this();
         this.rentalRate = rentalRate;
         this.pickUpDateTime = pickUpDateTime;
         this.returnDateTime = returnDateTime;
         this.ccNumber = ccNumber;
         this.paidAmount = paidAmount;
-        
-    }
 
+    }
 
     @Override
     public int hashCode() {
@@ -116,7 +115,8 @@ public class ReservationRecordEntity implements Serializable {
     public String toString() {
         return "entity.ReservationRecordEntity[ id=" + getReservationRecordId() + " ]";
     }
-public double getRentalRate() {
+
+    public double getRentalRate() {
         return rentalRate;
     }
 
@@ -131,6 +131,7 @@ public double getRentalRate() {
     public void setTddr(TransitDriverDispatchRecordEntity tddr) {
         this.tddr = tddr;
     }
+
     public Long getReservationRecordId() {
         return reservationRecordId;
     }
@@ -178,7 +179,7 @@ public double getRentalRate() {
     public void setRefund(Double refund) {
         this.refund = refund;
     }
-
+@XmlTransient
     public CategoryEntity getCategory() {
         return category;
     }
@@ -202,7 +203,7 @@ public double getRentalRate() {
     public void setCarEntity(CarEntity carEntity) {
         this.carEntity = carEntity;
     }
-
+@XmlTransient
     public OutletEntity getPickUpOutlet() {
         return pickUpOutlet;
     }
@@ -210,7 +211,7 @@ public double getRentalRate() {
     public void setPickUpOutlet(OutletEntity pickUpOutlet) {
         this.pickUpOutlet = pickUpOutlet;
     }
-
+@XmlTransient
     public OutletEntity getReturnOutlet() {
         return returnOutlet;
     }
@@ -226,6 +227,7 @@ public double getRentalRate() {
     public void setCustomerEntity(CustomerEntity customerEntity) {
         this.customerEntity = customerEntity;
     }
+
     @XmlTransient
     public PartnerEntity getPartner() {
         return partner;
@@ -250,7 +252,5 @@ public double getRentalRate() {
     public void setHasPast(Boolean hasPast) {
         this.hasPast = hasPast;
     }
-
-    
 
 }

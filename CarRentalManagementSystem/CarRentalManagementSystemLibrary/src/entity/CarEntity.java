@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.xml.bind.annotation.XmlTransient;
 import util.enumeration.CarStatusEnum;
 
 /**
@@ -133,7 +134,7 @@ public class CarEntity implements Serializable {
     public void setModelEntity(ModelEntity modelEntity) {
         this.modelEntity = modelEntity;
     }
-
+    
     public OutletEntity getOutletEntity() {
         return outletEntity;
     }

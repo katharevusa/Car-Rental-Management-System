@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.XmlTransient;
 import util.enumeration.AccessRightEnum;
 
 /**
@@ -76,7 +77,7 @@ public class EmployeeEntity implements Serializable {
         this.username = username;
         this.password = password;
     }
-
+@XmlTransient
     public OutletEntity getOutletEntity() {
         return outletEntity;
     }

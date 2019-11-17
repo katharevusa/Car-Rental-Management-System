@@ -510,7 +510,6 @@ class OperationManagerModule {
     }
 
     private void doAllocateCars() {
-
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter a date to trigger the alloation of car(yyyy-MM-dd)>");
         String dateTimeString = sc.nextLine().trim();

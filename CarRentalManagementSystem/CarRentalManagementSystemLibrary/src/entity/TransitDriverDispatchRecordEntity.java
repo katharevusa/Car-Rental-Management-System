@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.xml.bind.annotation.XmlTransient;
 import util.enumeration.DispatchRecordEnum;
 
 /**
@@ -56,7 +57,7 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
         hash += (id != null ? id.hashCode() : 0);
         return hash;
     }
-
+@XmlTransient
     public OutletEntity getOutlet() {
         return outletEntity;
     }
