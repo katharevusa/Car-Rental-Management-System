@@ -19,6 +19,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
 import util.enumeration.DispatchRecordEnum;
 
 /**
@@ -34,21 +35,17 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
     private Long dispatchRecordId;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull
     private DispatchRecordEnum dispatchRecordStatus;
-    
     //bi
     @OneToOne
     @JoinColumn(nullable = false)
     private ReservationRecordEntity reservationRecord;
-    
     @ManyToOne(optional = true)
     private EmployeeEntity employee;
-    
-    //    //bi
-//    //this outlet is the destination outlet
-//    @ManyToOne
-//    private OutletEntity outletEntity;
 
+    
+    
     public TransitDriverDispatchRecordEntity() {
         this.dispatchRecordStatus = DispatchRecordEnum.UNASSIGNED;
     }

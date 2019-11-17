@@ -172,9 +172,11 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
     public void updateModel(ModelEntity model) throws UpdateModelFailureException, InputDataValidationException {
         try {
             if (model != null && model.getModelId() != null && !model.isDisabled()) {
+                
                 Set<ConstraintViolation<ModelEntity>> constraintViolations = validator.validate(model);
 
                 if (constraintViolations.isEmpty()) {
+                    
                     ModelEntity modelToUpdate = retrieveModelByModelId(model.getModelId());
 
                     if (modelToUpdate.getModelId().equals(model.getModelId())) {

@@ -18,6 +18,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import util.enumeration.AccessRightEnum;
 
 /**
@@ -32,35 +34,37 @@ public class EmployeeEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
     @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(max = 32)
     private String firstName;
     @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(max = 32)
     private String lastName;
     @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(max = 32)
     private String role;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull
     private AccessRightEnum accessRightEnum;
     @Column(nullable = false, unique = true, length = 32)
+    @NotNull
+    @Size(min = 4,max =32,message = "The length of username is at least 4 or at most 32.")
     private String username;
     @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(min = 8,max=32,message = "The length of password is at least 8 or at most 32.")
     private String password;
-
-    
    @ManyToOne
    @JoinColumn(nullable = false)
     private OutletEntity outletEntity;
-    //@OneToMany(mappedBy = "employee")
-   // private DispatchRecord dispatchRecords;
     @OneToMany(mappedBy = "employee")
     private List<TransitDriverDispatchRecordEntity> dispatchRecords;
 
-    public List<TransitDriverDispatchRecordEntity> getDispatchRecords() {
-        return dispatchRecords;
-    }
-
-    public void setDispatchRecords(List<TransitDriverDispatchRecordEntity> dispatchRecords) {
-        this.dispatchRecords = dispatchRecords;
-    }
+    
+    
     
     public EmployeeEntity(){
         dispatchRecords = new ArrayList<>();
@@ -148,6 +152,15 @@ public class EmployeeEntity implements Serializable {
 
     public void setEmployeeId(Long employeeId) {
         this.employeeId = employeeId;
+    }
+    
+    
+    public List<TransitDriverDispatchRecordEntity> getDispatchRecords() {
+        return dispatchRecords;
+    }
+
+    public void setDispatchRecords(List<TransitDriverDispatchRecordEntity> dispatchRecords) {
+        this.dispatchRecords = dispatchRecords;
     }
 
     @Override

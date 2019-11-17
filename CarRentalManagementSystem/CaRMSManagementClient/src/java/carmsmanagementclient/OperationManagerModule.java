@@ -278,15 +278,7 @@ class OperationManagerModule {
 //        dispatchRecord.setDispatchRecordStatus(DispatchRecordEnum.COMPLETE);
 //    }
 
-    private void showInputDataValidationErrorsForCarEntity(Set<ConstraintViolation<CarEntity>> constraintViolations) {
-        System.out.println("\nInput data validation error!:");
-
-        for (ConstraintViolation constraintViolation : constraintViolations) {
-            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
-        }
-
-        System.out.println("\nPlease try again......\n");
-    }
+    
 
     private void doCreateNewModel() {
 
@@ -303,10 +295,18 @@ class OperationManagerModule {
             categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(categoryId);
             sc.nextLine();
             ModelEntity newModelEntity = new ModelEntity(makeName, modelName);
-            modelEntitySessionBeanRemote.createNewModel(newModelEntity, categoryId);
-            System.out.println("New model " + modelName + " successfully created!");
-            System.out.print("Press any key to continue...> ");
-            sc.nextLine();
+            
+            Set<ConstraintViolation<ModelEntity>> constraintViolations = validator.validate(newModelEntity);
+
+            if (constraintViolations.isEmpty()) {
+                modelEntitySessionBeanRemote.createNewModel(newModelEntity, categoryId);
+                System.out.println("New model " + modelName + " successfully created!");
+                System.out.print("Press any key to continue...> ");
+                sc.nextLine();
+            } else {
+                showInputDataValidationErrorsForModelEntity(constraintViolations);
+            }
+
         } catch (CreateNewModelFailureException ex) {
             System.out.println(ex.getMessage());
         } catch (CategoryNotFoundException ex) {
@@ -345,27 +345,24 @@ class OperationManagerModule {
                 CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(Long.valueOf(input));
                 model.setCategoryEntity(category);
             }
+            
             Set<ConstraintViolation<ModelEntity>> constraintViolations = validator.validate(model);
 
             if (constraintViolations.isEmpty()) {
-                try {
-                    modelEntitySessionBeanRemote.updateModel(model);
-                    System.out.println("Model updated successfully!\n");
-
-                } catch (InputDataValidationException ex) {
-                    System.out.println(ex.getMessage() + "\n");
-                } catch (UpdateModelFailureException ex) {
-                    System.out.println(ex.getMessage() + "\n");
-                }
+                modelEntitySessionBeanRemote.updateModel(model);
+                System.out.println("Model updated successfully!\n");
             } else {
                 showInputDataValidationErrorsForModelEntity(constraintViolations);
             }
-
+            
         } catch (ModelNotFoundException ex) {
             System.out.println(ex.getMessage());
-
         } catch (CategoryNotFoundException ex) {
             System.out.println("No category found");
+        } catch (InputDataValidationException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UpdateModelFailureException ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
 
     }
@@ -450,19 +447,21 @@ class OperationManagerModule {
             String make = modelEntity.getMake();
             String model = modelEntity.getModelName();
 
-            try {
+            Set<ConstraintViolation<CarEntity>> constraintViolations = validator.validate(newCarEntity);
+            
+            if(constraintViolations.isEmpty()){
                 Long carId = carEntitySessionBeanRemote.createNewCar(newCarEntity, make, model, outletId);
                 System.out.println("New Car " + carId + "has been successfully created.");
-
-            } catch (NewCarCreationException ex) {
-                System.out.println(ex.getMessage());
-            } catch (ModelNotFoundException ex) {
-                System.out.println(ex.getMessage());
+            } else {
+                showInputDataValidationErrorsForCarEntity(constraintViolations);
             }
+            
 
         } catch (ModelNotFoundException ex) {
             System.out.println(ex.getMessage());
         } catch (OutletNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        } catch (NewCarCreationException ex) {
             System.out.println(ex.getMessage());
         }
 
@@ -615,6 +614,16 @@ class OperationManagerModule {
     }
 
     private void showInputDataValidationErrorsForModelEntity(Set<ConstraintViolation<ModelEntity>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+    
+    private void showInputDataValidationErrorsForCarEntity(Set<ConstraintViolation<CarEntity>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
 
         for (ConstraintViolation constraintViolation : constraintViolations) {

@@ -10,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import util.enumeration.CarStatusEnum;
 
 /**
@@ -23,20 +25,24 @@ public class CarEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long carId;
+    @NotNull
+    @Size(max = 32)
     @Column(nullable = false, unique = true)
     private String plateNumber;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull
     private CarStatusEnum status;
+    @NotNull
+    @Size(max = 32)
     private String make;
+    @NotNull
+    @Size(max = 32)
     private String model;
-  
     private boolean disabled = false;
-
     //bidirectional
     @ManyToOne
     private ModelEntity modelEntity;
-
     //bidirectional
     @ManyToOne
     private OutletEntity outletEntity;
@@ -44,8 +50,7 @@ public class CarEntity implements Serializable {
     @OneToOne(mappedBy = "carEntity")
     private ReservationRecordEntity reservationRecordEntity;
 
-    //bidirectional
-    //reservation
+    
     public CarEntity() {
         
 

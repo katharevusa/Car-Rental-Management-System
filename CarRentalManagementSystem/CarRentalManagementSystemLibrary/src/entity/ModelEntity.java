@@ -16,6 +16,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -28,16 +30,17 @@ public class ModelEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long modelId;
+    @NotNull
     private String make;
     @Column(unique = true,nullable = false)
+    @NotNull
+    @Size(max = 32)
     private String modelName; 
     private boolean disabled;
-    
     //bidirctional
     @ManyToOne
     @JoinColumn(nullable = false)
     private CategoryEntity categoryEntity;
-    
     //bidirdctional
     @OneToMany(mappedBy = "modelEntity")
     private List<CarEntity> cars;

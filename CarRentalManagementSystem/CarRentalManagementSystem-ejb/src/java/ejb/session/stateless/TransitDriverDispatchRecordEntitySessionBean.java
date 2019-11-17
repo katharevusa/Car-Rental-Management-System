@@ -53,6 +53,7 @@ public class TransitDriverDispatchRecordEntitySessionBean implements TransitDriv
             throw new UpdateDispatchRecordFailureException("Dispatch record Id " + dispatchRecordId + " does not exist!");
         }
         
+        record.getReservationRecord().getCarEntity().setOutletEntity(record.getReservationRecord().getPickUpOutlet());
         record.setDispatchRecordStatus(DispatchRecordEnum.COMPLETED);
         em.flush();
     }

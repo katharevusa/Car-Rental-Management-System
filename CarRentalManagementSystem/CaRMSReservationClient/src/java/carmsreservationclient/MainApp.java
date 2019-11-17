@@ -17,12 +17,19 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.CancelReservationFailureException;
 import util.exception.CategoryNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.ModelNotFoundException;
 import util.exception.NoOutletIsOpeningException;
@@ -36,6 +43,8 @@ import util.exception.UnsuccessfulReservationException;
 public class MainApp {
 
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
     private CustomerEntitySessionBeanRemote customerEntitySessionBeanRemote;
     private CarEntitySessionBeanRemote carEntitySessionBeanRemote;
     private CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
@@ -44,8 +53,11 @@ public class MainApp {
     private ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote;
     private RentalRateEntitySessionBeanRemote rentalRateEntitySessionBeanRemote;
     private ModelEntitySessionBeanRemote modelEntitySessionBeanRemote;
+    
 
     public MainApp() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
     public MainApp(ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote,
@@ -341,9 +353,7 @@ public class MainApp {
                 System.out.println(ex1.getMessage());
             } catch (RentalRateNotFoundException ex2) {
                 System.out.println("Rental Rate is unavailable for the specified period!");
-            } catch (NoResultFoundException ex3) {
-                System.out.println(ex3.getMessage());
-            } catch (UnsuccessfulReservationException ex4) {
+            }catch (UnsuccessfulReservationException ex4) {
                 System.out.println(ex4.getMessage());
             } catch (ModelNotFoundException ex5) {
                 System.out.println(ex5.getMessage());
@@ -356,25 +366,32 @@ public class MainApp {
             LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId,
             Long selectedReturnOutletId, String ccNumber, double paidAmt) throws UnsuccessfulReservationException {
 
+        Long reservationId = null;
         try {
 
             ReservationRecordEntity reservationRecordEntity = new ReservationRecordEntity(totalRentalRate, pickupDateTime, returnDateTime, ccNumber, paidAmt);
-            //associate reservation record with customer
-            //with pickup and return outlet
-            //with model
-            //with category
-            //is it fine if there is no relationship btween rental rate and reservation record?
-            Long reservationId = reservationRecordEntitySessionBeanRemote.createNewReservationRecord(reservationRecordEntity,
-                    currentCustomerEntity.getCustomerId(), selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
-            return reservationId;
-        } catch (ReservationCreationException ex) {
+
+            Set<ConstraintViolation<ReservationRecordEntity>> constraintViolations = validator.validate(reservationRecordEntity);
+
+            if (constraintViolations.isEmpty()) {
+                reservationId = reservationRecordEntitySessionBeanRemote.createNewReservationRecord(reservationRecordEntity,
+                        currentCustomerEntity.getCustomerId(), selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
+            } else {
+                showInputDataValidationErrorsForReservationRecordEntity(constraintViolations);
+            }
+
+        } catch (ReservationCreationException ex1) {
+            throw new UnsuccessfulReservationException("Sorry! Your reservation is unsuccessful.");
+        } catch (InputMismatchException ex2){
             throw new UnsuccessfulReservationException("Sorry! Your reservation is unsuccessful.");
         }
+        
+        return reservationId;
 
     }
 
     public Boolean searchCar(Long selectedCategoryId, Long selectedModelId, LocalDateTime pickupDateTime,
-            LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId) throws NoResultFoundException, CategoryNotFoundException {
+            LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId){
 
         //filter to get cars with specified category and model
         Boolean canReserve = carEntitySessionBeanRemote.checkCarAvailability(pickupDateTime, returnDateTime,
@@ -523,5 +540,17 @@ public class MainApp {
         } catch (ReservationRecordNotFoundException ex) {
             System.out.println("An error has occurred while retrieving rental rate: " + ex.getMessage() + "\n");
         }
+    }
+    
+    
+    
+    private void showInputDataValidationErrorsForReservationRecordEntity(Set<ConstraintViolation<ReservationRecordEntity>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
     }
 }

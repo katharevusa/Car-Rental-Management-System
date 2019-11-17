@@ -1,30 +1,30 @@
-///*
-// * To change this license header, choose License Headers in Project Properties.
-// * To change this template file, choose Tools | Templates
-// * and open the template in the editor.
-// */
-//package beanValidation;
-//
-//import java.time.LocalDate;
-//import javax.validation.ConstraintValidator;
-//import javax.validation.ConstraintValidatorContext;
-//
-//@SupportedValidationTarget(ValidationTarget.PARAMETERS)
-//public static class DateRangeValidator implements
-//        ConstraintValidator<DateRangeParams, Object[]> {
-//
-//    @Override
-//    public void initialize(DateRangeParams constraintAnnotation) {
-//    }
-//
-//    @Override
-//    public boolean isValid(Object[] value, ConstraintValidatorContext context) {
-//        if (value == null || value.length != 2
-//                || !(value[0] instanceof LocalDate)
-//                || !(value[1] instanceof LocalDate)) {
-//            return false;
-//        }
-//
-//        return ((LocalDate) value[0]).isBefore((LocalDate) value[1]);
-//    }
-//}
+package beanValidation;
+
+import entity.ReservationRecordEntity;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+
+public class DateRangeValidator implements ConstraintValidator<DateRange, ReservationRecordEntity> {
+
+    @Override
+    public void initialize(DateRange constraintAnnotation) {
+    }
+
+    @Override
+    public boolean isValid(ReservationRecordEntity reservation, ConstraintValidatorContext context) {
+
+        // null values are valid
+        if (reservation == null ) {
+            return true;
+        }
+        
+        return reservation.getPickUpDateTime().isBefore(reservation.getReturnDateTime());
+    }
+
+}

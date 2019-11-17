@@ -15,6 +15,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -28,6 +30,8 @@ public class CategoryEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
     @Column(nullable = false, length = 64)
+    @NotNull
+    @Size(max = 64)
     private String name;
     @OneToMany(mappedBy = "categoryEntity")
     private List<ModelEntity> models;   
