@@ -143,10 +143,12 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
         try {
 
             ModelEntity modelToDelete = retrieveModelByModelId(modelId);
+            
             if (modelToDelete.getCars().isEmpty()) {
                 em.remove(modelToDelete);
                 return modelToDelete.getModelId();
             } else {
+                //if there are cars under this model, cannot delete this model
                 modelToDelete.setDisabled(true);
                 throw new DeleteModelException();
             }
@@ -172,9 +174,11 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
     public void updateModel(ModelEntity model) throws UpdateModelFailureException, InputDataValidationException {
         try {
             if (model != null && model.getModelId() != null && !model.isDisabled()) {
+                
                 Set<ConstraintViolation<ModelEntity>> constraintViolations = validator.validate(model);
 
                 if (constraintViolations.isEmpty()) {
+                    
                     ModelEntity modelToUpdate = retrieveModelByModelId(model.getModelId());
 
                     if (modelToUpdate.getModelId().equals(model.getModelId())) {

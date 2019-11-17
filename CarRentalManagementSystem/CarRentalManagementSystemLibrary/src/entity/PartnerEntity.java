@@ -14,6 +14,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -26,9 +28,13 @@ public class PartnerEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long partnerId;
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false,length = 32)
+    @NotNull
+    @Size(min = 4,max = 32,message = "The length of username is at least 4 or at most 32.")
     private String username;
-    @Column(nullable = false)
+    @Column(nullable = false,length = 32)
+    @NotNull
+    @Size(min = 8,max = 32,message = "The length of password is at least 8 or at most 32.")
     private String password;
     //bidirectional
     @OneToMany(mappedBy = "partner")
@@ -52,6 +58,14 @@ public class PartnerEntity implements Serializable {
         int hash = 0;
         hash += (getPartnerId() != null ? getPartnerId().hashCode() : 0);
         return hash;
+    }
+
+    public List<CustomerEntity> getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(List<CustomerEntity> customer) {
+        this.customer = customer;
     }
 
     @Override

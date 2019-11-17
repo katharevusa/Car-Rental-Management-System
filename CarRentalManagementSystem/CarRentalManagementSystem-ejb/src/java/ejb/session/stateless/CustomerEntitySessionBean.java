@@ -1,6 +1,9 @@
 package ejb.session.stateless;
 
 import entity.CustomerEntity;
+import entity.PartnerEntity;
+import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -10,7 +13,12 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidFieldEnteredException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.RegistrationFailureException;
@@ -26,43 +34,41 @@ import util.exception.UnknownPersistenceException;
 
 public class CustomerEntitySessionBean implements CustomerEntitySessionBeanRemote, CustomerEntitySessionBeanLocal {
 
+    @EJB(name = "PartnerEntitySessionBeanLocal")
+    private PartnerEntitySessionBeanLocal partnerEntitySessionBeanLocal;
+
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
 
     public CustomerEntitySessionBean() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
     
     @Override
-    public Long createNewCustomer(CustomerEntity customerEntity) throws InvalidFieldEnteredException, UnknownPersistenceException{
-        
-        try 
-        {
-            em.persist(customerEntity);
-            em.flush();
-            
-            return customerEntity.getCustomerId();
-        } 
-        catch (PersistenceException ex){
-            
-            throw new InvalidFieldEnteredException();
-//            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
-//            {
-//                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
-//                {
-//                    throw new InvalidFieldEnteredException();
-//                }
-//                else
-//                {
-//                    throw new UnknownPersistenceException(ex.getMessage());
-//                }
-//            }
-//            else
-//            {
-//                throw new UnknownPersistenceException(ex.getMessage());
-//            }
-                
+    public Long createNewCustomer(CustomerEntity customerEntity) throws InputDataValidationException, UnknownPersistenceException {
+
+        try {
+            Set<ConstraintViolation<CustomerEntity>> constraintViolations = validator.validate(customerEntity);
+
+            if (constraintViolations.isEmpty()) {
+                em.persist(customerEntity);
+                em.flush();
+
+                return customerEntity.getCustomerId();
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+
+        } catch (PersistenceException ex){
+            throw new UnknownPersistenceException(ex.getMessage());
         }
+
+        
     }
     
     @Override
@@ -73,14 +79,27 @@ public class CustomerEntitySessionBean implements CustomerEntitySessionBeanRemot
             CustomerEntity customerEntity = new CustomerEntity(username,password,email,mobileNumber);
             createNewCustomer(customerEntity);
             
-        } catch (InvalidFieldEnteredException | UnknownPersistenceException ex){
+        } catch (InputDataValidationException | UnknownPersistenceException ex){
             
-            throw new RegistrationFailureException("Usernmae already exists.");
+            throw new RegistrationFailureException(ex.getMessage());
             
         }
     }
-    
-    
+     @Override 
+    public CustomerEntity registerationInWeb(Long partnerId,String username,String password,String email, String mobileNumber)throws RegistrationFailureException{
+       try{
+            CustomerEntity customerEntity = new CustomerEntity(username,password,email,mobileNumber);
+            PartnerEntity partner = partnerEntitySessionBeanLocal.retrievePartnerByPartnerId(partnerId);
+            createNewCustomer(customerEntity);
+            partner.getCustomer().add(customerEntity);
+            customerEntity.setPartner(partner);
+            return customerEntity;
+        } catch (InputDataValidationException | UnknownPersistenceException ex){
+            
+            throw new RegistrationFailureException(ex.getMessage());
+            
+        } 
+    }
     @Override
     public CustomerEntity retrieveCustomerByCustomerId(Long customerId) throws CustomerNotFoundException{
         
@@ -112,7 +131,6 @@ public class CustomerEntitySessionBean implements CustomerEntitySessionBeanRemot
     public CustomerEntity login(String username,String password) throws InvalidLoginCredentialException{
         
         try {
-            
             CustomerEntity customerEntity = retrieveCustomerByUsername(username);
             
             if (customerEntity.getPassword().equals(password)){
@@ -129,4 +147,16 @@ public class CustomerEntitySessionBean implements CustomerEntitySessionBeanRemot
         }
     }
     
+  
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CustomerEntity>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
+    }
 }

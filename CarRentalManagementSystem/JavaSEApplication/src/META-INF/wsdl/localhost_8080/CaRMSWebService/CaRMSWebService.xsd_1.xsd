@@ -4,9 +4,13 @@
 
 <xs:element name="CategoryNotFoundException" type="tns:CategoryNotFoundException"/>
 
+<xs:element name="CustomerNotFoundException" type="tns:CustomerNotFoundException"/>
+
 <xs:element name="InvalidLoginCredentialException" type="tns:InvalidLoginCredentialException"/>
 
 <xs:element name="ModelNotFoundException" type="tns:ModelNotFoundException"/>
+
+<xs:element name="RegistrationFailureException" type="tns:RegistrationFailureException"/>
 
 <xs:element name="RentalRateNotFoundException" type="tns:RentalRateNotFoundException"/>
 
@@ -30,9 +34,17 @@
 
 <xs:element name="createNewReservationRecordResponse" type="tns:createNewReservationRecordResponse"/>
 
+<xs:element name="createReservationInWebService" type="tns:createReservationInWebService"/>
+
+<xs:element name="createReservationInWebServiceResponse" type="tns:createReservationInWebServiceResponse"/>
+
 <xs:element name="login" type="tns:login"/>
 
 <xs:element name="loginResponse" type="tns:loginResponse"/>
+
+<xs:element name="registerationInWeb" type="tns:registerationInWeb"/>
+
+<xs:element name="registerationInWebResponse" type="tns:registerationInWebResponse"/>
 
 <xs:element name="retrieveAllCategory" type="tns:retrieveAllCategory"/>
 
@@ -49,6 +61,10 @@
 <xs:element name="retrieveCategoryByCategoryId" type="tns:retrieveCategoryByCategoryId"/>
 
 <xs:element name="retrieveCategoryByCategoryIdResponse" type="tns:retrieveCategoryByCategoryIdResponse"/>
+
+<xs:element name="retrieveCustomerByCustomerId" type="tns:retrieveCustomerByCustomerId"/>
+
+<xs:element name="retrieveCustomerByCustomerIdResponse" type="tns:retrieveCustomerByCustomerIdResponse"/>
 
 <xs:element name="retrieveModelByModelId" type="tns:retrieveModelByModelId"/>
 
@@ -131,7 +147,6 @@
 
 <xs:complexType name="rentalRateEntity">
 <xs:sequence>
-<xs:element name="category" type="tns:categoryEntity" minOccurs="0"/>
 <xs:element name="endDateTime" type="tns:localDateTime" minOccurs="0"/>
 <xs:element name="ratePerDay" type="xs:double" minOccurs="0"/>
 <xs:element name="rentalRateId" type="xs:long" minOccurs="0"/>
@@ -149,7 +164,6 @@
 <xs:element name="address" type="xs:string" minOccurs="0"/>
 <xs:element name="cars" type="tns:carEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="closingTime" type="tns:localTime" minOccurs="0"/>
-<xs:element name="dispatchRecord" type="tns:transitDriverDispatchRecordEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="employees" type="tns:employeeEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="name" type="xs:string" minOccurs="0"/>
 <xs:element name="openingTime" type="tns:localTime" minOccurs="0"/>
@@ -161,20 +175,10 @@
 <xs:sequence/>
 </xs:complexType>
 
-<xs:complexType name="transitDriverDispatchRecordEntity">
-<xs:sequence>
-<xs:element name="dispatchRecordEnum" type="tns:dispatchRecordEnum" minOccurs="0"/>
-<xs:element name="employee" type="tns:employeeEntity" minOccurs="0"/>
-<xs:element name="id" type="xs:long" minOccurs="0"/>
-<xs:element name="outlet" type="tns:outletEntity" minOccurs="0"/>
-<xs:element name="reservationRecords" type="tns:reservationRecordEntity" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
 <xs:complexType name="employeeEntity">
 <xs:sequence>
 <xs:element name="accessRightEnum" type="tns:accessRightEnum" minOccurs="0"/>
-<xs:element name="dispatchRecord" type="tns:transitDriverDispatchRecordEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="dispatchRecords" type="tns:transitDriverDispatchRecordEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="employeeId" type="xs:long" minOccurs="0"/>
 <xs:element name="firstName" type="xs:string" minOccurs="0"/>
 <xs:element name="lastName" type="xs:string" minOccurs="0"/>
@@ -185,13 +189,33 @@
 </xs:sequence>
 </xs:complexType>
 
+<xs:complexType name="transitDriverDispatchRecordEntity">
+<xs:sequence>
+<xs:element name="dispatchRecordId" type="xs:long" minOccurs="0"/>
+<xs:element name="dispatchRecordStatus" type="tns:dispatchRecordEnum" minOccurs="0"/>
+<xs:element name="employee" type="tns:employeeEntity" minOccurs="0"/>
+<xs:element name="reservationRecord" type="tns:reservationRecordEntity" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
 <xs:complexType name="customerEntity">
 <xs:sequence>
 <xs:element name="customerId" type="xs:long" minOccurs="0"/>
 <xs:element name="email" type="xs:string" minOccurs="0"/>
 <xs:element name="mobileNumber" type="xs:string" minOccurs="0"/>
+<xs:element name="partner" type="tns:partnerEntity" minOccurs="0"/>
 <xs:element name="password" type="xs:string" minOccurs="0"/>
 <xs:element name="reservations" type="tns:reservationRecordEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="username" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="partnerEntity">
+<xs:sequence>
+<xs:element name="customer" type="tns:customerEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="partnerId" type="xs:long" minOccurs="0"/>
+<xs:element name="password" type="xs:string" minOccurs="0"/>
+<xs:element name="reservationRecord" type="tns:reservationRecordEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="username" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
@@ -199,6 +223,76 @@
 <xs:complexType name="CancelReservationFailureException">
 <xs:sequence>
 <xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registerationInWeb">
+<xs:sequence>
+<xs:element name="arg0" type="xs:long" minOccurs="0"/>
+<xs:element name="arg1" type="xs:string" minOccurs="0"/>
+<xs:element name="arg2" type="xs:string" minOccurs="0"/>
+<xs:element name="arg3" type="xs:string" minOccurs="0"/>
+<xs:element name="arg4" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registerationInWebResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:customerEntity" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="RegistrationFailureException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="retrieveCustomerByCustomerId">
+<xs:sequence>
+<xs:element name="arg0" type="xs:long" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="retrieveCustomerByCustomerIdResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:customerEntity" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="CustomerNotFoundException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllModel">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllModelResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:modelEntity" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllCategory">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllCategoryResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:categoryEntity" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllReservationRecord">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllReservationRecordResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:reservationRecordEntity" minOccurs="0" maxOccurs="unbounded"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -274,34 +368,7 @@
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="partnerEntity">
-<xs:sequence>
-<xs:element name="partnerId" type="xs:long" minOccurs="0"/>
-<xs:element name="password" type="xs:string" minOccurs="0"/>
-<xs:element name="reservationRecord" type="tns:reservationRecordEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-<xs:element name="username" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
 <xs:complexType name="InvalidLoginCredentialException">
-<xs:sequence>
-<xs:element name="message" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="retrieveReservationBylId">
-<xs:sequence>
-<xs:element name="arg0" type="xs:long" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="retrieveReservationBylIdResponse">
-<xs:sequence>
-<xs:element name="return" type="tns:reservationRecordEntity" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="ReservationRecordNotFoundException">
 <xs:sequence>
 <xs:element name="message" type="xs:string" minOccurs="0"/>
 </xs:sequence>
@@ -327,23 +394,21 @@
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="retrieveAllCategory">
-<xs:sequence/>
-</xs:complexType>
-
-<xs:complexType name="retrieveAllCategoryResponse">
+<xs:complexType name="retrieveReservationBylId">
 <xs:sequence>
-<xs:element name="return" type="tns:categoryEntity" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="arg0" type="xs:long" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="retrieveAllModel">
-<xs:sequence/>
+<xs:complexType name="retrieveReservationBylIdResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:reservationRecordEntity" minOccurs="0"/>
+</xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="retrieveAllModelResponse">
+<xs:complexType name="ReservationRecordNotFoundException">
 <xs:sequence>
-<xs:element name="return" type="tns:modelEntity" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -356,16 +421,6 @@
 <xs:complexType name="retrieveOutletByPickupDateTimeResponse">
 <xs:sequence>
 <xs:element name="return" type="tns:outletEntity" minOccurs="0" maxOccurs="unbounded"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="retrieveAllReservationRecord">
-<xs:sequence/>
-</xs:complexType>
-
-<xs:complexType name="retrieveAllReservationRecordResponse">
-<xs:sequence>
-<xs:element name="return" type="tns:reservationRecordEntity" minOccurs="0" maxOccurs="unbounded"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -386,13 +441,26 @@
 </xs:sequence>
 </xs:complexType>
 
-<xs:simpleType name="dispatchRecordEnum">
-<xs:restriction base="xs:string">
-<xs:enumeration value="UNASSIGNED"/>
-<xs:enumeration value="ASSIGNED"/>
-<xs:enumeration value="COMPLETE"/>
-</xs:restriction>
-</xs:simpleType>
+<xs:complexType name="createReservationInWebService">
+<xs:sequence>
+<xs:element name="arg0" type="xs:long" minOccurs="0"/>
+<xs:element name="arg1" type="xs:long" minOccurs="0"/>
+<xs:element name="arg2" type="xs:long" minOccurs="0"/>
+<xs:element name="arg3" type="xs:long" minOccurs="0"/>
+<xs:element name="arg4" type="xs:long" minOccurs="0"/>
+<xs:element name="arg5" type="tns:localDateTime" minOccurs="0"/>
+<xs:element name="arg6" type="tns:localDateTime" minOccurs="0"/>
+<xs:element name="arg7" type="xs:double" minOccurs="0"/>
+<xs:element name="arg8" type="xs:string" minOccurs="0"/>
+<xs:element name="arg9" type="xs:double" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="createReservationInWebServiceResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:reservationRecordEntity" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
 
 <xs:simpleType name="accessRightEnum">
 <xs:restriction base="xs:string">
@@ -401,6 +469,14 @@
 <xs:enumeration value="CUSTOMERSERVICEEXECUTIVE"/>
 <xs:enumeration value="EMPLOYEE"/>
 <xs:enumeration value="CUSTOMER"/>
+</xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="dispatchRecordEnum">
+<xs:restriction base="xs:string">
+<xs:enumeration value="UNASSIGNED"/>
+<xs:enumeration value="ASSIGNED"/>
+<xs:enumeration value="COMPLETED"/>
 </xs:restriction>
 </xs:simpleType>
 

@@ -11,15 +11,19 @@ import ejb.session.stateless.CategoryEntitySessionBeanRemote;
 import ejb.session.stateless.EmployeeEntitySessionBeanRemote;
 import ejb.session.stateless.ModelEntitySessionBeanRemote;
 import ejb.session.stateless.OutletEntitySessionBeanRemote;
+import ejb.session.stateless.ReservationRecordEntitySessionBeanRemote;
 import ejb.session.stateless.TransitDriverDispatchRecordEntitySessionBeanRemote;
 import entity.CarEntity;
 import entity.CategoryEntity;
 import entity.EmployeeEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
+import entity.ReservationRecordEntity;
 import entity.TransitDriverDispatchRecordEntity;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -30,6 +34,7 @@ import javax.validation.ValidatorFactory;
 import util.enumeration.AccessRightEnum;
 import util.enumeration.CarStatusEnum;
 import util.enumeration.DispatchRecordEnum;
+import util.exception.AssignTDDRFailureException;
 import util.exception.CarNotFoundException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CreateNewModelFailureException;
@@ -41,6 +46,7 @@ import util.exception.ModelNotFoundException;
 import util.exception.NewCarCreationException;
 import util.exception.OutletNotFoundException;
 import util.exception.UpdateCarFailureException;
+import util.exception.UpdateDispatchRecordFailureException;
 import util.exception.UpdateModelFailureException;
 
 /**
@@ -61,6 +67,7 @@ class OperationManagerModule {
     private TransitDriverDispatchRecordEntitySessionBeanRemote transitDriverDispatchRecordEntitySessionBeanRemote;
     private EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote;
     private CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote;
+    private ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote;
 
     public OperationManagerModule() {
 
@@ -70,7 +77,7 @@ class OperationManagerModule {
 
     public OperationManagerModule(EmployeeEntity currentEmployee, ModelEntitySessionBeanRemote modelEntitySessionBeanRemote, OutletEntitySessionBeanRemote outletEntitySessionBeanRemote, CarEntitySessionBeanRemote carEntitySessionBeanRemote,
             CarAllocationSessionBeanRemote carAllocationSessionBeanRemote, TransitDriverDispatchRecordEntitySessionBeanRemote transitDriverDispatchRecordEntitySessionBeanRemote,
-            EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote) {
+            EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, CategoryEntitySessionBeanRemote categoryEntitySessionBeanRemote,ReservationRecordEntitySessionBeanRemote reservationRecordEntitySessionBeanRemote) {
         this();
 
         this.currentEmployee = currentEmployee;
@@ -81,6 +88,7 @@ class OperationManagerModule {
         this.transitDriverDispatchRecordEntitySessionBeanRemote = transitDriverDispatchRecordEntitySessionBeanRemote;
         this.employeeEntitySessionBeanRemote = employeeEntitySessionBeanRemote;
         this.categoryEntitySessionBeanRemote = categoryEntitySessionBeanRemote;
+        this.reservationRecordEntitySessionBeanRemote = reservationRecordEntitySessionBeanRemote;
     }
 
     public void menuOperationManagerModule() throws InvalidAccessRightException {
@@ -102,8 +110,8 @@ class OperationManagerModule {
             System.out.println("6: View All Cars");
             System.out.println("7: View Car Details");
             System.out.println("===============================");
-            System.out.println("8: View Transit Driver Dispatch Record For Current Day Reservation");//error
-            System.out.println("9: Assign Transit Driver");//error
+            System.out.println("8: View Transit Driver Dispatch Record For Current Day Reservation");
+            System.out.println("9: Assign Transit Driver");
             System.out.println("10: Update Transit As Complete");
             System.out.println("11: Allocate cars");
             System.out.println("12: Log out\n");
@@ -143,64 +151,137 @@ class OperationManagerModule {
                 }
             }
 
-            if (response == 11) {
+            if (response == 12) {
                 break;
             }
         }
     }
 
     private void doViewTDDR() {
-        List<TransitDriverDispatchRecordEntity> dispatchRecord = outletEntitySessionBeanRemote.retrieveAllDispatchRecord(currentEmployee.getOutletEntity());
+        
         Scanner sc = new Scanner(System.in);
-
-        System.out.printf("%8s%20s%20s%20s%20s\n", "Id", "Outlet", "Status", "Reservation Id", "Assigned Driver");
-        for (TransitDriverDispatchRecordEntity r : dispatchRecord) {
-            System.out.printf("%8s%20s%20s%20s%20s\n", r.getId(), r.getOutlet().getName(), r.getDispatchRecordEnum(), r.getReservationRecords().getReservationRecordId(), r.getEmployee());
+        
+        System.out.print("Enter date(yyyy-MM-dd HH:mm:ss))>");
+        //System.out.print("Enter date(dd/MM/yyyy))>");
+        String currDateTimeString = sc.nextLine().trim();
+       // DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+       //LocalDate currDate = LocalDateTime.parse(currDateTimeString, formatterDate).toLocalDate();
+        LocalDate currDate = LocalDateTime.parse(currDateTimeString, formatter).toLocalDate();
+        List<ReservationRecordEntity> reservations = reservationRecordEntitySessionBeanRemote.retrieveReservationRecordByDate(currDate);
+        
+        List<ReservationRecordEntity> reservationsAtCurrentOutlet = new ArrayList<>();
+        for (ReservationRecordEntity reservation:reservations){
+            if(reservation.getPickUpOutlet().getOutletId().equals(currentEmployee.getOutletEntity().getOutletId())){
+                reservationsAtCurrentOutlet.add(reservation);
+            }
         }
+        
+        List<TransitDriverDispatchRecordEntity> dispatchRecords = new ArrayList<>();
+        for(ReservationRecordEntity reservation:reservationsAtCurrentOutlet){
+            if(reservation.getTddr()!=null){
+                dispatchRecords.add(reservation.getTddr());
+            }
+        }
+        
+        System.out.printf("%8s%20s%20s%20s\n", "Id", "Status", "Reservation Id", "Assigned Driver Id");
+        String assignedDriverIdString;
+        for(TransitDriverDispatchRecordEntity record:dispatchRecords){
+            
+            if(record.getEmployee() == null){
+                assignedDriverIdString = "not assigned yet";
+            } else {
+                assignedDriverIdString = ""+record.getEmployee().getEmployeeId();
+            }
+            
+            System.out.printf("%8s%20s%20s%20s\n",record.getDispatchRecordId(),record.getDispatchRecordStatus(),
+                    record.getReservationRecord().getReservationRecordId(),assignedDriverIdString);
+        }
+
 
         System.out.print("Press any key to continue...> ");
         sc.nextLine();
     }
 
     private void doAssignTD() {
+        
         Scanner sc = new Scanner(System.in);
-        System.out.println("Enter the Dispatch Record ID>");
-        TransitDriverDispatchRecordEntity dispatchRecord = transitDriverDispatchRecordEntitySessionBeanRemote.retrieveDispatchRecordById(sc.nextLong());
+        System.out.print("Enter the Dispatch Record ID>");
+        Long dispatchRecordId = sc.nextLong();
         sc.nextLine();
-//if the dispatch record driver is not null, throw exception
-        OutletEntity outlet = dispatchRecord.getOutlet();
-        List<EmployeeEntity> employees = outletEntitySessionBeanRemote.retrieveAllEmployee(outlet);
+        
+        List<EmployeeEntity> allEmployees = employeeEntitySessionBeanRemote.retrieveAllEmployee();
         System.out.printf("%8s%20s%20s\n", "employee id", "employee username", "employee role");
-        for (EmployeeEntity e : employees) {
-            System.out.printf("%8s%20s%20s\n", e.getEmployeeId(), e.getUsername(), e.getRole());
+        for(EmployeeEntity e:allEmployees){
+            if(e.getOutletEntity().getOutletId().equals(currentEmployee.getOutletEntity().getOutletId())){
+                System.out.printf("%8s%20s%20s\n", e.getEmployeeId(), e.getUsername(), e.getRole());
+            }
         }
         System.out.println("Please assign a driver to this reservation");
-        System.out.println("Enter the employee ID>");
-        EmployeeEntity e = employeeEntitySessionBeanRemote.retrieveEmployeeByEmployeeId(sc.nextLong());
+        System.out.print("Enter the employee ID>");
+        Long employeeId = sc.nextLong();
         sc.nextLine();
-        dispatchRecord.setEmployee(e);
-        dispatchRecord.setDispatchRecordEnum(DispatchRecordEnum.ASSIGNED);
-        e.getDispatchRecord().add(dispatchRecord);
-        System.out.println("Employee with ID of " + e.getEmployeeId() + "is successfully assigned to the reservation");
-    }
-
-    private void doUpdateTransitAsComplete() {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Enter the dispatch record id>");
-        TransitDriverDispatchRecordEntity dispatchRecord = transitDriverDispatchRecordEntitySessionBeanRemote.retrieveDispatchRecordById(sc.nextLong());
-        sc.nextLine();
-        dispatchRecord.setDispatchRecordEnum(DispatchRecordEnum.COMPLETE);
-    }
-
-    private void showInputDataValidationErrorsForCarEntity(Set<ConstraintViolation<CarEntity>> constraintViolations) {
-        System.out.println("\nInput data validation error!:");
-
-        for (ConstraintViolation constraintViolation : constraintViolations) {
-            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        
+        try{
+            employeeEntitySessionBeanRemote.assignEmployeeToTDDR(employeeId, dispatchRecordId);
+            System.out.println("Employee with ID of " + employeeId + " is successfully assigned to the dispatch record " + dispatchRecordId);
+            System.out.print("Press any key to continue...> ");
+            sc.nextLine();
+        
+        } catch (AssignTDDRFailureException ex){
+            System.out.println(ex.getMessage());
         }
 
-        System.out.println("\nPlease try again......\n");
     }
+    
+    private void doUpdateTransitAsComplete(){
+        
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the dispatch record id>");
+        Long dispatchId = sc.nextLong();
+        sc.nextLine();
+        
+        try{
+            transitDriverDispatchRecordEntitySessionBeanRemote.updateDispatchRecordStatusAsCompleted(dispatchId);
+        } catch (UpdateDispatchRecordFailureException ex){
+            System.out.println(ex.getMessage());
+        }
+        
+    }
+    
+    
+//    private void doAssignTD() {
+//        Scanner sc = new Scanner(System.in);
+//        System.out.println("Enter the Dispatch Record ID>");
+//        TransitDriverDispatchRecordEntity dispatchRecord = transitDriverDispatchRecordEntitySessionBeanRemote.retrieveDispatchRecordById(sc.nextLong());
+//        sc.nextLine();
+////if the dispatch record driver is not null, throw exception
+//        OutletEntity outlet = dispatchRecord.getOutlet();
+//        List<EmployeeEntity> employees = outletEntitySessionBeanRemote.retrieveAllEmployee(outlet);
+//        System.out.printf("%8s%20s%20s\n", "employee id", "employee username", "employee role");
+//        for (EmployeeEntity e : employees) {
+//            System.out.printf("%8s%20s%20s\n", e.getEmployeeId(), e.getUsername(), e.getRole());
+//        }
+//        System.out.println("Please assign a driver to this reservation");
+//        System.out.println("Enter the employee ID>");
+//        EmployeeEntity e = employeeEntitySessionBeanRemote.retrieveEmployeeByEmployeeId(sc.nextLong());
+//        sc.nextLine();
+//        dispatchRecord.setEmployee(e);
+//        dispatchRecord.setDispatchRecordEnum(DispatchRecordEnum.ASSIGNED);
+//        e.getDispatchRecord().add(dispatchRecord);
+//        System.out.println("Employee with ID of " + e.getEmployeeId() + "is successfully assigned to the reservation");
+//    }
+
+    
+    
+//    private void doUpdateTransitAsComplete() {
+//        Scanner sc = new Scanner(System.in);
+//        System.out.println("Enter the dispatch record id>");
+//        TransitDriverDispatchRecordEntity dispatchRecord = transitDriverDispatchRecordEntitySessionBeanRemote.retrieveDispatchRecordById(sc.nextLong());
+//        sc.nextLine();
+//        dispatchRecord.setDispatchRecordStatus(DispatchRecordEnum.COMPLETE);
+//    }
+
+    
 
     private void doCreateNewModel() {
 
@@ -217,10 +298,18 @@ class OperationManagerModule {
             categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(categoryId);
             sc.nextLine();
             ModelEntity newModelEntity = new ModelEntity(makeName, modelName);
-            modelEntitySessionBeanRemote.createNewModel(newModelEntity, categoryId);
-            System.out.println("New model " + modelName + " successfully created!");
-            System.out.print("Press any key to continue...> ");
-            sc.nextLine();
+            
+            Set<ConstraintViolation<ModelEntity>> constraintViolations = validator.validate(newModelEntity);
+
+            if (constraintViolations.isEmpty()) {
+                modelEntitySessionBeanRemote.createNewModel(newModelEntity, categoryId);
+                System.out.println("New model " + modelName + " successfully created!");
+                System.out.print("Press any key to continue...> ");
+                sc.nextLine();
+            } else {
+                showInputDataValidationErrorsForModelEntity(constraintViolations);
+            }
+
         } catch (CreateNewModelFailureException ex) {
             System.out.println(ex.getMessage());
         } catch (CategoryNotFoundException ex) {
@@ -259,27 +348,24 @@ class OperationManagerModule {
                 CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(Long.valueOf(input));
                 model.setCategoryEntity(category);
             }
+            
             Set<ConstraintViolation<ModelEntity>> constraintViolations = validator.validate(model);
 
             if (constraintViolations.isEmpty()) {
-                try {
-                    modelEntitySessionBeanRemote.updateModel(model);
-                    System.out.println("Model updated successfully!\n");
-
-                } catch (InputDataValidationException ex) {
-                    System.out.println(ex.getMessage() + "\n");
-                } catch (UpdateModelFailureException ex) {
-                    System.out.println(ex.getMessage() + "\n");
-                }
+                modelEntitySessionBeanRemote.updateModel(model);
+                System.out.println("Model updated successfully!\n");
             } else {
                 showInputDataValidationErrorsForModelEntity(constraintViolations);
             }
-
+            
         } catch (ModelNotFoundException ex) {
             System.out.println(ex.getMessage());
-
         } catch (CategoryNotFoundException ex) {
             System.out.println("No category found");
+        } catch (InputDataValidationException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UpdateModelFailureException ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
 
     }
@@ -354,7 +440,7 @@ class OperationManagerModule {
                 }
 
             } while (!done);
-//////
+
             printAllModels();
             System.out.print("Enter make and model id>");
             String id = sc.nextLine().trim();
@@ -364,19 +450,21 @@ class OperationManagerModule {
             String make = modelEntity.getMake();
             String model = modelEntity.getModelName();
 
-            try {
+            Set<ConstraintViolation<CarEntity>> constraintViolations = validator.validate(newCarEntity);
+            
+            if(constraintViolations.isEmpty()){
                 Long carId = carEntitySessionBeanRemote.createNewCar(newCarEntity, make, model, outletId);
                 System.out.println("New Car " + carId + "has been successfully created.");
-
-            } catch (NewCarCreationException ex) {
-                System.out.println(ex.getMessage());
-            } catch (ModelNotFoundException ex) {
-                System.out.println(ex.getMessage());
+            } else {
+                showInputDataValidationErrorsForCarEntity(constraintViolations);
             }
+            
 
         } catch (ModelNotFoundException ex) {
             System.out.println(ex.getMessage());
         } catch (OutletNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        } catch (NewCarCreationException ex) {
             System.out.println(ex.getMessage());
         }
 
@@ -411,7 +499,6 @@ class OperationManagerModule {
 
             System.out.printf("%8s%20s%20s%20s%20s%20s\n", "Id", "Car Category", "Make", "Model", "Status", "License Plate Number");
             System.out.printf("%8s%20s%20s%20s%20s%20s\n", car.getCarId(), car.getModelEntity().getCategoryEntity().getName(), car.getMake(), car.getModel(), car.getStatus(), car.getPlateNumber());
-            System.out.println("Press any key to continue...>");
             sc.nextLine();
 
             System.out.println("1: Update Car");
@@ -490,7 +577,7 @@ class OperationManagerModule {
             if (constraintViolations.isEmpty()) {
                 try {
                     carEntitySessionBeanRemote.updateCar(car);
-                    System.out.println("Model updated successfully!\n");
+                    System.out.println("Car updated successfully!\n");
 
                 } catch (InputDataValidationException ex) {
                     System.out.println(ex.getMessage() + "\n");
@@ -500,7 +587,7 @@ class OperationManagerModule {
             } else {
                 showInputDataValidationErrorsForCarEntity(constraintViolations);
             }
-            System.out.println("Car updated successfully!\n");
+            
 
         } catch (OutletNotFoundException ex) {
             System.out.println("outlets not found!");
@@ -515,7 +602,7 @@ class OperationManagerModule {
         String dateTimeString = sc.nextLine().trim();
         dateTimeString += " 02:00:00";
         LocalDateTime triggerDateTime = LocalDateTime.parse(dateTimeString, formatter);
-        carAllocationSessionBeanRemote.carAllocationCheckTimer(triggerDateTime);
+        carAllocationSessionBeanRemote.carAllocationTimer(triggerDateTime);
     }
 
     private void printAllCategory() {
@@ -529,6 +616,16 @@ class OperationManagerModule {
     }
 
     private void showInputDataValidationErrorsForModelEntity(Set<ConstraintViolation<ModelEntity>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+    
+    private void showInputDataValidationErrorsForCarEntity(Set<ConstraintViolation<CarEntity>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
 
         for (ConstraintViolation constraintViolation : constraintViolations) {

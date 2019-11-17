@@ -54,7 +54,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     private EJBContext eJBContext;
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
- private final ValidatorFactory validatorFactory;
+    private final ValidatorFactory validatorFactory;
     private final Validator validator;
     @EJB(name = "OutletEntitySessionBeanLocal")
     private OutletEntitySessionBeanLocal outletEntitySessionBeanLocal;
@@ -67,25 +67,35 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
     }
 
     @Override
-    public Long createNewCar(CarEntity newCarEntity, String make, String model, Long outletId) throws NewCarCreationException, OutletNotFoundException, ModelNotFoundException {
+    public Long createNewCar(CarEntity newCarEntity, String make, String model, Long outletId) throws NewCarCreationException{
 
         try {
-            ModelEntity modelEntity = modelEntitySessionBeanLocal.retrieveModelByMakeAndModel(make, model);
-            OutletEntity outletEntity = outletEntitySessionBeanLocal.retrieveOutletByOutletId(outletId);
-            em.persist(newCarEntity);
-            newCarEntity.setModelEntity(modelEntity);
-            newCarEntity.setOutletEntity(outletEntity);
-            outletEntity.getCars().add(newCarEntity);
-            modelEntity.getCars().add(newCarEntity);
-            em.flush();
-            return newCarEntity.getCarId();
+       
+            Set<ConstraintViolation<CarEntity>> constraintViolations = validator.validate(newCarEntity);
 
-        } catch (PersistenceException ex) {
+            if (constraintViolations.isEmpty()) {
+                
+                ModelEntity modelEntity = modelEntitySessionBeanLocal.retrieveModelByMakeAndModel(make, model);
+                OutletEntity outletEntity = outletEntitySessionBeanLocal.retrieveOutletByOutletId(outletId);
+                em.persist(newCarEntity);
+                newCarEntity.setModelEntity(modelEntity);
+                newCarEntity.setOutletEntity(outletEntity);
+                outletEntity.getCars().add(newCarEntity);
+                modelEntity.getCars().add(newCarEntity);
+                em.flush();
+                return newCarEntity.getCarId();
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+
+        } catch (PersistenceException ex1) {
             throw new NewCarCreationException("License plate number " + newCarEntity.getPlateNumber() + " already exists!");
-        } catch (OutletNotFoundException ex) {
-            throw new OutletNotFoundException("Outlet not found" + outletId);
-        } catch (ModelNotFoundException ex) {
-            throw new ModelNotFoundException("Model associated to the car does not exist!");
+        } catch (OutletNotFoundException ex2) {
+            throw new NewCarCreationException("Outlet not found" + outletId);
+        } catch (ModelNotFoundException ex3) {
+            throw new NewCarCreationException("Model associated to the car does not exist!");
+        } catch (InputDataValidationException ex4){
+            throw new NewCarCreationException(ex4.getMessage());
         }
 
     }
@@ -144,13 +154,11 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
 
         Query query;
         int totalAvailableCars;
-        if (selectedModelId.equals(-1)) {
+        if (selectedModelId < 0) {
             query = em.createQuery("SELECT c FROM CarEntity c WHERE c.disabled = FALSE "
                     + "AND c.modelEntity.categoryEntity.categoryId = :inCategoryId");
             query.setParameter("inCategoryId", selectedCategoryId);
             totalAvailableCars = query.getResultList().size();
-
-            System.out.println("************" + totalAvailableCars);
 
             query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.isCancelled = FALSE AND r.category.categoryId = :inCategoryId");
             query.setParameter("inCategoryId", selectedCategoryId);
@@ -169,7 +177,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
                         }
                     } else if (reservation.getReturnDateTime().isBefore(pickupDateTime)) {
                         if (reservation.getReturnDateTime().isAfter(pickupDateTime.plusHours(2))) {
-                            if (!(reservation.getReturnOutlet().equals(selectedPickupOutletId))) {
+                            if (!(reservation.getReturnOutlet().getOutletId().equals(selectedPickupOutletId))) {
                                 overlappedReservations.add(reservation);
                             }
                         }
@@ -179,7 +187,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
                 } else if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)) {
                     overlappedReservations.add(reservation);
                 } else if (reservation.getPickUpDateTime().isEqual(returnDateTime)) {
-                    if (!(reservation.getPickUpOutlet().equals(selectedReturnOutletId))) {
+                    if (!(reservation.getPickUpOutlet().getOutletId().equals(selectedReturnOutletId))) {
                         overlappedReservations.add(reservation);
                     }
                 } else if (reservation.getPickUpDateTime().isAfter(returnDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime.plusHours(2))) {
@@ -191,15 +199,12 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
             }
 
             totalAvailableCars = totalAvailableCars - overlappedReservations.size();
-            System.out.println("************" + totalAvailableCars);
 
         } else {
             query = em.createQuery("SELECT c FROM CarEntity c WHERE c.disabled = FALSE "
                     + "AND c.modelEntity.modelId = :inModelId");
             query.setParameter("inModelId", selectedModelId);
             totalAvailableCars = query.getResultList().size();
-
-            System.out.println("************" + totalAvailableCars);
 
             query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.model.modelId = :inModelId AND r.isCancelled = FALSE");
             query.setParameter("inModelId", selectedModelId);
@@ -217,7 +222,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
                         }
                     } else if (reservation.getReturnDateTime().isBefore(pickupDateTime)) {
                         if (reservation.getReturnDateTime().isAfter(pickupDateTime.plusHours(2))) {
-                            if (!(reservation.getReturnOutlet().equals(selectedPickupOutletId))) {
+                            if (!(reservation.getReturnOutlet().getOutletId().equals(selectedPickupOutletId))) {
                                 overlappedReservations.add(reservation);
                             }
                         }
@@ -227,7 +232,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
                 } else if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)) {
                     overlappedReservations.add(reservation);
                 } else if (reservation.getPickUpDateTime().isEqual(returnDateTime)) {
-                    if (!(reservation.getPickUpOutlet().equals(selectedReturnOutletId))) {
+                    if (!(reservation.getPickUpOutlet().getOutletId().equals(selectedReturnOutletId))) {
                         overlappedReservations.add(reservation);
                     }
                 } else if (reservation.getPickUpDateTime().isAfter(returnDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime.plusHours(2))) {
@@ -239,7 +244,6 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
             }
 
             totalAvailableCars = totalAvailableCars - overlappedReservations.size();
-            System.out.println("************" + totalAvailableCars);
         }
 
         if (totalAvailableCars > 0) {
@@ -324,7 +328,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
         
     }*/
     @Override
-    public void updateCar(CarEntity car)throws UpdateCarFailureException, InputDataValidationException {
+    public void updateCar(CarEntity car) throws UpdateCarFailureException, InputDataValidationException {
         try {
             if (car != null && car.getCarId() != null && !car.isDisabled()) {
                 Set<ConstraintViolation<CarEntity>> constraintViolations = validator.validate(car);
@@ -356,6 +360,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
             throw new UpdateCarFailureException(ex2.getMessage());
         }
     }
+
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CarEntity>> constraintViolations) {
         String msg = "Input data validation error!:";
 

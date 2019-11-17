@@ -17,7 +17,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlTransient;
-
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 /**
  *
  * @author admin
@@ -29,40 +30,31 @@ public class OutletEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long outletId;
-    @Column(nullable = false, length = 64)
+    @Column(unique = true, nullable = false, length = 64)
+    @NotNull
+    @Size(min = 4, max = 64)
     private String name;
-    //do we need an outlet name?
-    @Column(nullable = false, length = 128)
+    @Column(unique = true,nullable = false, length = 128)
+    @NotNull
+    @Size(max = 128)
     private String address;
-
     private LocalTime openingTime;
-  
     private LocalTime closingTime;
-
     //bidirectional
     @OneToMany(mappedBy = "outletEntity")
     private List<CarEntity> cars;
     //bidirectional
     @OneToMany(mappedBy = "outletEntity")
     private List<EmployeeEntity> employees;
-    @OneToMany(mappedBy = "outletEntity")
-    private List<TransitDriverDispatchRecordEntity> dispatchRecord;
-    
 
-    public OutletEntity(){
-        employees = new ArrayList<>();
+    
+    
+    public OutletEntity() {
         cars = new ArrayList<>();
-        dispatchRecord = new ArrayList<>();
-    }
-
-    public List<TransitDriverDispatchRecordEntity> getDispatchRecord() {
-        return dispatchRecord;
-    }
-
-    public void setDispatchRecord(List<TransitDriverDispatchRecordEntity> dispatchRecord) {
-        this.dispatchRecord = dispatchRecord;
+        employees = new ArrayList<>();
     }
     
+
     public OutletEntity(String name, String address,LocalTime openingTime, LocalTime closingTime) {
         this();
         this.name = name;
@@ -135,7 +127,6 @@ public class OutletEntity implements Serializable {
     public void setClosingTime(LocalTime closingTime) {
         this.closingTime = closingTime;
     }
-@XmlTransient
     public List<CarEntity> getCars() {
         return cars;
     }

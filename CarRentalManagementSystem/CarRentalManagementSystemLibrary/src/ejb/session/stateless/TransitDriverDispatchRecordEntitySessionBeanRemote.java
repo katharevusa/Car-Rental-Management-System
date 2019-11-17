@@ -8,10 +8,13 @@ package ejb.session.stateless;
 import entity.OutletEntity;
 import entity.ReservationRecordEntity;
 import entity.TransitDriverDispatchRecordEntity;
+import util.exception.UpdateDispatchRecordFailureException;
 
 public interface TransitDriverDispatchRecordEntitySessionBeanRemote {
 
-    public void createNewDispatchRecord(OutletEntity pickUpOutlet, ReservationRecordEntity rr, TransitDriverDispatchRecordEntity newDispatchRecord);
+    public void createNewDispatchRecord(ReservationRecordEntity rr, TransitDriverDispatchRecordEntity newDispatchRecord);
 
     public TransitDriverDispatchRecordEntity retrieveDispatchRecordById(Long id);
+
+    public void updateDispatchRecordStatusAsCompleted(Long dispatchRecordId) throws UpdateDispatchRecordFailureException;
 }

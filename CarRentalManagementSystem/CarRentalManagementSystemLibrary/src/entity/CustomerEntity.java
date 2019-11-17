@@ -11,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
@@ -25,19 +27,17 @@ public class CustomerEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
-    
-    
-    /*user input:
-    1. email
-    2.mobile phone
-    3.username
-    4.password
-    */
-    @Column(unique = true,nullable = false)
+    @Column(unique = true,nullable = false,length = 32)
+    @NotNull
+    @Size(min = 2, max = 32,message = "The length of username is at least 4 or at most 32.")
     private String username;
-    @Column(nullable = false)
+    @Column(nullable = false,length = 32)
+    @NotNull
+    @Size(min = 8, max = 32,message = "The length of password is at least 8 or at most 32.")
     private String password;
     @Column(nullable = false)
+    @NotNull
+    @Size(message = "Mobile number is invalid.")
     private String mobileNumber;
     @Column(nullable = false)
     private String email;
@@ -91,7 +91,6 @@ public class CustomerEntity implements Serializable {
     public String toString() {
         return "entity.CustomerEntity[ id=" + getCustomerId() + " ]";
     }
-    @XmlTransient
     public PartnerEntity getPartner() {
         return partner;
     }

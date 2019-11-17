@@ -5,6 +5,7 @@
  */
 package entity;
 
+import beanValidation.DateRange;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,8 +21,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -43,13 +46,18 @@ public class ReservationRecordEntity implements Serializable {
     @Column(nullable = false)
     @Future
     private LocalDateTime returnDateTime;
+    @Column(nullable = false,precision = 11)
+    @NotNull
+    @DecimalMin("0.00")
     private double rentalRate;
     private Boolean hasPast = false;
     private Boolean isCancelled = false;
-    private Double refund = 0.0;
-    private String ccNumber = "";
+    private Double refund = 0.00;
+    @Column(nullable = false,length = 19)
+    @NotNull
+    @Size(max = 19,message = "The maximun length of credit card is 19.")
+    private String ccNumber;
     private Double paidAmount = 0.0;
-
     //uni
     @OneToOne
     private CategoryEntity category;
@@ -73,14 +81,17 @@ public class ReservationRecordEntity implements Serializable {
     @JoinColumn(nullable = true)
     private PartnerEntity partner;
 
-    @OneToOne
+    //bi
+    @OneToOne(mappedBy = "reservationRecord")
     private TransitDriverDispatchRecordEntity tddr;
 
     public ReservationRecordEntity() {
 
     }
 
-    public ReservationRecordEntity(Double rentalRate, LocalDateTime pickUpDateTime, LocalDateTime returnDateTime, String ccNumber, double paidAmount) {
+
+    @DateRange
+    public ReservationRecordEntity(Double rentalRate, LocalDateTime pickUpDateTime, LocalDateTime returnDateTime,String ccNumber, Double paidAmount) {
 
         this();
         this.rentalRate = rentalRate;
@@ -179,7 +190,7 @@ public class ReservationRecordEntity implements Serializable {
     public void setRefund(Double refund) {
         this.refund = refund;
     }
-@XmlTransient
+
     public CategoryEntity getCategory() {
         return category;
     }
@@ -203,7 +214,6 @@ public class ReservationRecordEntity implements Serializable {
     public void setCarEntity(CarEntity carEntity) {
         this.carEntity = carEntity;
     }
-@XmlTransient
     public OutletEntity getPickUpOutlet() {
         return pickUpOutlet;
     }
@@ -211,7 +221,7 @@ public class ReservationRecordEntity implements Serializable {
     public void setPickUpOutlet(OutletEntity pickUpOutlet) {
         this.pickUpOutlet = pickUpOutlet;
     }
-@XmlTransient
+
     public OutletEntity getReturnOutlet() {
         return returnOutlet;
     }

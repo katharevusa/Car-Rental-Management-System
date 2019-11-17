@@ -15,5 +15,5 @@ import javax.ejb.Remote;
 @Remote
 public interface CarAllocationSessionBeanRemote {
 
-    public void carAllocationCheckTimer(LocalDateTime triggerDateTime);
+    public void carAllocationTimer(LocalDateTime triggerDateTime);
 }

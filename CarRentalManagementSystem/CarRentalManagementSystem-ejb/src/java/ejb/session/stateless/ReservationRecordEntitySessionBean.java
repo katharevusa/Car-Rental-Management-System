@@ -5,8 +5,13 @@ import entity.CustomerEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
 import entity.ReservationRecordEntity;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -15,9 +20,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.CancelReservationFailureException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
 import util.exception.PastReservationException;
@@ -48,8 +58,14 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
 
     public ReservationRecordEntitySessionBean() {
+        
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
     @Override
@@ -57,41 +73,49 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
             Long modelId, Long categoryId, Long pickupOutletId, Long returnOutletId) throws ReservationCreationException {
 
         try {
-            em.persist(reservationRecordEntity);
 
-            System.out.println("here1");
-            ModelEntity model;
-            if (modelId.equals(-1)) {
-                model = null;
+            Set<ConstraintViolation<ReservationRecordEntity>> constraintViolations = validator.validate(reservationRecordEntity);
+
+            if (constraintViolations.isEmpty()) {
+
+                ModelEntity model;
+
+                try {
+                    model = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
+                } catch (ModelNotFoundException ex) {
+                    model = null;
+                }
+
+                CustomerEntity customer = customerEntitySessionBeanLocal.retrieveCustomerByCustomerId(customerId);
+                CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
+                OutletEntity pickupOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(pickupOutletId);
+                OutletEntity returnOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(returnOutletId);
+
+                reservationRecordEntity.setCategory(category);
+                reservationRecordEntity.setModel(model);
+                reservationRecordEntity.setPickUpOutlet(pickupOutlet);
+                reservationRecordEntity.setReturnOutlet(returnOutlet);
+                reservationRecordEntity.setCustomerEntity(customer);
+                customer.getReservations().add(reservationRecordEntity);
+
+                em.persist(reservationRecordEntity);
+                em.flush();
+                return reservationRecordEntity.getReservationRecordId();
+
             } else {
-                model = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
             }
-
-            CustomerEntity customer = customerEntitySessionBeanLocal.retrieveCustomerByCustomerId(customerId);
-            CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
-            OutletEntity pickupOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(pickupOutletId);
-            OutletEntity returnOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(returnOutletId);
-
-            reservationRecordEntity.setCategory(category);
-            reservationRecordEntity.setModel(model);
-            reservationRecordEntity.setPickUpOutlet(pickupOutlet);
-            reservationRecordEntity.setReturnOutlet(returnOutlet);
-            reservationRecordEntity.setCustomerEntity(customer);
-            customer.getReservations().add(reservationRecordEntity);
-
-            em.flush();
-            return reservationRecordEntity.getReservationRecordId();
 
         } catch (PersistenceException ex1) {
             throw new ReservationCreationException("");
         } catch (CustomerNotFoundException ex2) {
             throw new ReservationCreationException("");
-        } catch (ModelNotFoundException ex3) {
-            throw new ReservationCreationException("");
         } catch (CategoryNotFoundException ex4) {
             throw new ReservationCreationException("");
         } catch (OutletNotFoundException ex5) {
             throw new ReservationCreationException("");
+        } catch (InputDataValidationException ex6){
+            throw new ReservationCreationException(ex6.getMessage());
         }
 
     }
@@ -113,6 +137,21 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
             throw new ReservationRecordNotFoundException("Reservation ID " + reservationId + " does not exist!");
         }
     }
+    
+    @Override
+    public List<ReservationRecordEntity> retrieveReservationRecordByDate(LocalDate currDate){
+        
+        List<ReservationRecordEntity> reservations = retrieveAllReservationRecord();
+        List<ReservationRecordEntity> currentDayReservations = new ArrayList<>();
+        for(ReservationRecordEntity reservation:reservations){
+            if(reservation.getPickUpDateTime().toLocalDate().isEqual(currDate)){
+                currentDayReservations.add(reservation);
+            }
+        }
+        return currentDayReservations;
+        
+    }
+    
 
     @Override
     public ReservationRecordEntity cancelReservation(Long reservationId) throws CancelReservationFailureException {
@@ -180,4 +219,28 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
 
     }
 
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<ReservationRecordEntity>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
+    }
+    @Override
+    public ReservationRecordEntity createReservationInWebService
+        (Long partnerId, Long selectedModelId, Long selectedCategoryId, Long selectedPickupOutletId,Long selectedReturnedOutletId, LocalDateTime pickupDateTime, LocalDateTime returnDateTime,Double totalRentalRate, String ccNumber, Double paidAmt) throws ReservationRecordNotFoundException{
+        try {
+            ReservationRecordEntity r = new ReservationRecordEntity(totalRentalRate, pickupDateTime, returnDateTime, ccNumber, paidAmt);
+            createNewReservationRecord(r,partnerId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnedOutletId);
+            return r;
+        } catch (ReservationCreationException ex) {
+            throw new ReservationRecordNotFoundException("Reservation not found!");
+        }
+    }
+    
 }

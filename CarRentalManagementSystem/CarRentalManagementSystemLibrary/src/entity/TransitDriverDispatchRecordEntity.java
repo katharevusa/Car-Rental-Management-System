@@ -8,14 +8,19 @@ package entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.validation.constraints.NotNull;
 import util.enumeration.DispatchRecordEnum;
 
 /**
@@ -28,58 +33,47 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private DispatchRecordEnum dispatchRecordEnum;
-    @ManyToOne
-    private OutletEntity outletEntity;
+    private Long dispatchRecordId;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @NotNull
+    private DispatchRecordEnum dispatchRecordStatus;
+    //bi
     @OneToOne
-    private ReservationRecordEntity reservationRecords;
-    @ManyToOne
+    @JoinColumn(nullable = false)
+    private ReservationRecordEntity reservationRecord;
+    @ManyToOne(optional = true)
     private EmployeeEntity employee;
 
+    
+    
     public TransitDriverDispatchRecordEntity() {
-        this.dispatchRecordEnum = DispatchRecordEnum.UNASSIGNED;
-
+        this.dispatchRecordStatus = DispatchRecordEnum.UNASSIGNED;
     }
     
     
-    public Long getId() {
-        return id;
+    public Long getDispatchRecordId() {
+        return dispatchRecordId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setDispatchRecordId(Long dispatchRecordId) {
+        this.dispatchRecordId = dispatchRecordId;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
+        hash += (dispatchRecordId != null ? dispatchRecordId.hashCode() : 0);
         return hash;
     }
-@XmlTransient
-    public OutletEntity getOutlet() {
-        return outletEntity;
+
+
+    public DispatchRecordEnum getDispatchRecordStatus() {
+        return dispatchRecordStatus;
     }
 
-    public void setOutlet(OutletEntity outletEntity) {
-        this.outletEntity = outletEntity;
-    }
-
-    public DispatchRecordEnum getDispatchRecordEnum() {
-        return dispatchRecordEnum;
-    }
-
-    public void setDispatchRecordEnum(DispatchRecordEnum dispatchRecordEnum) {
-        this.dispatchRecordEnum = dispatchRecordEnum;
-    }
-
-    public ReservationRecordEntity getReservationRecords() {
-        return reservationRecords;
-    }
-
-    public void setReservationRecords(ReservationRecordEntity reservationRecords) {
-        this.reservationRecords = reservationRecords;
+    public void setDispatchRecordStatus(DispatchRecordEnum dispatchRecordStatus) {
+        this.dispatchRecordStatus = dispatchRecordStatus;
     }
 
 
@@ -94,12 +88,12 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
+        // TODO: Warning - this method won't work in the case the dispatchRecordId fields are not set
         if (!(object instanceof TransitDriverDispatchRecordEntity)) {
             return false;
         }
         TransitDriverDispatchRecordEntity other = (TransitDriverDispatchRecordEntity) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+        if ((this.dispatchRecordId == null && other.dispatchRecordId != null) || (this.dispatchRecordId != null && !this.dispatchRecordId.equals(other.dispatchRecordId))) {
             return false;
         }
         return true;
@@ -107,7 +101,15 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.TransitDriverDispatchRecordEntity[ id=" + id + " ]";
+        return "entity.TransitDriverDispatchRecordEntity[ id=" + dispatchRecordId + " ]";
+    }
+
+    public ReservationRecordEntity getReservationRecord() {
+        return reservationRecord;
+    }
+
+    public void setReservationRecord(ReservationRecordEntity reservationRecord) {
+        this.reservationRecord = reservationRecord;
     }
     
 }
