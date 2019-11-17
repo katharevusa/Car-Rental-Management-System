@@ -10,7 +10,8 @@ package util.enumeration;
  * @author admin
  */
 public enum DispatchRecordEnum {
+    
     UNASSIGNED,
     ASSIGNED,
-    COMPLETE,
+    COMPLETED,
 }

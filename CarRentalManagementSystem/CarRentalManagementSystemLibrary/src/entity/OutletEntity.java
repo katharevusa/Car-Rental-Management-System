@@ -33,35 +33,23 @@ public class OutletEntity implements Serializable {
     //do we need an outlet name?
     @Column(nullable = false, length = 128)
     private String address;
-
     private LocalTime openingTime;
-  
     private LocalTime closingTime;
 
     //bidirectional
     @OneToMany(mappedBy = "outletEntity")
     private List<CarEntity> cars;
+    
     //bidirectional
     @OneToMany(mappedBy = "outletEntity")
     private List<EmployeeEntity> employees;
-    @OneToMany(mappedBy = "outletEntity")
-    private List<TransitDriverDispatchRecordEntity> dispatchRecord;
-    
 
-    public OutletEntity(){
-        employees = new ArrayList<>();
+    public OutletEntity() {
         cars = new ArrayList<>();
-        dispatchRecord = new ArrayList<>();
-    }
-
-    public List<TransitDriverDispatchRecordEntity> getDispatchRecord() {
-        return dispatchRecord;
-    }
-
-    public void setDispatchRecord(List<TransitDriverDispatchRecordEntity> dispatchRecord) {
-        this.dispatchRecord = dispatchRecord;
+        employees = new ArrayList<>();
     }
     
+
     public OutletEntity(String name, String address,LocalTime openingTime, LocalTime closingTime) {
         this();
         this.name = name;

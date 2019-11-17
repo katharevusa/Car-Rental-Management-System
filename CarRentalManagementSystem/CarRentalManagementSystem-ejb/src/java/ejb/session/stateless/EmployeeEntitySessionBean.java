@@ -7,6 +7,8 @@ package ejb.session.stateless;
 
 import entity.EmployeeEntity;
 import entity.OutletEntity;
+import entity.TransitDriverDispatchRecordEntity;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -17,6 +19,8 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.enumeration.AccessRightEnum;
+import util.enumeration.DispatchRecordEnum;
+import util.exception.AssignTDDRFailureException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.OutletNotFoundException;
@@ -30,10 +34,14 @@ import util.exception.OutletNotFoundException;
 @Remote(EmployeeEntitySessionBeanRemote.class)
 public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemote, EmployeeEntitySessionBeanLocal {
 
+    @EJB
+    private TransitDriverDispatchRecordEntitySessionBeanLocal transitDriverDispatchRecordEntitySessionBeanLocal;
+
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
     @EJB
     private OutletEntitySessionBeanLocal outletEntitySessionBeanLocal;
+    
     
     
     @Override
@@ -52,11 +60,19 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
         }
         
     }
+    
+    @Override
+    public List<EmployeeEntity> retrieveAllEmployee(){
+        Query query = em.createQuery("SELECT e FROM EmployeeEntity e");
+        return query.getResultList();
+    }
 
     @Override
     public EmployeeEntity retrieveEmployeeByEmployeeId(Long employeeId) {
+
         EmployeeEntity employee = em.find(EmployeeEntity.class, employeeId);
         return employee;
+
     }
 
     @Override
@@ -107,6 +123,32 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
         {
             throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
         }
+    }
+    
+    @Override
+    public void assignEmployeeToTDDR(Long employeeId,Long dispatchRecordId) throws AssignTDDRFailureException{
+        
+        try{
+            
+            EmployeeEntity employee = retrieveEmployeeByEmployeeId(employeeId);
+            if(employee == null){
+                throw new AssignTDDRFailureException("Employee Id " + employeeId + " does not exist");
+            }
+            
+            TransitDriverDispatchRecordEntity record = transitDriverDispatchRecordEntitySessionBeanLocal.retrieveDispatchRecordById(dispatchRecordId);
+            if(record == null){
+                throw new AssignTDDRFailureException("Dispatch record Id " + dispatchRecordId + " does not exist!");
+            }
+            
+            record.setEmployee(employee);
+            record.setDispatchRecordStatus(DispatchRecordEnum.ASSIGNED);
+            employee.getDispatchRecords().add(record);
+            em.flush();
+            
+        } catch (AssignTDDRFailureException ex){
+            throw new AssignTDDRFailureException(ex.getMessage());
+        }
+        
     }
 
 }

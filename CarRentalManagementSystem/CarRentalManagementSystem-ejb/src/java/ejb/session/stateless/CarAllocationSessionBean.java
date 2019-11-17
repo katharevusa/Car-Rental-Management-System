@@ -50,41 +50,25 @@ public class CarAllocationSessionBean implements CarAllocationSessionBeanRemote,
     private EntityManager em;
 
     @Override
-    public void carAllocationCheckTimer(LocalDateTime triggerDateTime) {
+    //@Schedule(dayOfMonth = "*/1", hour = "2",info = "carAllocationTimer")
+    public void carAllocationTimer(LocalDateTime triggerDateTime) {
 
+        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        System.out.println("********** EjbTimerSession.carAllocationTimer(): Timeout at " + timeStamp);
+        
         LocalDate currDate = triggerDateTime.toLocalDate();
-
-        List<ReservationRecordEntity> currentDayReservationList = new ArrayList<>();
-        List<ReservationRecordEntity> reservations = reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
-        for (ReservationRecordEntity reservation : reservations) {
-            if (reservation.getPickUpDateTime().toLocalDate().isEqual(currDate) && reservation.getIsCancelled()==false) {
-                currentDayReservationList.add(reservation);
-            }
-        }
+        List<ReservationRecordEntity> currentDayReservationList = reservationRecordEntitySessionBeanLocal.retrieveReservationRecordByDate(currDate);
 
         triggerCarAllocation(currentDayReservationList);
         
     }
-
-//        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-//        System.out.println("********** EjbTimerSession.carAllocationCheckTimer(): Timeout at " + timeStamp);
-//        List<ReservationRecordEntity> currentDayReservationList = new ArrayList<>();
-//        List<ReservationRecordEntity> reservationRecordEntities = reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
-//        LocalDateTime currentDateTime = LocalDateTime.now();
-//        for (ReservationRecordEntity rr : reservationRecordEntities) {
-//            if (currentDateTime.equals(rr.getPickUpDateTime())) {
-//                currentDayReservationList.add(rr);
-//            }
-//        }
-//        triggerCarAllocation(currentDayReservationList);
-    
-    
 
     private void triggerCarAllocation(List<ReservationRecordEntity> currentDayReservationList) {
         
         
 
         for (ReservationRecordEntity reservation : currentDayReservationList) {
+            
             OutletEntity pickUpOutlet = reservation.getPickUpOutlet();//must have
             CategoryEntity category = reservation.getCategory();//must have
             ModelEntity model = reservation.getModel();//may be null
@@ -94,43 +78,52 @@ public class CarAllocationSessionBean implements CarAllocationSessionBeanRemote,
                 List<CarEntity> carsWithMatchingCategoryAndModel = retrieveAllCarsByModel(model.getModelId());
                 for (CarEntity car:carsWithMatchingCategoryAndModel){
                     
-                    if (!car.isDisabled() && !(car.getStatus().equals(CarStatusEnum.RESERVED))){
+                    if (!car.isDisabled() && !(car.getStatus()==CarStatusEnum.RESERVED)){
                         //prioritise those already in the pickup outlet (available && car.outlet == reservation.pickupoutlet)
                         if (car.getStatus()==CarStatusEnum.AVAILABLE && car.getOutletEntity().getOutletId().equals(reservation.getPickUpOutlet().getOutletId())){
                             //assign car to reservation
                             car.setReservationRecordEntity(reservation);
-                            reservation.setCarEntity(car);
                             car.setStatus(CarStatusEnum.RESERVED);
+                            reservation.setCarEntity(car);
+                            //once a reservation is assigned with a car, should break out from the loop
+                            break;
                         }
                         //second prioritise those return to the pickup outlet in time
                         else if (car.getStatus() == CarStatusEnum.ONRENTAL){
                             if (!(car.getReservationRecordEntity().getReturnDateTime().isAfter(reservation.getPickUpDateTime())) 
-                                    && car.getReservationRecordEntity().getReturnOutlet().getOutletId().equals(reservation.getReturnOutlet().getOutletId())){
+                                    && car.getReservationRecordEntity().getReturnOutlet().getOutletId().equals(reservation.getPickUpOutlet().getOutletId())){
                                 //assign car to reservation
                                 car.setReservationRecordEntity(reservation);
-                                reservation.setCarEntity(car);
                                 car.setStatus(CarStatusEnum.RESERVED);
+                                reservation.setCarEntity(car);
+                                break;
                             }
                         } else if (car.getStatus()==CarStatusEnum.AVAILABLE && !(car.getOutletEntity().getOutletId().equals(reservation.getPickUpOutlet().getOutletId()))){
-                            //dispatch record
-                            
+                            //need a dispatch
+                            generateDispatchRecord(car,reservation);
                             
                             //assign car to reservation
                             car.setReservationRecordEntity(reservation);
-                            reservation.setCarEntity(car);
                             car.setStatus(CarStatusEnum.RESERVED);
-                        } else if (car.getStatus() == CarStatusEnum.ONRENTAL && !(car.getReservationRecordEntity().getReturnDateTime().isAfter(reservation.getPickUpDateTime()))){
-                            if (!(car.getReservationRecordEntity().getReturnOutlet().getOutletId().equals(reservation.getReturnOutlet().getOutletId()))){
-                                //dispatch record
-                                
+                            reservation.setCarEntity(car);
+                            break;
+                            
+                        } else if (car.getStatus() == CarStatusEnum.ONRENTAL && 
+                                !(car.getReservationRecordEntity().getReturnOutlet().getOutletId().equals(reservation.getPickUpOutlet().getOutletId()))){
+                            if (!(car.getReservationRecordEntity().getReturnDateTime().isAfter(reservation.getPickUpDateTime().minusHours(2)))){
+                                //need a dispatch
+                                generateDispatchRecord(car,reservation);
                                 
                                 //assign car to reservation
                                 car.setReservationRecordEntity(reservation);
-                                reservation.setCarEntity(car);
                                 car.setStatus(CarStatusEnum.RESERVED);
+                                reservation.setCarEntity(car);
+                                break;
+                                
                             }
                         }
                     }
+                    
                 }
                 
             } else {
@@ -138,59 +131,62 @@ public class CarAllocationSessionBean implements CarAllocationSessionBeanRemote,
                 List<CarEntity> carsWithMatchingCategory = retrieveAllCarsByCategory(category.getCategoryId());
                 for (CarEntity car:carsWithMatchingCategory){
                     
-                    if (!car.isDisabled() && !(car.getStatus().equals(CarStatusEnum.RESERVED))){
+                    if (!car.isDisabled() && !(car.getStatus()==CarStatusEnum.RESERVED)){
                         //prioritise those already in the pickup outlet (available && car.outlet == reservation.pickupoutlet)
                         if (car.getStatus()==CarStatusEnum.AVAILABLE && car.getOutletEntity().getOutletId().equals(reservation.getPickUpOutlet().getOutletId())){
                             //assign car to reservation
                             car.setReservationRecordEntity(reservation);
-                            reservation.setCarEntity(car);
                             car.setStatus(CarStatusEnum.RESERVED);
+                            reservation.setCarEntity(car);
+                            reservation.setModel(car.getModelEntity());
+                            break;
                             
                         }
                         //second prioritise those return to the pickup outlet in time
                         else if (car.getStatus() == CarStatusEnum.ONRENTAL){
                             if (!(car.getReservationRecordEntity().getReturnDateTime().isAfter(reservation.getPickUpDateTime())) 
-                                    && car.getReservationRecordEntity().getReturnOutlet().getOutletId().equals(reservation.getReturnOutlet().getOutletId())){
+                                    && car.getReservationRecordEntity().getReturnOutlet().getOutletId().equals(reservation.getPickUpOutlet().getOutletId())){
                                 //assign car to reservation
                                 car.setReservationRecordEntity(reservation);
-                                reservation.setCarEntity(car);
                                 car.setStatus(CarStatusEnum.RESERVED);
+                                reservation.setCarEntity(car);
+                                reservation.setModel(car.getModelEntity());
+                                break;
                             }
                         } else if (car.getStatus()==CarStatusEnum.AVAILABLE && !(car.getOutletEntity().getOutletId().equals(reservation.getPickUpOutlet().getOutletId()))){
                             //need a dispatch
+                            generateDispatchRecord(car,reservation);
+                            
                             //assign car to reservation
                             car.setReservationRecordEntity(reservation);
-                            reservation.setCarEntity(car);
                             car.setStatus(CarStatusEnum.RESERVED);
-                        } else if (car.getStatus() == CarStatusEnum.ONRENTAL && !(car.getReservationRecordEntity().getReturnDateTime().isAfter(reservation.getPickUpDateTime()))){
-                            if (!(car.getReservationRecordEntity().getReturnOutlet().getOutletId().equals(reservation.getReturnOutlet().getOutletId()))){
+                            reservation.setCarEntity(car);
+                            reservation.setModel(car.getModelEntity());
+                            break;
+                            
+                        } else if (car.getStatus() == CarStatusEnum.ONRENTAL && 
+                                !(car.getReservationRecordEntity().getReturnOutlet().getOutletId().equals(reservation.getPickUpOutlet().getOutletId()))){
+                            if (!(car.getReservationRecordEntity().getReturnDateTime().isAfter(reservation.getPickUpDateTime().minusHours(2)))){
                                 //need a dispatch
+                                generateDispatchRecord(car,reservation);
+                                
                                 //assign car to reservation
                                 car.setReservationRecordEntity(reservation);
-                                reservation.setCarEntity(car);
                                 car.setStatus(CarStatusEnum.RESERVED);
+                                reservation.setCarEntity(car);
+                                reservation.setModel(car.getModelEntity());
+                                break;
                             }
                         }
                     }
                 }
             }
-            
+            em.flush();
         }
         
-        
-        //assume that all reservation is assigned with a car
-        for (ReservationRecordEntity reservation : currentDayReservationList){
-            //extra checking for reservation having a car
-            if (reservation.getCarEntity() != null){
-                if (!(reservation.getPickUpOutlet().getOutletId().equals(reservation.getCarEntity().getOutletEntity()))){
-                    
-                }
-            }
-            
-        }
-        
-        
-//        //every outlet has a dispatch record
+    }
+
+    //        //every outlet has a dispatch record
 //        for (ReservationRecordEntity rr : currentDayReservationList) {
 //            OutletEntity pickUpOutlet = rr.getPickUpOutlet();
 //            CategoryEntity category = rr.getCategory();
@@ -233,6 +229,11 @@ public class CarAllocationSessionBean implements CarAllocationSessionBeanRemote,
 //                    }
 //                }
 //            }
+    
+    private void generateDispatchRecord(CarEntity car, ReservationRecordEntity reservation) {
+
+        TransitDriverDispatchRecordEntity tddr = new TransitDriverDispatchRecordEntity();
+        transitDriverDispatchRecordEntitySessionBeanLocal.createNewDispatchRecord(reservation, tddr);
 
     }
 

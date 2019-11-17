@@ -50,20 +50,20 @@ public class EmployeeEntity implements Serializable {
    @JoinColumn(nullable = false)
     private OutletEntity outletEntity;
     //@OneToMany(mappedBy = "employee")
-   // private DispatchRecord dispatchRecord;
-    @OneToMany
-    private List<TransitDriverDispatchRecordEntity> dispatchRecord;
+   // private DispatchRecord dispatchRecords;
+    @OneToMany(mappedBy = "employee")
+    private List<TransitDriverDispatchRecordEntity> dispatchRecords;
 
-    public List<TransitDriverDispatchRecordEntity> getDispatchRecord() {
-        return dispatchRecord;
+    public List<TransitDriverDispatchRecordEntity> getDispatchRecords() {
+        return dispatchRecords;
     }
 
-    public void setDispatchRecord(List<TransitDriverDispatchRecordEntity> dispatchRecord) {
-        this.dispatchRecord = dispatchRecord;
+    public void setDispatchRecords(List<TransitDriverDispatchRecordEntity> dispatchRecords) {
+        this.dispatchRecords = dispatchRecords;
     }
     
     public EmployeeEntity(){
-        dispatchRecord = new ArrayList<>();
+        dispatchRecords = new ArrayList<>();
         
     }
     
@@ -86,11 +86,11 @@ public class EmployeeEntity implements Serializable {
     }
 
     /*public DispatchRecord getDispatchRecord() {
-        return dispatchRecord;
+        return dispatchRecords;
     }
 
-    public void setDispatchRecord(DispatchRecord dispatchRecord) {
-        this.dispatchRecord = dispatchRecord;
+    public void setDispatchRecord(DispatchRecord dispatchRecords) {
+        this.dispatchRecords = dispatchRecords;
     }*/
     
 

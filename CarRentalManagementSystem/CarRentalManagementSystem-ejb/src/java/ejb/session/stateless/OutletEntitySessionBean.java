@@ -86,13 +86,5 @@ public class OutletEntitySessionBean implements OutletEntitySessionBeanRemote, O
         }
         return availableOutlets;
     }
-    @Override
-    public List<TransitDriverDispatchRecordEntity> retrieveAllDispatchRecord(OutletEntity outletEntity){
-        em.merge(outletEntity);
-        return outletEntity.getDispatchRecord();
-    }
-    public List<EmployeeEntity> retrieveAllEmployee(OutletEntity outlet){
-        em.merge(outlet);
-        return outlet.getEmployees();
-    }
+    
 }

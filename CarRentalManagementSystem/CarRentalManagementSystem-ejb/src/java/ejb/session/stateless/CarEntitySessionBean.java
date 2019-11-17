@@ -144,13 +144,11 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
 
         Query query;
         int totalAvailableCars;
-        if (selectedModelId.equals(-1)) {
+        if (selectedModelId < 0) {
             query = em.createQuery("SELECT c FROM CarEntity c WHERE c.disabled = FALSE "
                     + "AND c.modelEntity.categoryEntity.categoryId = :inCategoryId");
             query.setParameter("inCategoryId", selectedCategoryId);
             totalAvailableCars = query.getResultList().size();
-
-            System.out.println("************" + totalAvailableCars);
 
             query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.isCancelled = FALSE AND r.category.categoryId = :inCategoryId");
             query.setParameter("inCategoryId", selectedCategoryId);
@@ -169,7 +167,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
                         }
                     } else if (reservation.getReturnDateTime().isBefore(pickupDateTime)) {
                         if (reservation.getReturnDateTime().isAfter(pickupDateTime.plusHours(2))) {
-                            if (!(reservation.getReturnOutlet().equals(selectedPickupOutletId))) {
+                            if (!(reservation.getReturnOutlet().getOutletId().equals(selectedPickupOutletId))) {
                                 overlappedReservations.add(reservation);
                             }
                         }
@@ -179,7 +177,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
                 } else if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)) {
                     overlappedReservations.add(reservation);
                 } else if (reservation.getPickUpDateTime().isEqual(returnDateTime)) {
-                    if (!(reservation.getPickUpOutlet().equals(selectedReturnOutletId))) {
+                    if (!(reservation.getPickUpOutlet().getOutletId().equals(selectedReturnOutletId))) {
                         overlappedReservations.add(reservation);
                     }
                 } else if (reservation.getPickUpDateTime().isAfter(returnDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime.plusHours(2))) {
@@ -191,15 +189,12 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
             }
 
             totalAvailableCars = totalAvailableCars - overlappedReservations.size();
-            System.out.println("************" + totalAvailableCars);
 
         } else {
             query = em.createQuery("SELECT c FROM CarEntity c WHERE c.disabled = FALSE "
                     + "AND c.modelEntity.modelId = :inModelId");
             query.setParameter("inModelId", selectedModelId);
             totalAvailableCars = query.getResultList().size();
-
-            System.out.println("************" + totalAvailableCars);
 
             query = em.createQuery("SELECT r FROM ReservationRecordEntity r WHERE r.model.modelId = :inModelId AND r.isCancelled = FALSE");
             query.setParameter("inModelId", selectedModelId);
@@ -217,7 +212,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
                         }
                     } else if (reservation.getReturnDateTime().isBefore(pickupDateTime)) {
                         if (reservation.getReturnDateTime().isAfter(pickupDateTime.plusHours(2))) {
-                            if (!(reservation.getReturnOutlet().equals(selectedPickupOutletId))) {
+                            if (!(reservation.getReturnOutlet().getOutletId().equals(selectedPickupOutletId))) {
                                 overlappedReservations.add(reservation);
                             }
                         }
@@ -227,7 +222,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
                 } else if (reservation.getPickUpDateTime().isAfter(pickupDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime)) {
                     overlappedReservations.add(reservation);
                 } else if (reservation.getPickUpDateTime().isEqual(returnDateTime)) {
-                    if (!(reservation.getPickUpOutlet().equals(selectedReturnOutletId))) {
+                    if (!(reservation.getPickUpOutlet().getOutletId().equals(selectedReturnOutletId))) {
                         overlappedReservations.add(reservation);
                     }
                 } else if (reservation.getPickUpDateTime().isAfter(returnDateTime) && reservation.getPickUpDateTime().isBefore(returnDateTime.plusHours(2))) {
@@ -239,7 +234,6 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
             }
 
             totalAvailableCars = totalAvailableCars - overlappedReservations.size();
-            System.out.println("************" + totalAvailableCars);
         }
 
         if (totalAvailableCars > 0) {

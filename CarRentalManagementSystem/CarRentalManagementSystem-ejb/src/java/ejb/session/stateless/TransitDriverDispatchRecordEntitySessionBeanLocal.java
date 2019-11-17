@@ -11,7 +11,7 @@ import entity.TransitDriverDispatchRecordEntity;
 
 public interface TransitDriverDispatchRecordEntitySessionBeanLocal {
 
-    public void createNewDispatchRecord(OutletEntity pickUpOutlet, ReservationRecordEntity rr, TransitDriverDispatchRecordEntity newDispatchRecord);
+    public void createNewDispatchRecord(ReservationRecordEntity rr, TransitDriverDispatchRecordEntity newDispatchRecord);
 
     public TransitDriverDispatchRecordEntity retrieveDispatchRecordById(Long id);
 }

@@ -87,7 +87,10 @@ class MainApp {
                                 System.out.println("invalid access");
                             }
                         } else if (currentEmployee.getAccessRightEnum() == AccessRightEnum.OPERATIONSMANAGER) {
-                            operationManagerModule = new OperationManagerModule(currentEmployee, modelEntitySessionBeanRemote, outletEntitySessionBeanRemote, carEntitySessionBeanRemote, carAllocationSessionBeanRemote, transitDriverDispatchRecordEntitySessionBeanRemote, employeeEntitySessionBeanRemote, categoryEntitySessionBeanRemote);
+                            operationManagerModule = new OperationManagerModule(currentEmployee, modelEntitySessionBeanRemote, 
+                                    outletEntitySessionBeanRemote, carEntitySessionBeanRemote, carAllocationSessionBeanRemote, 
+                                    transitDriverDispatchRecordEntitySessionBeanRemote, employeeEntitySessionBeanRemote, 
+                                    categoryEntitySessionBeanRemote,reservationRecordSessionBeanEntityRemote);
                             try {
                                 operationManagerModule.menuOperationManagerModule();
                             } catch (InvalidAccessRightException ex) {

@@ -295,6 +295,8 @@ public class MainApp {
                 //first check availability of rental rate
                 double totalRentalRate = rentalRateEntitySessionBeanRemote.checkForExistenceOfRentalRate(selectedCategoryId, pickupDateTime, returnDateTime);
                 //second check availability of cars
+                
+                System.out.println("category ID " + selectedCategoryId + " + " + "model ID" + selectedModelId);
                 Boolean canReserve = searchCar(selectedCategoryId, selectedModelId, pickupDateTime,
                         returnDateTime, selectedPickupOutletId, selectedReturnOutletId);
 

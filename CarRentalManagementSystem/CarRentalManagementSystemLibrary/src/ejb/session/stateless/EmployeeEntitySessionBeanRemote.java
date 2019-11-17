@@ -5,6 +5,8 @@
  */
 package ejb.session.stateless;
 import entity.EmployeeEntity;
+import java.util.List;
+import util.exception.AssignTDDRFailureException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.OutletNotFoundException;
@@ -23,4 +25,8 @@ public interface EmployeeEntitySessionBeanRemote {
     EmployeeEntity employeeLogin(String username, String password) throws InvalidLoginCredentialException;
 
     EmployeeEntity retrieveEmployeeByUsername(String username) throws EmployeeNotFoundException;
+
+    public List<EmployeeEntity> retrieveAllEmployee();
+
+    public void assignEmployeeToTDDR(Long employeeId, Long dispatchRecordId) throws AssignTDDRFailureException;
 }

@@ -14,6 +14,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.DispatchRecordEnum;
+import util.exception.UpdateDispatchRecordFailureException;
 
 /**
  *
@@ -22,23 +23,38 @@ import util.enumeration.DispatchRecordEnum;
 @Stateless
 @Remote(TransitDriverDispatchRecordEntitySessionBeanRemote.class)
 @Local(TransitDriverDispatchRecordEntitySessionBeanLocal.class)
+
+
 public class TransitDriverDispatchRecordEntitySessionBean implements TransitDriverDispatchRecordEntitySessionBeanRemote, TransitDriverDispatchRecordEntitySessionBeanLocal {
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
 
-    public void createNewDispatchRecord(OutletEntity pickUpOutlet, ReservationRecordEntity rr, TransitDriverDispatchRecordEntity newDispatchRecord) {
+    @Override
+    public void createNewDispatchRecord(ReservationRecordEntity rr, TransitDriverDispatchRecordEntity newDispatchRecord) {
+
         em.persist(newDispatchRecord);
+        newDispatchRecord.setReservationRecord(rr);
         rr.setTddr(newDispatchRecord);
-        newDispatchRecord.setReservationRecords(rr);
-        pickUpOutlet.getDispatchRecord().add(newDispatchRecord);
-        newDispatchRecord.setOutlet(pickUpOutlet);
         em.flush();
     }
+
     @Override
-    public TransitDriverDispatchRecordEntity retrieveDispatchRecordById(Long id){
+    public TransitDriverDispatchRecordEntity retrieveDispatchRecordById(Long id) {
         TransitDriverDispatchRecordEntity dispatchRecord = em.find(TransitDriverDispatchRecordEntity.class, id);
         return dispatchRecord;
+    }
+    
+    @Override
+    public void updateDispatchRecordStatusAsCompleted(Long dispatchRecordId) throws UpdateDispatchRecordFailureException{
+        
+        TransitDriverDispatchRecordEntity record = retrieveDispatchRecordById(dispatchRecordId);
+        if(record == null){
+            throw new UpdateDispatchRecordFailureException("Dispatch record Id " + dispatchRecordId + " does not exist!");
+        }
+        
+        record.setDispatchRecordStatus(DispatchRecordEnum.COMPLETED);
+        em.flush();
     }
 
 }

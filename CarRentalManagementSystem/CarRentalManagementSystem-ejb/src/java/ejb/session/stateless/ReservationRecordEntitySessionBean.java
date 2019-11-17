@@ -5,7 +5,9 @@ import entity.CustomerEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
 import entity.ReservationRecordEntity;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -57,14 +59,13 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
             Long modelId, Long categoryId, Long pickupOutletId, Long returnOutletId) throws ReservationCreationException {
 
         try {
-            em.persist(reservationRecordEntity);
 
-            System.out.println("here1");
             ModelEntity model;
-            if (modelId.equals(-1)) {
-                model = null;
-            } else {
+            
+            try{
                 model = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
+            } catch (ModelNotFoundException ex){
+                model = null;
             }
 
             CustomerEntity customer = customerEntitySessionBeanLocal.retrieveCustomerByCustomerId(customerId);
@@ -79,18 +80,21 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
             reservationRecordEntity.setCustomerEntity(customer);
             customer.getReservations().add(reservationRecordEntity);
 
+            em.persist(reservationRecordEntity);
             em.flush();
             return reservationRecordEntity.getReservationRecordId();
 
         } catch (PersistenceException ex1) {
+            System.out.println("here1");
             throw new ReservationCreationException("");
         } catch (CustomerNotFoundException ex2) {
-            throw new ReservationCreationException("");
-        } catch (ModelNotFoundException ex3) {
+            System.out.println("here2");
             throw new ReservationCreationException("");
         } catch (CategoryNotFoundException ex4) {
+            System.out.println("here4");
             throw new ReservationCreationException("");
         } catch (OutletNotFoundException ex5) {
+            System.out.println("here5");
             throw new ReservationCreationException("");
         }
 
@@ -113,6 +117,21 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
             throw new ReservationRecordNotFoundException("Reservation ID " + reservationId + " does not exist!");
         }
     }
+    
+    @Override
+    public List<ReservationRecordEntity> retrieveReservationRecordByDate(LocalDate currDate){
+        
+        List<ReservationRecordEntity> reservations = retrieveAllReservationRecord();
+        List<ReservationRecordEntity> currentDayReservations = new ArrayList<>();
+        for(ReservationRecordEntity reservation:reservations){
+            if(reservation.getPickUpDateTime().toLocalDate().isEqual(currDate)){
+                currentDayReservations.add(reservation);
+            }
+        }
+        return currentDayReservations;
+        
+    }
+    
 
     @Override
     public ReservationRecordEntity cancelReservation(Long reservationId) throws CancelReservationFailureException {
