@@ -113,7 +113,6 @@ class OperationManagerModule {
             System.out.println("8: View Transit Driver Dispatch Record For Current Day Reservation");
             System.out.println("9: Assign Transit Driver");
             System.out.println("10: Update Transit As Complete");
-          //  System.out.println("11: Allocate cars");
             System.out.println("11: Log out\n");
             response = 0;
 
@@ -149,7 +148,7 @@ class OperationManagerModule {
                 }
             }
 
-            if (response == 12) {
+            if (response == 11) {
                 break;
             }
         }

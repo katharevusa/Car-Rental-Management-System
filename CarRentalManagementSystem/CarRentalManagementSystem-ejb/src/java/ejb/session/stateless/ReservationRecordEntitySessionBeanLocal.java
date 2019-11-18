@@ -26,5 +26,7 @@ public interface ReservationRecordEntitySessionBeanLocal {
     // public ReservationRecordEntity createReservationInWebService(Double totalRentalRate, LocalDateTime pickupDateTime, LocalDateTime returnDateTime, String ccNumber, double paidAmt);
     public ReservationRecordEntity createReservationInWebService(Long partnerId, Long selectedModelId, Long selectedCategoryId, Long selectedPickupOutletId, Long selectedReturnedOutletId, LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Double totalRentalRate, String ccNumber, Double paidAmt) throws ReservationRecordNotFoundException;
 
-    public Long createReservationRecordForWebClient(double totalRentalRate, Long selectedModelId, Long selectedCategoryId, LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId, String ccNumber, double paidAmt, Long customerId) throws ReservationCreationException;
+    public Long createReservationRecordForWebClient(double totalRentalRate, Long selectedModelId, Long selectedCategoryId, LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId, String ccNumber, double paidAmt, Long customerId, Long partnerId) throws ReservationCreationException;
+
+    public Long retrievePartnerIdByReservationId(Long reservationId) throws ReservationRecordNotFoundException;
 }

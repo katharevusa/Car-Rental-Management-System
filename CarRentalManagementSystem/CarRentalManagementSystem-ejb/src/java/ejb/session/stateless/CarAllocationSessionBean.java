@@ -14,8 +14,10 @@ import entity.TransitDriverDispatchRecordEntity;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Formatter;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -49,13 +51,15 @@ public class CarAllocationSessionBean implements CarAllocationSessionBeanRemote,
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
 
-    @Override
+    
     @Schedule(hour = "2", minute = "0", second = "0", persistent = false,info = "carAllocationTimer")
     public void carAllocationTimer() {
 
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         System.out.println("********** EjbTimerSession.carAllocationTimer(): Timeout at " + timeStamp);
         
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        LocalDate currDate = LocalDateTime.parse("2019-12-11 01:00:00", formatter).toLocalDate();
         LocalDate currDate = LocalDateTime.now().toLocalDate();
         List<ReservationRecordEntity> currentDayReservationList = reservationRecordEntitySessionBeanLocal.retrieveReservationRecordByDate(currDate);
         List<ReservationRecordEntity> filtered = new ArrayList<>();

@@ -4,6 +4,7 @@ import entity.CategoryEntity;
 import entity.CustomerEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
+import entity.PartnerEntity;
 import entity.ReservationRecordEntity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,6 +48,8 @@ import util.exception.UpdateReservationStatusFailureException;
 
 public class ReservationRecordEntitySessionBean implements ReservationRecordEntitySessionBeanRemote, ReservationRecordEntitySessionBeanLocal {
 
+    @EJB
+    private PartnerEntitySessionBeanLocal partnerEntitySessionBeanLocal;
     @EJB
     private CustomerEntitySessionBeanLocal customerEntitySessionBeanLocal;
     @EJB
@@ -122,16 +125,70 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
 
     }
 
+    //overloaded method
+    public Long createNewReservationRecord(ReservationRecordEntity reservationRecordEntity, Long customerId,Long partnerId,
+            Long modelId, Long categoryId, Long pickupOutletId, Long returnOutletId) throws ReservationCreationException {
+
+        try {
+
+            Set<ConstraintViolation<ReservationRecordEntity>> constraintViolations = validator.validate(reservationRecordEntity);
+
+            if (constraintViolations.isEmpty()) {
+
+                ModelEntity model;
+
+                try {
+                    model = modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
+                } catch (ModelNotFoundException ex) {
+                    model = null;
+                }
+
+                CustomerEntity customer = customerEntitySessionBeanLocal.retrieveCustomerByCustomerId(customerId);
+                CategoryEntity category = categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
+                OutletEntity pickupOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(pickupOutletId);
+                OutletEntity returnOutlet = outletEntitySessionBeanLocal.retrieveOutletByOutletId(returnOutletId);
+                PartnerEntity partner = partnerEntitySessionBeanLocal.retrievePartnerByPartnerId(partnerId);
+
+                reservationRecordEntity.setCategory(category);
+                reservationRecordEntity.setModel(model);
+                reservationRecordEntity.setPickUpOutlet(pickupOutlet);
+                reservationRecordEntity.setReturnOutlet(returnOutlet);
+                reservationRecordEntity.setCustomerEntity(customer);
+                customer.getReservations().add(reservationRecordEntity);
+                partner.getReservationRecord().add(reservationRecordEntity);
+                reservationRecordEntity.setPartner(partner);
+
+                em.persist(reservationRecordEntity);
+                em.flush();
+                return reservationRecordEntity.getReservationRecordId();
+
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+
+        } catch (PersistenceException ex1) {
+            throw new ReservationCreationException("");
+        } catch (CustomerNotFoundException ex2) {
+            throw new ReservationCreationException("");
+        } catch (CategoryNotFoundException ex4) {
+            throw new ReservationCreationException("");
+        } catch (OutletNotFoundException ex5) {
+            throw new ReservationCreationException("");
+        } catch (InputDataValidationException ex6){
+            throw new ReservationCreationException(ex6.getMessage());
+        } 
+
+    }
     
     @Override
     public Long createReservationRecordForWebClient(double totalRentalRate, Long selectedModelId, Long selectedCategoryId,
             LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId,
-            Long selectedReturnOutletId, String ccNumber, double paidAmt,Long customerId) throws ReservationCreationException{
+            Long selectedReturnOutletId, String ccNumber, double paidAmt,Long customerId,Long partnerId) throws ReservationCreationException{
         
         ReservationRecordEntity reservation = new ReservationRecordEntity(totalRentalRate, pickupDateTime, returnDateTime, ccNumber, paidAmt);
         try{
              
-            return createNewReservationRecord(reservation, customerId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
+            return createNewReservationRecord(reservation, customerId, partnerId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
         
         } catch (ReservationCreationException ex){
             throw new ReservationCreationException("Failed to create new reservation record.");
@@ -155,6 +212,24 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
         } else {
             throw new ReservationRecordNotFoundException("Reservation ID " + reservationId + " does not exist!");
         }
+    }
+    
+    
+    @Override
+    public Long retrievePartnerIdByReservationId(Long reservationId) throws ReservationRecordNotFoundException{
+        
+        try{
+            ReservationRecordEntity reservation = retrieveReservationBylId(reservationId);
+            if(reservation.getPartner() == null){
+                return -1l;
+            } else {
+                return reservation.getPartner().getPartnerId();
+            }
+            
+        } catch (ReservationRecordNotFoundException ex){
+            throw new ReservationRecordNotFoundException();
+        }
+        
     }
     
     @Override

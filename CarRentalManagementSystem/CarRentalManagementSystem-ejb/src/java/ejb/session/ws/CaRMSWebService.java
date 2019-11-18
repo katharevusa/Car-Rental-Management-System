@@ -134,11 +134,44 @@ public class CaRMSWebService {
     @WebMethod
     public Long createNewReservationRecord(@WebParam double totalRentalRate, @WebParam Long selectedModelId, @WebParam Long selectedCategoryId,
             @WebParam Date date1, @WebParam Date date2, @WebParam Long selectedPickupOutletId,
-            @WebParam Long selectedReturnOutletId, @WebParam String ccNumber, @WebParam double paidAmt, @WebParam Long customerId) throws ReservationCreationException {
+            @WebParam Long selectedReturnOutletId, @WebParam String ccNumber, @WebParam double paidAmt, @WebParam Long customerId,
+            @WebParam Long partnerId) throws ReservationCreationException {
 
-        return reservationRecordEntitySessionBeanLocal.createReservationRecordForWebClient(totalRentalRate, selectedModelId, selectedCategoryId, LocalDateTime.MIN, LocalDateTime.MIN, selectedPickupOutletId, selectedReturnOutletId, ccNumber, 0,customerId);
+        LocalDateTime pickupDateTime = Instant.ofEpochMilli(date1.getTime() )
+                            .atZone(ZoneId.systemDefault() )
+                            .toLocalDateTime();
+        LocalDateTime returnDateTime = Instant.ofEpochMilli(date2.getTime() )
+                            .atZone(ZoneId.systemDefault() )
+                            .toLocalDateTime();
+        
+        return reservationRecordEntitySessionBeanLocal.createReservationRecordForWebClient(totalRentalRate, selectedModelId, selectedCategoryId, pickupDateTime, returnDateTime, selectedPickupOutletId, selectedReturnOutletId, ccNumber, 0,customerId,partnerId);
+    }
+    
+    @WebMethod
+    public CustomerEntity retrieveCustomerByCustomerId(@WebParam Long customerId) throws CustomerNotFoundException {
+        return customerEntitySessionBeanLocal.retrieveCustomerByCustomerId(customerId);
+    }
+    
+    @WebMethod
+    public List<ReservationRecordEntity> retrieveAllReservationRecord() {
+        return reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
+    }
+    
+    @WebMethod
+    public Long retrievePartnerIdByReservationId(@WebParam Long reservationId) throws ReservationRecordNotFoundException{
+        return reservationRecordEntitySessionBeanLocal.retrievePartnerIdByReservationId(reservationId);
     }
 
+    @WebMethod
+    public ReservationRecordEntity retrieveReservationBylId(@WebParam Long reservationId) throws ReservationRecordNotFoundException {
+        return reservationRecordEntitySessionBeanLocal.retrieveReservationBylId(reservationId);
+    }
+    
+    @WebMethod
+    public ReservationRecordEntity cancelReservation(@WebParam Long reservationId) throws CancelReservationFailureException {
+        return reservationRecordEntitySessionBeanLocal.cancelReservation(reservationId);
+    }
+    
 //    @WebMethod
 //    public CustomerEntity registerationInWeb(@WebParam Long partnerId,@WebParam String username,@WebParam String password, @WebParam String email, @WebParam String mobileNumber) throws RegistrationFailureException {
 //        return customerEntitySessionBeanLocal.registerationInWeb(partnerId, username, password, email, mobileNumber);
