@@ -295,13 +295,13 @@ class SalesManagerModule {
         if (input.length() > 0) {
             rentalRateEntity.setRatePerDay(Double.valueOf(input));
         }
-        System.out.print("Enter Starting date (blank if no change)> ");
+        System.out.print("Enter Starting date dd/mm/yyyy hh:mm (blank if no change)> ");
         input = scanner.nextLine().trim();
         if (input.length() > 0) {
             LocalDateTime date1 = LocalDateTime.parse(input, formatter);
             rentalRateEntity.setStartDateTime(date1);
         }
-        System.out.print("Enter Ending date (blank if no change)> ");
+        System.out.print("Enter Ending date dd/mm/yyyy hh:mm (blank if no change)> ");
         input = scanner.nextLine().trim();
         if (input.length() > 0) {
             LocalDateTime date2 = LocalDateTime.parse(input, formatter);

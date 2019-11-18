@@ -2,6 +2,7 @@ package ejb.session.singleton;
 
 import ejb.session.stateless.CarEntitySessionBeanLocal;
 import ejb.session.stateless.CategoryEntitySessionBeanLocal;
+import ejb.session.stateless.CustomerEntitySessionBeanLocal;
 import ejb.session.stateless.EmployeeEntitySessionBeanLocal;
 import ejb.session.stateless.ModelEntitySessionBeanLocal;
 import ejb.session.stateless.OutletEntitySessionBeanLocal;
@@ -13,6 +14,7 @@ import entity.OutletEntity;
 import entity.EmployeeEntity;
 import entity.PartnerEntity;
 import entity.CategoryEntity;
+import entity.CustomerEntity;
 import entity.ModelEntity;
 
 import entity.RentalRateEntity;
@@ -163,10 +165,16 @@ public class DataInitializationSessionBean {
             rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("Tuesday", 320.00, LocalDateTime.parse("03/12/2019 00:00", formatter), LocalDateTime.parse("03/12/2019 23:59", formatter)));
             rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("Wednesday", 330.00, LocalDateTime.parse("04/12/2019 00:00", formatter), LocalDateTime.parse("04/12/2019 23:59", formatter)));
             rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("Weekday Promo", 250.00, LocalDateTime.parse("04/12/2019 12:00", formatter), LocalDateTime.parse("05/12/2019 12:00", formatter)));
-            
+            rentalRateEntitySessionBeanLocal.createNewRentalRate(Long.valueOf(1), new RentalRateEntity("Test2", 120.00, LocalDateTime.parse("01/12/2019 00:00", formatter), LocalDateTime.parse("31/12/2019 23:59", formatter)));
             PartnerEntity partner = new PartnerEntity("Holiday.com","password");
             em.persist(partner);
             em.flush();
+            CustomerEntity customer1 = new CustomerEntity("tester1","password","test1@gmail.com","12345678");
+            CustomerEntity customer2 = new CustomerEntity("tester2","password","test2@gmail.com","87654321");
+            em.persist(customer1);
+            em.persist(customer2);
+            em.flush();
+            
         } catch (CategoryNotFoundException | GeneralException ex) {
             Logger.getLogger(DataInitializationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
         }
