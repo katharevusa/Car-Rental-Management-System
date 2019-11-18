@@ -10,6 +10,7 @@ import util.exception.NoReservationAvailable;
 import util.exception.ReservationAlreadyCancelledException;
 import util.exception.ReservationCreationException;
 import util.exception.ReservationRecordNotFoundException;
+import util.exception.UpdateReservationStatusFailureException;
 
 public interface ReservationRecordEntitySessionBeanRemote {
     
@@ -25,5 +26,7 @@ public interface ReservationRecordEntitySessionBeanRemote {
     // public ReservationRecordEntity createReservationInWebService(Double totalRentalRate, LocalDateTime pickupDateTime, LocalDateTime returnDateTime, String ccNumber, double paidAmt) throws ReservationRecordNotFoundException;
 public ReservationRecordEntity createReservationInWebService
         (Long partnerId, Long selectedModelId, Long selectedCategoryId, Long selectedPickupOutletId,Long selectedReturnedOutletId, LocalDateTime pickupDateTime, LocalDateTime returnDateTime,Double totalRentalRate, String ccNumber, Double paidAmt) throws ReservationRecordNotFoundException;
+
+    public void updateReservationStatus(Long reservationId) throws UpdateReservationStatusFailureException;
       
 }

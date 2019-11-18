@@ -160,12 +160,9 @@ class OperationManagerModule {
     private void doViewTDDR() {
         
         Scanner sc = new Scanner(System.in);
-        
-        System.out.print("Enter date(yyyy-MM-dd HH:mm:ss))>");
-        //System.out.print("Enter date(dd/MM/yyyy))>");
+        System.out.print("Enter date(yyyy-MM-dd))>");
         String currDateTimeString = sc.nextLine().trim();
-       // DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-       //LocalDate currDate = LocalDateTime.parse(currDateTimeString, formatterDate).toLocalDate();
+        currDateTimeString += " 02:00:00";
         LocalDate currDate = LocalDateTime.parse(currDateTimeString, formatter).toLocalDate();
         List<ReservationRecordEntity> reservations = reservationRecordEntitySessionBeanRemote.retrieveReservationRecordByDate(currDate);
         
@@ -242,6 +239,9 @@ class OperationManagerModule {
         
         try{
             transitDriverDispatchRecordEntitySessionBeanRemote.updateDispatchRecordStatusAsCompleted(dispatchId);
+            System.out.println("Dispatch record " + dispatchId + " has been successfully updated.");
+            System.out.print("Press any key to continue...> ");
+            sc.nextLine();
         } catch (UpdateDispatchRecordFailureException ex){
             System.out.println(ex.getMessage());
         }
@@ -597,6 +597,7 @@ class OperationManagerModule {
     }
 
     private void doAllocateCars() {
+        
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter a date to trigger the alloation of car(yyyy-MM-dd)>");
         String dateTimeString = sc.nextLine().trim();

@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
@@ -42,6 +43,7 @@ public class CustomerEntity implements Serializable {
     @Column(nullable = false)
     private String email;
     @ManyToOne
+    @JoinColumn(nullable = true)
     private PartnerEntity partner;
     //bidirectional
     @OneToMany(mappedBy = "customerEntity")
@@ -91,6 +93,7 @@ public class CustomerEntity implements Serializable {
     public String toString() {
         return "entity.CustomerEntity[ id=" + getCustomerId() + " ]";
     }
+    
     @XmlTransient
     public PartnerEntity getPartner() {
         return partner;

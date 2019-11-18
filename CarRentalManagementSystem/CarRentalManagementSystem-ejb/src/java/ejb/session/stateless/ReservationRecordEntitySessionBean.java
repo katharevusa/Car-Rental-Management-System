@@ -24,6 +24,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.enumeration.CarStatusEnum;
 import util.exception.CancelReservationFailureException;
 import util.exception.CategoryNotFoundException;
 import util.exception.CustomerNotFoundException;
@@ -34,6 +35,7 @@ import util.exception.PastReservationException;
 import util.exception.ReservationAlreadyCancelledException;
 import util.exception.ReservationCreationException;
 import util.exception.ReservationRecordNotFoundException;
+import util.exception.UpdateReservationStatusFailureException;
 
 /**
  *
@@ -231,16 +233,34 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
         
         return msg;
     }
+
     @Override
-    public ReservationRecordEntity createReservationInWebService
-        (Long partnerId, Long selectedModelId, Long selectedCategoryId, Long selectedPickupOutletId,Long selectedReturnedOutletId, LocalDateTime pickupDateTime, LocalDateTime returnDateTime,Double totalRentalRate, String ccNumber, Double paidAmt) throws ReservationRecordNotFoundException{
+    public ReservationRecordEntity createReservationInWebService(Long partnerId, Long selectedModelId, Long selectedCategoryId, Long selectedPickupOutletId, Long selectedReturnedOutletId, LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Double totalRentalRate, String ccNumber, Double paidAmt) throws ReservationRecordNotFoundException {
         try {
             ReservationRecordEntity r = new ReservationRecordEntity(totalRentalRate, pickupDateTime, returnDateTime, ccNumber, paidAmt);
-            createNewReservationRecord(r,partnerId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnedOutletId);
+            createNewReservationRecord(r, partnerId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnedOutletId);
             return r;
         } catch (ReservationCreationException ex) {
             throw new ReservationRecordNotFoundException("Reservation not found!");
         }
     }
+
+    @Override
+    public void updateReservationStatus(Long reservationId) throws UpdateReservationStatusFailureException{
+        
+        try{
+            
+            ReservationRecordEntity reservation = retrieveReservationBylId(reservationId);
+            reservation.getCarEntity().setStatus(CarStatusEnum.ONRENTAL);
+            reservation.getCarEntity().setOutletEntity(null);
+            reservation.setHasPast(true);
+            em.flush();
+            
+        } catch (ReservationRecordNotFoundException ex){
+            throw new UpdateReservationStatusFailureException("Reservation Id " + reservationId + " does not exist.");
+        }
+        
+    }
+    
     
 }

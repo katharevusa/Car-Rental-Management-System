@@ -16,6 +16,7 @@ import util.enumeration.AccessRightEnum;
 import util.enumeration.CarStatusEnum;
 import util.exception.InvalidAccessRightException;
 import util.exception.ReservationRecordNotFoundException;
+import util.exception.UpdateReservationStatusFailureException;
 
 /**
  *
@@ -83,14 +84,16 @@ class CustomerServiceExecutiveModule {
         try {
             Scanner sc = new Scanner(System.in);
             System.out.println("Enter reservation id>");
-            ReservationRecordEntity reservation = reservationRecordEntitySessionBeanRemote.retrieveReservationBylId(sc.nextLong());
-            reservation.getCarEntity().setStatus(CarStatusEnum.ONRENTAL);
-            reservation.getCarEntity().setOutletEntity(null);
-            reservation.setHasPast(true);
+            Long reservationId = sc.nextLong();
+            reservationRecordEntitySessionBeanRemote.updateReservationStatus(reservationId);
+            ReservationRecordEntity reservation = reservationRecordEntitySessionBeanRemote.retrieveReservationBylId(reservationId);
+            //why?
             if(reservation.getPaidAmount()==0){
                 System.out.println("Please collect the payment of "+reservation.getRentalRate());
             }
-        } catch (ReservationRecordNotFoundException ex) {
+        } catch (UpdateReservationStatusFailureException ex) {
+            System.out.println(ex.getMessage());
+        } catch (ReservationRecordNotFoundException ex){
             System.out.println(ex.getMessage());
         }
             

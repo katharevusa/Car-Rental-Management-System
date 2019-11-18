@@ -67,76 +67,76 @@ public class CaRMSWebService {
         return partnerEntitySessionBeanLocal.login(username, password);
     }
 
-    @WebMethod
-    public CustomerEntity registerationInWeb(@WebParam Long partnerId,@WebParam String username,@WebParam String password, @WebParam String email, @WebParam String mobileNumber) throws RegistrationFailureException {
-        return customerEntitySessionBeanLocal.registerationInWeb(partnerId, username, password, email, mobileNumber);
-    }
-
-    @WebMethod
-    public CustomerEntity retrieveCustomerByCustomerId(@WebParam Long customerId) throws CustomerNotFoundException {
-        return customerEntitySessionBeanLocal.retrieveCustomerByCustomerId(customerId);
-    }
-
-    @WebMethod
-    public ModelEntity retrieveModelByModelId(@WebParam Long modelId) throws ModelNotFoundException {
-        return modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
-    }
-
-    @WebMethod
-
-    public double checkForExistenceOfRentalRate(@WebParam Long selectedCategoryId, @WebParam LocalDateTime pickupDateTime,
-           @WebParam LocalDateTime returnDateTime) throws CategoryNotFoundException, RentalRateNotFoundException {
-        return rentalRateEntitySessionBeanLocal.checkForExistenceOfRentalRate(selectedCategoryId, pickupDateTime, returnDateTime);
-    }
-
-    @WebMethod
-    public Long createNewReservationRecord(@WebParam ReservationRecordEntity reservationRecordEntity, @WebParam Long customerId,
-            @WebParam Long modelId, @WebParam Long categoryId, @WebParam Long pickupOutletId,@WebParam Long returnOutletId) throws ReservationCreationException {
-        return reservationRecordEntitySessionBeanLocal.createNewReservationRecord(reservationRecordEntity, customerId, modelId, categoryId, pickupOutletId, returnOutletId);
-    }
-
-    @WebMethod
-    public Boolean checkCarAvailability(@WebParam LocalDateTime pickupDateTime, @WebParam LocalDateTime returnDateTime,
-           @WebParam  Long selectedPickupOutletId,@WebParam  Long selectedReturnOutletId,@WebParam  Long selectedCategoryId, @WebParam Long selectedModelId) {
-        return carEntitySessionBeanLocal.checkCarAvailability(pickupDateTime, returnDateTime, selectedPickupOutletId, selectedReturnOutletId, selectedCategoryId, selectedModelId);
-    }
-
-    @WebMethod
-    public List<CategoryEntity> retrieveAllCategory() {
-        return categoryEntitySessionBeanLocal.retrieveAllCategory();
-    }
-
-    @WebMethod
-    public List<ModelEntity> retrieveAllModel() {
-        return modelEntitySessionBeanLocal.retrieveAllModel();
-    }
-    @WebMethod
-    public ReservationRecordEntity createReservationInWebService(@WebParam Long partnerId, @WebParam Long selectedModelId, @WebParam Long selectedCategoryId, @WebParam Long selectedPickupOutletId, @WebParam Long selectedReturnedOutletId,@WebParam  LocalDateTime pickupDateTime,@WebParam  LocalDateTime returnDateTime, @WebParam Double totalRentalRate,@WebParam  String ccNumber,@WebParam Double paidAmount) throws ReservationRecordNotFoundException {
-        return reservationRecordEntitySessionBeanLocal.createReservationInWebService(partnerId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnedOutletId, pickupDateTime, returnDateTime, totalRentalRate, ccNumber,paidAmount);
-    }
-    @WebMethod
-    public CategoryEntity retrieveCategoryByCategoryId(@WebParam Long categoryId) throws CategoryNotFoundException {
-        return categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
-    }
-
-    @WebMethod
-    public List<OutletEntity> retrieveOutletByPickupDateTime(@WebParam LocalDateTime pickupDateTime) {
-        return outletEntitySessionBeanLocal.retrieveOutletByPickupDateTime(pickupDateTime);
-    }
-
-    @WebMethod
-    public ReservationRecordEntity cancelReservation(@WebParam Long reservationId) throws CancelReservationFailureException {
-        return reservationRecordEntitySessionBeanLocal.cancelReservation(reservationId);
-    }
-
-    @WebMethod
-    public List<ReservationRecordEntity> retrieveAllReservationRecord() {
-        return reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
-    }
-
-    @WebMethod
-    public ReservationRecordEntity retrieveReservationBylId(@WebParam Long reservationId) throws ReservationRecordNotFoundException {
-        return reservationRecordEntitySessionBeanLocal.retrieveReservationBylId(reservationId);
-    }
+//    @WebMethod
+//    public CustomerEntity registerationInWeb(@WebParam Long partnerId,@WebParam String username,@WebParam String password, @WebParam String email, @WebParam String mobileNumber) throws RegistrationFailureException {
+//        return customerEntitySessionBeanLocal.registerationInWeb(partnerId, username, password, email, mobileNumber);
+//    }
+//
+//    @WebMethod
+//    public CustomerEntity retrieveCustomerByCustomerId(@WebParam Long customerId) throws CustomerNotFoundException {
+//        return customerEntitySessionBeanLocal.retrieveCustomerByCustomerId(customerId);
+//    }
+//
+//    @WebMethod
+//    public ModelEntity retrieveModelByModelId(@WebParam Long modelId) throws ModelNotFoundException {
+//        return modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
+//    }
+//
+//    @WebMethod
+//
+//    public double checkForExistenceOfRentalRate(@WebParam Long selectedCategoryId, @WebParam LocalDateTime pickupDateTime,
+//           @WebParam LocalDateTime returnDateTime) throws CategoryNotFoundException, RentalRateNotFoundException {
+//        return rentalRateEntitySessionBeanLocal.checkForExistenceOfRentalRate(selectedCategoryId, pickupDateTime, returnDateTime);
+//    }
+//
+//    @WebMethod
+//    public Long createNewReservationRecord(@WebParam ReservationRecordEntity reservationRecordEntity, @WebParam Long customerId,
+//            @WebParam Long modelId, @WebParam Long categoryId, @WebParam Long pickupOutletId,@WebParam Long returnOutletId) throws ReservationCreationException {
+//        return reservationRecordEntitySessionBeanLocal.createNewReservationRecord(reservationRecordEntity, customerId, modelId, categoryId, pickupOutletId, returnOutletId);
+//    }
+//
+//    @WebMethod
+//    public Boolean checkCarAvailability(@WebParam LocalDateTime pickupDateTime, @WebParam LocalDateTime returnDateTime,
+//           @WebParam  Long selectedPickupOutletId,@WebParam  Long selectedReturnOutletId,@WebParam  Long selectedCategoryId, @WebParam Long selectedModelId) {
+//        return carEntitySessionBeanLocal.checkCarAvailability(pickupDateTime, returnDateTime, selectedPickupOutletId, selectedReturnOutletId, selectedCategoryId, selectedModelId);
+//    }
+//
+//    @WebMethod
+//    public List<CategoryEntity> retrieveAllCategory() {
+//        return categoryEntitySessionBeanLocal.retrieveAllCategory();
+//    }
+//
+//    @WebMethod
+//    public List<ModelEntity> retrieveAllModel() {
+//        return modelEntitySessionBeanLocal.retrieveAllModel();
+//    }
+//    @WebMethod
+//    public ReservationRecordEntity createReservationInWebService(@WebParam Long partnerId, @WebParam Long selectedModelId, @WebParam Long selectedCategoryId, @WebParam Long selectedPickupOutletId, @WebParam Long selectedReturnedOutletId,@WebParam  LocalDateTime pickupDateTime,@WebParam  LocalDateTime returnDateTime, @WebParam Double totalRentalRate,@WebParam  String ccNumber,@WebParam Double paidAmount) throws ReservationRecordNotFoundException {
+//        return reservationRecordEntitySessionBeanLocal.createReservationInWebService(partnerId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnedOutletId, pickupDateTime, returnDateTime, totalRentalRate, ccNumber,paidAmount);
+//    }
+//    @WebMethod
+//    public CategoryEntity retrieveCategoryByCategoryId(@WebParam Long categoryId) throws CategoryNotFoundException {
+//        return categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
+//    }
+//
+//    @WebMethod
+//    public List<OutletEntity> retrieveOutletByPickupDateTime(@WebParam LocalDateTime pickupDateTime) {
+//        return outletEntitySessionBeanLocal.retrieveOutletByPickupDateTime(pickupDateTime);
+//    }
+//
+//    @WebMethod
+//    public ReservationRecordEntity cancelReservation(@WebParam Long reservationId) throws CancelReservationFailureException {
+//        return reservationRecordEntitySessionBeanLocal.cancelReservation(reservationId);
+//    }
+//
+//    @WebMethod
+//    public List<ReservationRecordEntity> retrieveAllReservationRecord() {
+//        return reservationRecordEntitySessionBeanLocal.retrieveAllReservationRecord();
+//    }
+//
+//    @WebMethod
+//    public ReservationRecordEntity retrieveReservationBylId(@WebParam Long reservationId) throws ReservationRecordNotFoundException {
+//        return reservationRecordEntitySessionBeanLocal.retrieveReservationBylId(reservationId);
+//    }
 
 }

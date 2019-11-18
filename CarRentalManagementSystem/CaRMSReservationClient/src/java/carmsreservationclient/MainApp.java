@@ -267,9 +267,11 @@ public class MainApp {
                     }
                 }
                 printAvailableOutlet(pickupDateTime);
+               
                 System.out.print("Please select a pickup outlet>");
                 long selectedPickupOutletId = sc.nextLong();
                 sc.nextLine();
+                
 
                 System.out.print("Enter return date/time(dd/MM/yyyy HH:mm:ss))>");
 
@@ -286,16 +288,16 @@ public class MainApp {
                     }
                 }
                 printAvailableOutlet(returnDateTime);
-
-                System.out.print("Please select a return outlet>");
+                
+                System.out.print("Please select a pickup outlet>");
                 long selectedReturnOutletId = sc.nextLong();
                 sc.nextLine();
-
+                
+                
+                
                 //first check availability of rental rate
                 double totalRentalRate = rentalRateEntitySessionBeanRemote.checkForExistenceOfRentalRate(selectedCategoryId, pickupDateTime, returnDateTime);
                 //second check availability of cars
-                
-                System.out.println("category ID " + selectedCategoryId + " + " + "model ID" + selectedModelId);
                 Boolean canReserve = searchCar(selectedCategoryId, selectedModelId, pickupDateTime,
                         returnDateTime, selectedPickupOutletId, selectedReturnOutletId);
 
