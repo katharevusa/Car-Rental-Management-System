@@ -50,13 +50,13 @@ public class CarAllocationSessionBean implements CarAllocationSessionBeanRemote,
     private EntityManager em;
 
     @Override
-    //@Schedule(dayOfMonth = "*/1", hour = "2",info = "carAllocationTimer")
-    public void carAllocationTimer(LocalDateTime triggerDateTime) {
+    @Schedule(dayOfMonth = "*/1", hour = "2",info = "carAllocationTimer")
+    public void carAllocationTimer() {
 
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         System.out.println("********** EjbTimerSession.carAllocationTimer(): Timeout at " + timeStamp);
         
-        LocalDate currDate = triggerDateTime.toLocalDate();
+        LocalDate currDate = LocalDateTime.now().toLocalDate();
         List<ReservationRecordEntity> currentDayReservationList = reservationRecordEntitySessionBeanLocal.retrieveReservationRecordByDate(currDate);
         List<ReservationRecordEntity> filtered = new ArrayList<>();
         for(ReservationRecordEntity r:currentDayReservationList){

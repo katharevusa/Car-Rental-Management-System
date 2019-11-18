@@ -113,11 +113,11 @@ class OperationManagerModule {
             System.out.println("8: View Transit Driver Dispatch Record For Current Day Reservation");
             System.out.println("9: Assign Transit Driver");
             System.out.println("10: Update Transit As Complete");
-            System.out.println("11: Allocate cars");
-            System.out.println("12: Log out\n");
+          //  System.out.println("11: Allocate cars");
+            System.out.println("11: Log out\n");
             response = 0;
 
-            while (response < 1 || response > 12) {
+            while (response < 1 || response > 11) {
                 System.out.print("> ");
 
                 response = scanner.nextInt();
@@ -143,8 +143,6 @@ class OperationManagerModule {
                 } else if (response == 10) {
                     doUpdateTransitAsComplete();
                 } else if (response == 11) {
-                    doAllocateCars();
-                } else if (response == 12) {
                     break;
                 } else {
                     System.out.println("Invalid option, please try again!\n");
@@ -596,15 +594,15 @@ class OperationManagerModule {
         }
     }
 
-    private void doAllocateCars() {
-        
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Enter a date to trigger the alloation of car(yyyy-MM-dd)>");
-        String dateTimeString = sc.nextLine().trim();
-        dateTimeString += " 02:00:00";
-        LocalDateTime triggerDateTime = LocalDateTime.parse(dateTimeString, formatter);
-        carAllocationSessionBeanRemote.carAllocationTimer(triggerDateTime);
-    }
+//    private void doAllocateCars() {
+//        
+//        Scanner sc = new Scanner(System.in);
+//        System.out.print("Enter a date to trigger the alloation of car(yyyy-MM-dd)>");
+//        String dateTimeString = sc.nextLine().trim();
+//        dateTimeString += " 02:00:00";
+//        LocalDateTime triggerDateTime = LocalDateTime.parse(dateTimeString, formatter);
+//        carAllocationSessionBeanRemote.carAllocationTimer(triggerDateTime);
+//    }
 
     private void printAllCategory() {
 
