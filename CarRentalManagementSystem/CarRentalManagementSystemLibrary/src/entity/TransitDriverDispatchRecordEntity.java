@@ -104,6 +104,7 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
         return "entity.TransitDriverDispatchRecordEntity[ id=" + dispatchRecordId + " ]";
     }
 
+    @XmlTransient
     public ReservationRecordEntity getReservationRecord() {
         return reservationRecord;
     }

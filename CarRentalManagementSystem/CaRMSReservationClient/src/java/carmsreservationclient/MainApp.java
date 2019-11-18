@@ -351,7 +351,7 @@ public class MainApp {
         } while (continueConfirmation.equals("Y"));
     }
 
- private Long doReserveCar(double totalRentalRate, Long selectedModelId, Long selectedCategoryId,
+    private Long doReserveCar(double totalRentalRate, Long selectedModelId, Long selectedCategoryId,
             LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId,
             Long selectedReturnOutletId, String ccNumber, double paidAmt) throws UnsuccessfulReservationException {
 

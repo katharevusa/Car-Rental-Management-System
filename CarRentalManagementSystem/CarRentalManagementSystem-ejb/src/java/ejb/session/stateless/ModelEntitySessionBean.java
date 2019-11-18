@@ -112,6 +112,18 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
             throw new ModelNotFoundException("Model ID " + modelId + " does not exist!");
         }
     }
+    
+    @Override
+    public Long retrieveCategoryIdByModelId(Long modelId) throws ModelNotFoundException{
+        
+        ModelEntity modelEntity = em.find(ModelEntity.class, modelId);
+        
+        if(modelEntity != null){
+            return modelEntity.getCategoryEntity().getCategoryId();
+        } else {
+            throw new ModelNotFoundException("Model ID " + modelId + " does not exist!");
+        }
+    }
 
     @Override
     public ModelEntity retrieveModelByName(String modelName) throws ModelNotFoundException {

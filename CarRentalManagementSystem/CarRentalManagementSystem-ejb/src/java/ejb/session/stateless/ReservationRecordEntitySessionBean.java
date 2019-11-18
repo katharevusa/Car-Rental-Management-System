@@ -122,6 +122,23 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
 
     }
 
+    
+    @Override
+    public Long createReservationRecordForWebClient(double totalRentalRate, Long selectedModelId, Long selectedCategoryId,
+            LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId,
+            Long selectedReturnOutletId, String ccNumber, double paidAmt,Long customerId) throws ReservationCreationException{
+        
+        ReservationRecordEntity reservation = new ReservationRecordEntity(totalRentalRate, pickupDateTime, returnDateTime, ccNumber, paidAmt);
+        try{
+             
+            return createNewReservationRecord(reservation, customerId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnOutletId);
+        
+        } catch (ReservationCreationException ex){
+            throw new ReservationCreationException("Failed to create new reservation record.");
+        }
+        
+    }
+    
     @Override
     public List<ReservationRecordEntity> retrieveAllReservationRecord() {
         Query query = em.createQuery("SELECT rr FROM ReservationRecordEntity rr");

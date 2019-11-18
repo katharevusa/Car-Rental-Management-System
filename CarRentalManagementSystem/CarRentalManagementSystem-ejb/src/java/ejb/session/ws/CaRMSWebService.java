@@ -14,7 +14,10 @@ import entity.ModelEntity;
 import entity.OutletEntity;
 import entity.PartnerEntity;
 import entity.ReservationRecordEntity;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.jws.WebService;
@@ -65,6 +68,75 @@ public class CaRMSWebService {
     @WebMethod
     public PartnerEntity login(@WebParam String username,@WebParam String password) throws InvalidLoginCredentialException {
         return partnerEntitySessionBeanLocal.login(username, password);
+    }
+    
+    @WebMethod
+    public List<CategoryEntity> retrieveAllCategory() {
+        return categoryEntitySessionBeanLocal.retrieveAllCategory();
+    }
+    
+    @WebMethod
+    public List<ModelEntity> retrieveAllModel() {
+        return modelEntitySessionBeanLocal.retrieveAllModel();
+    }
+    
+    @WebMethod
+    public CategoryEntity retrieveCategoryByCategoryId(@WebParam Long categoryId) throws CategoryNotFoundException {
+        return categoryEntitySessionBeanLocal.retrieveCategoryByCategoryId(categoryId);
+    }
+    
+    @WebMethod
+    public ModelEntity retrieveModelByModelId(@WebParam Long modelId) throws ModelNotFoundException {
+        return modelEntitySessionBeanLocal.retrieveModelByModelId(modelId);
+    }
+    
+    @WebMethod
+    public Long retrieveCategoryIdByModelId(Long modelId) throws ModelNotFoundException {
+        return modelEntitySessionBeanLocal.retrieveCategoryIdByModelId(modelId);
+    }
+
+    @WebMethod
+    public List<OutletEntity> retrieveOutletByPickupDateTime(@WebParam Date date) {
+        
+        LocalDateTime pickupDateTime = Instant.ofEpochMilli(date.getTime() )
+                            .atZone(ZoneId.systemDefault() )
+                            .toLocalDateTime();
+        return outletEntitySessionBeanLocal.retrieveOutletByPickupDateTime(pickupDateTime);
+    }
+    
+    @WebMethod
+    public double checkForExistenceOfRentalRate(@WebParam Long selectedCategoryId, @WebParam Date date1,
+           @WebParam Date date2) throws CategoryNotFoundException, RentalRateNotFoundException {
+        
+        LocalDateTime pickupDateTime = Instant.ofEpochMilli(date1.getTime() )
+                            .atZone(ZoneId.systemDefault() )
+                            .toLocalDateTime();
+        LocalDateTime returnDateTime = Instant.ofEpochMilli(date2.getTime() )
+                            .atZone(ZoneId.systemDefault() )
+                            .toLocalDateTime();
+        return rentalRateEntitySessionBeanLocal.checkForExistenceOfRentalRate(selectedCategoryId, pickupDateTime, returnDateTime);
+    }
+    
+    @WebMethod
+    public Boolean checkCarAvailability(@WebParam Date date1, @WebParam Date date2,
+           @WebParam  Long selectedPickupOutletId,@WebParam  Long selectedReturnOutletId,@WebParam  Long selectedCategoryId, @WebParam Long selectedModelId) {
+        
+        LocalDateTime pickupDateTime = Instant.ofEpochMilli(date1.getTime() )
+                            .atZone(ZoneId.systemDefault() )
+                            .toLocalDateTime();
+        LocalDateTime returnDateTime = Instant.ofEpochMilli(date2.getTime() )
+                            .atZone(ZoneId.systemDefault() )
+                            .toLocalDateTime();
+        
+        return carEntitySessionBeanLocal.checkCarAvailability(pickupDateTime, returnDateTime, selectedPickupOutletId, selectedReturnOutletId, selectedCategoryId, selectedModelId);
+    }
+
+    @WebMethod
+    public Long createNewReservationRecord(@WebParam double totalRentalRate, @WebParam Long selectedModelId, @WebParam Long selectedCategoryId,
+            @WebParam Date date1, @WebParam Date date2, @WebParam Long selectedPickupOutletId,
+            @WebParam Long selectedReturnOutletId, @WebParam String ccNumber, @WebParam double paidAmt, @WebParam Long customerId) throws ReservationCreationException {
+
+        return reservationRecordEntitySessionBeanLocal.createReservationRecordForWebClient(totalRentalRate, selectedModelId, selectedCategoryId, LocalDateTime.MIN, LocalDateTime.MIN, selectedPickupOutletId, selectedReturnOutletId, ccNumber, 0,customerId);
     }
 
 //    @WebMethod

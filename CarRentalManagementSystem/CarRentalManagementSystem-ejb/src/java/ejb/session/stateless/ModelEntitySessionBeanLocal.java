@@ -34,4 +34,6 @@ public interface ModelEntitySessionBeanLocal {
     public Long deleteModel(Long modelId) throws DeleteModelException;
     
     public void updateModel(ModelEntity model) throws UpdateModelFailureException, InputDataValidationException;
+    
+    public Long retrieveCategoryIdByModelId(Long modelId) throws ModelNotFoundException;
 }

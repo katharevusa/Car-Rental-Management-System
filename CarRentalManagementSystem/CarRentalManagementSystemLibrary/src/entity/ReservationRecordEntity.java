@@ -75,7 +75,7 @@ public class ReservationRecordEntity implements Serializable {
     private OutletEntity returnOutlet;
     //bidirectional
     @ManyToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(nullable = true)
     private CustomerEntity customerEntity;
     @ManyToOne
     @JoinColumn(nullable = true)

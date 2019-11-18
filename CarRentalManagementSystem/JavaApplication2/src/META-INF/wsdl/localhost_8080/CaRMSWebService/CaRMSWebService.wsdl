@@ -4,6 +4,12 @@
 <xsd:import namespace="http://ws.session.ejb/" schemaLocation="http://localhost:8080/CaRMSWebService/CaRMSWebService?xsd=1"/>
 </xsd:schema>
 </types>
+<message name="retrieveAllModel">
+<part name="parameters" element="tns:retrieveAllModel"/>
+</message>
+<message name="retrieveAllModelResponse">
+<part name="parameters" element="tns:retrieveAllModelResponse"/>
+</message>
 <message name="login">
 <part name="parameters" element="tns:login"/>
 </message>
@@ -13,15 +19,126 @@
 <message name="InvalidLoginCredentialException">
 <part name="fault" element="tns:InvalidLoginCredentialException"/>
 </message>
+<message name="checkCarAvailability">
+<part name="parameters" element="tns:checkCarAvailability"/>
+</message>
+<message name="checkCarAvailabilityResponse">
+<part name="parameters" element="tns:checkCarAvailabilityResponse"/>
+</message>
+<message name="retrieveCategoryByCategoryId">
+<part name="parameters" element="tns:retrieveCategoryByCategoryId"/>
+</message>
+<message name="retrieveCategoryByCategoryIdResponse">
+<part name="parameters" element="tns:retrieveCategoryByCategoryIdResponse"/>
+</message>
+<message name="CategoryNotFoundException">
+<part name="fault" element="tns:CategoryNotFoundException"/>
+</message>
+<message name="checkForExistenceOfRentalRate">
+<part name="parameters" element="tns:checkForExistenceOfRentalRate"/>
+</message>
+<message name="checkForExistenceOfRentalRateResponse">
+<part name="parameters" element="tns:checkForExistenceOfRentalRateResponse"/>
+</message>
+<message name="RentalRateNotFoundException">
+<part name="fault" element="tns:RentalRateNotFoundException"/>
+</message>
+<message name="retrieveOutletByPickupDateTime">
+<part name="parameters" element="tns:retrieveOutletByPickupDateTime"/>
+</message>
+<message name="retrieveOutletByPickupDateTimeResponse">
+<part name="parameters" element="tns:retrieveOutletByPickupDateTimeResponse"/>
+</message>
+<message name="retrieveAllCategory">
+<part name="parameters" element="tns:retrieveAllCategory"/>
+</message>
+<message name="retrieveAllCategoryResponse">
+<part name="parameters" element="tns:retrieveAllCategoryResponse"/>
+</message>
+<message name="retrieveModelByModelId">
+<part name="parameters" element="tns:retrieveModelByModelId"/>
+</message>
+<message name="retrieveModelByModelIdResponse">
+<part name="parameters" element="tns:retrieveModelByModelIdResponse"/>
+</message>
+<message name="ModelNotFoundException">
+<part name="fault" element="tns:ModelNotFoundException"/>
+</message>
+<message name="createNewReservationRecord">
+<part name="parameters" element="tns:createNewReservationRecord"/>
+</message>
+<message name="createNewReservationRecordResponse">
+<part name="parameters" element="tns:createNewReservationRecordResponse"/>
+</message>
+<message name="ReservationCreationException">
+<part name="fault" element="tns:ReservationCreationException"/>
+</message>
+<message name="retrieveCategoryIdByModelId">
+<part name="parameters" element="tns:retrieveCategoryIdByModelId"/>
+</message>
+<message name="retrieveCategoryIdByModelIdResponse">
+<part name="parameters" element="tns:retrieveCategoryIdByModelIdResponse"/>
+</message>
 <portType name="CaRMSWebService">
+<operation name="retrieveAllModel">
+<input wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveAllModelRequest" message="tns:retrieveAllModel"/>
+<output wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveAllModelResponse" message="tns:retrieveAllModelResponse"/>
+</operation>
 <operation name="login">
 <input wsam:Action="http://ws.session.ejb/CaRMSWebService/loginRequest" message="tns:login"/>
 <output wsam:Action="http://ws.session.ejb/CaRMSWebService/loginResponse" message="tns:loginResponse"/>
 <fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://ws.session.ejb/CaRMSWebService/login/Fault/InvalidLoginCredentialException"/>
 </operation>
+<operation name="checkCarAvailability">
+<input wsam:Action="http://ws.session.ejb/CaRMSWebService/checkCarAvailabilityRequest" message="tns:checkCarAvailability"/>
+<output wsam:Action="http://ws.session.ejb/CaRMSWebService/checkCarAvailabilityResponse" message="tns:checkCarAvailabilityResponse"/>
+</operation>
+<operation name="retrieveCategoryByCategoryId">
+<input wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveCategoryByCategoryIdRequest" message="tns:retrieveCategoryByCategoryId"/>
+<output wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveCategoryByCategoryIdResponse" message="tns:retrieveCategoryByCategoryIdResponse"/>
+<fault message="tns:CategoryNotFoundException" name="CategoryNotFoundException" wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveCategoryByCategoryId/Fault/CategoryNotFoundException"/>
+</operation>
+<operation name="checkForExistenceOfRentalRate">
+<input wsam:Action="http://ws.session.ejb/CaRMSWebService/checkForExistenceOfRentalRateRequest" message="tns:checkForExistenceOfRentalRate"/>
+<output wsam:Action="http://ws.session.ejb/CaRMSWebService/checkForExistenceOfRentalRateResponse" message="tns:checkForExistenceOfRentalRateResponse"/>
+<fault message="tns:CategoryNotFoundException" name="CategoryNotFoundException" wsam:Action="http://ws.session.ejb/CaRMSWebService/checkForExistenceOfRentalRate/Fault/CategoryNotFoundException"/>
+<fault message="tns:RentalRateNotFoundException" name="RentalRateNotFoundException" wsam:Action="http://ws.session.ejb/CaRMSWebService/checkForExistenceOfRentalRate/Fault/RentalRateNotFoundException"/>
+</operation>
+<operation name="retrieveOutletByPickupDateTime">
+<input wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveOutletByPickupDateTimeRequest" message="tns:retrieveOutletByPickupDateTime"/>
+<output wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveOutletByPickupDateTimeResponse" message="tns:retrieveOutletByPickupDateTimeResponse"/>
+</operation>
+<operation name="retrieveAllCategory">
+<input wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveAllCategoryRequest" message="tns:retrieveAllCategory"/>
+<output wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveAllCategoryResponse" message="tns:retrieveAllCategoryResponse"/>
+</operation>
+<operation name="retrieveModelByModelId">
+<input wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveModelByModelIdRequest" message="tns:retrieveModelByModelId"/>
+<output wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveModelByModelIdResponse" message="tns:retrieveModelByModelIdResponse"/>
+<fault message="tns:ModelNotFoundException" name="ModelNotFoundException" wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveModelByModelId/Fault/ModelNotFoundException"/>
+</operation>
+<operation name="createNewReservationRecord">
+<input wsam:Action="http://ws.session.ejb/CaRMSWebService/createNewReservationRecordRequest" message="tns:createNewReservationRecord"/>
+<output wsam:Action="http://ws.session.ejb/CaRMSWebService/createNewReservationRecordResponse" message="tns:createNewReservationRecordResponse"/>
+<fault message="tns:ReservationCreationException" name="ReservationCreationException" wsam:Action="http://ws.session.ejb/CaRMSWebService/createNewReservationRecord/Fault/ReservationCreationException"/>
+</operation>
+<operation name="retrieveCategoryIdByModelId">
+<input wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveCategoryIdByModelIdRequest" message="tns:retrieveCategoryIdByModelId"/>
+<output wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveCategoryIdByModelIdResponse" message="tns:retrieveCategoryIdByModelIdResponse"/>
+<fault message="tns:ModelNotFoundException" name="ModelNotFoundException" wsam:Action="http://ws.session.ejb/CaRMSWebService/retrieveCategoryIdByModelId/Fault/ModelNotFoundException"/>
+</operation>
 </portType>
 <binding name="CaRMSWebServicePortBinding" type="tns:CaRMSWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+<operation name="retrieveAllModel">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
 <operation name="login">
 <soap:operation soapAction=""/>
 <input>
@@ -32,6 +149,96 @@
 </output>
 <fault name="InvalidLoginCredentialException">
 <soap:fault name="InvalidLoginCredentialException" use="literal"/>
+</fault>
+</operation>
+<operation name="checkCarAvailability">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="retrieveCategoryByCategoryId">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="CategoryNotFoundException">
+<soap:fault name="CategoryNotFoundException" use="literal"/>
+</fault>
+</operation>
+<operation name="checkForExistenceOfRentalRate">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="CategoryNotFoundException">
+<soap:fault name="CategoryNotFoundException" use="literal"/>
+</fault>
+<fault name="RentalRateNotFoundException">
+<soap:fault name="RentalRateNotFoundException" use="literal"/>
+</fault>
+</operation>
+<operation name="retrieveOutletByPickupDateTime">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="retrieveAllCategory">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="retrieveModelByModelId">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="ModelNotFoundException">
+<soap:fault name="ModelNotFoundException" use="literal"/>
+</fault>
+</operation>
+<operation name="createNewReservationRecord">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="ReservationCreationException">
+<soap:fault name="ReservationCreationException" use="literal"/>
+</fault>
+</operation>
+<operation name="retrieveCategoryIdByModelId">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="ModelNotFoundException">
+<soap:fault name="ModelNotFoundException" use="literal"/>
 </fault>
 </operation>
 </binding>
