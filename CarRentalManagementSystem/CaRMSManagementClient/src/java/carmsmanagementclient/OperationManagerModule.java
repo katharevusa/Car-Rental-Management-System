@@ -424,7 +424,7 @@ class OperationManagerModule {
             /////
             boolean done = false;
             do {
-                System.out.print("Enter status (Available/Repair)>");
+                System.out.print("Enter status (Available/if it is repair, press enter then type'Repair')>");
                 CarStatusEnum status;
                 if (sc.nextLine().trim().equals("Available")) {
                     status = CarStatusEnum.AVAILABLE;

@@ -58,8 +58,13 @@ public class CarAllocationSessionBean implements CarAllocationSessionBeanRemote,
         
         LocalDate currDate = triggerDateTime.toLocalDate();
         List<ReservationRecordEntity> currentDayReservationList = reservationRecordEntitySessionBeanLocal.retrieveReservationRecordByDate(currDate);
-
-        triggerCarAllocation(currentDayReservationList);
+        List<ReservationRecordEntity> filtered = new ArrayList<>();
+        for(ReservationRecordEntity r:currentDayReservationList){
+            if(r.getIsCancelled() == false){
+               filtered.add(r);
+            }
+        }
+        triggerCarAllocation(filtered);
         
     }
 

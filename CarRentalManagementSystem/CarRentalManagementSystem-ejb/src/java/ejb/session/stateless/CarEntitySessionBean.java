@@ -125,7 +125,7 @@ public class CarEntitySessionBean implements CarEntitySessionBeanRemote, CarEnti
 
         try {
             CarEntity carEntityToRemove = retrieveCarByCarId(carId);
-            if (carEntityToRemove.getStatus() != CarStatusEnum.ONRENTAL) {
+            if (carEntityToRemove.getStatus() != CarStatusEnum.ONRENTAL && carEntityToRemove.getStatus()!= CarStatusEnum.RESERVED) {
 
                 carEntityToRemove.getModelEntity().getCars().remove(carEntityToRemove);
                 if (carEntityToRemove.getOutletEntity() != null) {
