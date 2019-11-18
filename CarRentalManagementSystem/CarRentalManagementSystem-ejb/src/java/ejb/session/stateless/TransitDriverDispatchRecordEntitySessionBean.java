@@ -54,6 +54,7 @@ public class TransitDriverDispatchRecordEntitySessionBean implements TransitDriv
         }
         
         record.getReservationRecord().getCarEntity().setOutletEntity(record.getReservationRecord().getPickUpOutlet());
+        //set the outlet of the car to the current outlet
         record.setDispatchRecordStatus(DispatchRecordEnum.COMPLETED);
         em.flush();
     }

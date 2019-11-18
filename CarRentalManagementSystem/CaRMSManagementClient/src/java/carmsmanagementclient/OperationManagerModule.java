@@ -162,7 +162,10 @@ class OperationManagerModule {
         Scanner sc = new Scanner(System.in);
         
         System.out.print("Enter date(yyyy-MM-dd HH:mm:ss))>");
+        //System.out.print("Enter date(dd/MM/yyyy))>");
         String currDateTimeString = sc.nextLine().trim();
+       // DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+       //LocalDate currDate = LocalDateTime.parse(currDateTimeString, formatterDate).toLocalDate();
         LocalDate currDate = LocalDateTime.parse(currDateTimeString, formatter).toLocalDate();
         List<ReservationRecordEntity> reservations = reservationRecordEntitySessionBeanRemote.retrieveReservationRecordByDate(currDate);
         
@@ -594,7 +597,6 @@ class OperationManagerModule {
     }
 
     private void doAllocateCars() {
-
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter a date to trigger the alloation of car(yyyy-MM-dd)>");
         String dateTimeString = sc.nextLine().trim();

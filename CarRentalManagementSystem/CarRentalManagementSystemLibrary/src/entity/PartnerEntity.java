@@ -60,6 +60,14 @@ public class PartnerEntity implements Serializable {
         return hash;
     }
 
+    public List<CustomerEntity> getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(List<CustomerEntity> customer) {
+        this.customer = customer;
+    }
+
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the partnerId fields are not set

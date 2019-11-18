@@ -143,10 +143,12 @@ public class ModelEntitySessionBean implements ModelEntitySessionBeanRemote, Mod
         try {
 
             ModelEntity modelToDelete = retrieveModelByModelId(modelId);
+            
             if (modelToDelete.getCars().isEmpty()) {
                 em.remove(modelToDelete);
                 return modelToDelete.getModelId();
             } else {
+                //if there are cars under this model, cannot delete this model
                 modelToDelete.setDisabled(true);
                 throw new DeleteModelException();
             }

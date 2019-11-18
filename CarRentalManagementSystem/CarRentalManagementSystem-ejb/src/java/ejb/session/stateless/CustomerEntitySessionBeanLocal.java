@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.CustomerEntity;
+import entity.PartnerEntity;
 import javax.ejb.Local;
 import util.exception.CustomerNotFoundException;
 import util.exception.InputDataValidationException;
@@ -30,5 +31,5 @@ public interface CustomerEntitySessionBeanLocal {
     public CustomerEntity login(String username, String password) throws InvalidLoginCredentialException;
 
     public void register(String username, String password, String email, String mobileNumber) throws RegistrationFailureException;
-    
+    public CustomerEntity registerationInWeb(Long partnerId,String username,String password,String email, String mobileNumber)throws RegistrationFailureException;
 }

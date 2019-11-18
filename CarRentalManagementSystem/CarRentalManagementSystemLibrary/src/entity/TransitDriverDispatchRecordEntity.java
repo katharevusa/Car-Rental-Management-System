@@ -19,6 +19,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.validation.constraints.NotNull;
 import util.enumeration.DispatchRecordEnum;
 
@@ -66,6 +67,7 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
         return hash;
     }
 
+
     public DispatchRecordEnum getDispatchRecordStatus() {
         return dispatchRecordStatus;
     }
@@ -75,7 +77,7 @@ public class TransitDriverDispatchRecordEntity implements Serializable {
     }
 
 
-
+    @XmlTransient
     public EmployeeEntity getEmployee() {
         return employee;
     }

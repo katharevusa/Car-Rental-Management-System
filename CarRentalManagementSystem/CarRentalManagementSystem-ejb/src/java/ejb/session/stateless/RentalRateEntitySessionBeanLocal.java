@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.RentalRateEntity;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CategoryNotFoundException;
@@ -29,4 +30,6 @@ public interface RentalRateEntitySessionBeanLocal {
     public RentalRateEntity retrieveRentalRateByRentalId(Long rentalRateId) throws RentalRateNotFoundException;
   public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException;
     public void updateRentalRate(RentalRateEntity rentalRate) throws RentalRateNotFoundException, UpdateRentalRateException, InputDataValidationException;
+    public double checkForExistenceOfRentalRate(Long selectedCategoryId,LocalDateTime pickupDateTime,
+            LocalDateTime returnDateTime) throws CategoryNotFoundException, RentalRateNotFoundException;
 }

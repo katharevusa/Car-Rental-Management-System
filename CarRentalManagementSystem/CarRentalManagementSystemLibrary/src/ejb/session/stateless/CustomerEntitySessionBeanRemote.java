@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.CustomerEntity;
+import entity.PartnerEntity;
 import util.exception.CustomerNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidFieldEnteredException;
@@ -20,5 +21,5 @@ public interface CustomerEntitySessionBeanRemote {
     public CustomerEntity login(String username, String password) throws InvalidLoginCredentialException;
     
     public void register(String username, String password, String email, String mobileNumber) throws RegistrationFailureException;
-
+public CustomerEntity registerationInWeb(Long partnerId,String username,String password,String email, String mobileNumber)throws RegistrationFailureException;
 }

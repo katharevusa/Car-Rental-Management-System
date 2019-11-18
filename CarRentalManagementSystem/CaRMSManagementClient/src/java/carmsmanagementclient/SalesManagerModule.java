@@ -21,8 +21,10 @@ import util.exception.CategoryNotFoundException;
 import util.exception.GeneralException;
 import util.exception.InvalidAccessRightException;
 import java.lang.String;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -173,6 +175,7 @@ class SalesManagerModule {
         System.out.print("Enter rental rate per day> ");
         newRentalRateEntity.setRatePerDay(scanner.nextDouble());
         scanner.nextLine();
+   
         System.out.print("Enter validity period: enter starting date time (dd/MM/yyyy HH:mm) > ");
         String startDate = scanner.nextLine().trim();
         LocalDateTime dateTime1;
@@ -182,6 +185,7 @@ class SalesManagerModule {
             dateTime1 = LocalDateTime.parse(startDate, formatter);
         }
         newRentalRateEntity.setStartDateTime(dateTime1);
+
         //the ending must be after the starting date
         System.out.print("Enter validity period: enter ending date (dd/mm/yyyy HH:mm) > ");
         String endDate = scanner.nextLine().trim();
@@ -198,7 +202,6 @@ class SalesManagerModule {
         if (constraintViolations.isEmpty()) {
 
             try {
-
                 newRentalRateEntity = rentalRateEntitySessionBeanRemote.createNewRentalRate(enteredCategory.getCategoryId(), newRentalRateEntity);
                 System.out.println("New rental rate of " + newRentalRateEntity.getRatePerDay() + " is created under " + newRentalRateEntity.getCategory().getName() + "\n");
             } catch (CategoryNotFoundException ex) {
@@ -208,7 +211,6 @@ class SalesManagerModule {
             } catch (RentalRateExistException ex) {
                 Logger.getLogger(SalesManagerModule.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         } else {
             showInputDataValidationErrorsForRentalRateEntity(constraintViolations);
         }

@@ -29,7 +29,7 @@ public class CustomerEntity implements Serializable {
     private Long customerId;
     @Column(unique = true,nullable = false,length = 32)
     @NotNull
-    @Size(min = 4, max = 32,message = "The length of username is at least 4 or at most 32.")
+    @Size(min = 2, max = 32,message = "The length of username is at least 4 or at most 32.")
     private String username;
     @Column(nullable = false,length = 32)
     @NotNull
@@ -37,7 +37,7 @@ public class CustomerEntity implements Serializable {
     private String password;
     @Column(nullable = false)
     @NotNull
-    @Size(min = 8,max =8,message = "Mobile number is invalid.")
+    @Size(message = "Mobile number is invalid.")
     private String mobileNumber;
     @Column(nullable = false)
     private String email;

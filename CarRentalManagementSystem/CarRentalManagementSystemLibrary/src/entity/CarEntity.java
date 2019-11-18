@@ -10,8 +10,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+
+import javax.xml.bind.annotation.XmlTransient;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import util.enumeration.CarStatusEnum;
 
 /**
@@ -130,7 +134,7 @@ public class CarEntity implements Serializable {
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
     }
-
+    @XmlTransient
     public ModelEntity getModelEntity() {
         return modelEntity;
     }
@@ -138,7 +142,7 @@ public class CarEntity implements Serializable {
     public void setModelEntity(ModelEntity modelEntity) {
         this.modelEntity = modelEntity;
     }
-
+    @XmlTransient
     public OutletEntity getOutletEntity() {
         return outletEntity;
     }
@@ -146,7 +150,7 @@ public class CarEntity implements Serializable {
     public void setOutletEntity(OutletEntity outletEntity) {
         this.outletEntity = outletEntity;
     }
-
+    @XmlTransient
     public ReservationRecordEntity getReservationRecordEntity() {
         return reservationRecordEntity;
     }

@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -228,6 +230,17 @@ public class ReservationRecordEntitySessionBean implements ReservationRecordEnti
         }
         
         return msg;
+    }
+    @Override
+    public ReservationRecordEntity createReservationInWebService
+        (Long partnerId, Long selectedModelId, Long selectedCategoryId, Long selectedPickupOutletId,Long selectedReturnedOutletId, LocalDateTime pickupDateTime, LocalDateTime returnDateTime,Double totalRentalRate, String ccNumber, Double paidAmt) throws ReservationRecordNotFoundException{
+        try {
+            ReservationRecordEntity r = new ReservationRecordEntity(totalRentalRate, pickupDateTime, returnDateTime, ccNumber, paidAmt);
+            createNewReservationRecord(r,partnerId, selectedModelId, selectedCategoryId, selectedPickupOutletId, selectedReturnedOutletId);
+            return r;
+        } catch (ReservationCreationException ex) {
+            throw new ReservationRecordNotFoundException("Reservation not found!");
+        }
     }
     
 }

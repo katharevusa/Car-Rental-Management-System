@@ -26,6 +26,8 @@ import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  *
@@ -78,28 +80,27 @@ public class ReservationRecordEntity implements Serializable {
     @ManyToOne
     @JoinColumn(nullable = true)
     private PartnerEntity partner;
+
     //bi
     @OneToOne(mappedBy = "reservationRecord")
     private TransitDriverDispatchRecordEntity tddr;
 
-    
-
     public ReservationRecordEntity() {
-        
+
     }
 
+
     @DateRange
-    public ReservationRecordEntity(Double rentalRate, LocalDateTime pickUpDateTime, LocalDateTime returnDateTime,String ccNumber, double paidAmount) {
-        
+    public ReservationRecordEntity(Double rentalRate, LocalDateTime pickUpDateTime, LocalDateTime returnDateTime,String ccNumber, Double paidAmount) {
+
         this();
         this.rentalRate = rentalRate;
         this.pickUpDateTime = pickUpDateTime;
         this.returnDateTime = returnDateTime;
         this.ccNumber = ccNumber;
         this.paidAmount = paidAmount;
-        
-    }
 
+    }
 
     @Override
     public int hashCode() {
@@ -125,14 +126,15 @@ public class ReservationRecordEntity implements Serializable {
     public String toString() {
         return "entity.ReservationRecordEntity[ id=" + getReservationRecordId() + " ]";
     }
-public double getRentalRate() {
+
+    public double getRentalRate() {
         return rentalRate;
     }
 
     public void setRentalRate(double rentalRate) {
         this.rentalRate = rentalRate;
     }
-
+   @XmlTransient
     public TransitDriverDispatchRecordEntity getTddr() {
         return tddr;
     }
@@ -140,6 +142,7 @@ public double getRentalRate() {
     public void setTddr(TransitDriverDispatchRecordEntity tddr) {
         this.tddr = tddr;
     }
+
     public Long getReservationRecordId() {
         return reservationRecordId;
     }
@@ -211,7 +214,6 @@ public double getRentalRate() {
     public void setCarEntity(CarEntity carEntity) {
         this.carEntity = carEntity;
     }
-
     public OutletEntity getPickUpOutlet() {
         return pickUpOutlet;
     }
@@ -219,7 +221,6 @@ public double getRentalRate() {
     public void setPickUpOutlet(OutletEntity pickUpOutlet) {
         this.pickUpOutlet = pickUpOutlet;
     }
-
     public OutletEntity getReturnOutlet() {
         return returnOutlet;
     }
@@ -227,7 +228,7 @@ public double getRentalRate() {
     public void setReturnOutlet(OutletEntity returnOutlet) {
         this.returnOutlet = returnOutlet;
     }
-
+    @XmlTransient
     public CustomerEntity getCustomerEntity() {
         return customerEntity;
     }
@@ -235,6 +236,7 @@ public double getRentalRate() {
     public void setCustomerEntity(CustomerEntity customerEntity) {
         this.customerEntity = customerEntity;
     }
+
     @XmlTransient
     public PartnerEntity getPartner() {
         return partner;
@@ -259,7 +261,5 @@ public double getRentalRate() {
     public void setHasPast(Boolean hasPast) {
         this.hasPast = hasPast;
     }
-
-    
 
 }

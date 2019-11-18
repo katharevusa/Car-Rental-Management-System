@@ -1,7 +1,9 @@
 package ejb.session.stateless;
 
 import entity.CustomerEntity;
+import entity.PartnerEntity;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -31,6 +33,9 @@ import util.exception.UnknownPersistenceException;
 @Remote(CustomerEntitySessionBeanRemote.class)
 
 public class CustomerEntitySessionBean implements CustomerEntitySessionBeanRemote, CustomerEntitySessionBeanLocal {
+
+    @EJB(name = "PartnerEntitySessionBeanLocal")
+    private PartnerEntitySessionBeanLocal partnerEntitySessionBeanLocal;
 
     @PersistenceContext(unitName = "CarRentalManagementSystem-ejbPU")
     private EntityManager em;
@@ -80,8 +85,21 @@ public class CustomerEntitySessionBean implements CustomerEntitySessionBeanRemot
             
         }
     }
-    
-    
+     @Override 
+    public CustomerEntity registerationInWeb(Long partnerId,String username,String password,String email, String mobileNumber)throws RegistrationFailureException{
+       try{
+            CustomerEntity customerEntity = new CustomerEntity(username,password,email,mobileNumber);
+            PartnerEntity partner = partnerEntitySessionBeanLocal.retrievePartnerByPartnerId(partnerId);
+            createNewCustomer(customerEntity);
+            partner.getCustomer().add(customerEntity);
+            customerEntity.setPartner(partner);
+            return customerEntity;
+        } catch (InputDataValidationException | UnknownPersistenceException ex){
+            
+            throw new RegistrationFailureException(ex.getMessage());
+            
+        } 
+    }
     @Override
     public CustomerEntity retrieveCustomerByCustomerId(Long customerId) throws CustomerNotFoundException{
         
@@ -113,7 +131,6 @@ public class CustomerEntitySessionBean implements CustomerEntitySessionBeanRemot
     public CustomerEntity login(String username,String password) throws InvalidLoginCredentialException{
         
         try {
-            
             CustomerEntity customerEntity = retrieveCustomerByUsername(username);
             
             if (customerEntity.getPassword().equals(password)){
@@ -130,7 +147,7 @@ public class CustomerEntitySessionBean implements CustomerEntitySessionBeanRemot
         }
     }
     
-    
+  
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CustomerEntity>>constraintViolations)
     {
         String msg = "Input data validation error!:";

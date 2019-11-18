@@ -22,5 +22,8 @@ public interface ReservationRecordEntitySessionBeanRemote {
     public ReservationRecordEntity cancelReservation(Long reservationId) throws CancelReservationFailureException;
 
     public List<ReservationRecordEntity> retrieveReservationRecordByDate(LocalDate currDate);
-    
+    // public ReservationRecordEntity createReservationInWebService(Double totalRentalRate, LocalDateTime pickupDateTime, LocalDateTime returnDateTime, String ccNumber, double paidAmt) throws ReservationRecordNotFoundException;
+public ReservationRecordEntity createReservationInWebService
+        (Long partnerId, Long selectedModelId, Long selectedCategoryId, Long selectedPickupOutletId,Long selectedReturnedOutletId, LocalDateTime pickupDateTime, LocalDateTime returnDateTime,Double totalRentalRate, String ccNumber, Double paidAmt) throws ReservationRecordNotFoundException;
+      
 }

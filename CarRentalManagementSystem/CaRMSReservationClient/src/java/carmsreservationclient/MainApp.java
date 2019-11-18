@@ -12,7 +12,6 @@ import entity.CustomerEntity;
 import entity.ModelEntity;
 import entity.OutletEntity;
 import entity.ReservationRecordEntity;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -219,7 +218,7 @@ public class MainApp {
             try {
 
                 printAllCategory();
-                System.out.print("Do you want to choose a specific category? (Y/any key)>");
+                System.out.print("Do you want to choose a specific category? (Y/any key for No)>");
                 option = sc.nextLine().trim();
 
                 long selectedCategoryId;
@@ -239,7 +238,7 @@ public class MainApp {
                     sc.nextLine();
                     selectedCategoryId = modelEntitySessionBeanRemote.retrieveModelByModelId(selectedModelId).getCategoryEntity().getCategoryId();
                 } else {
-                    System.out.println("Do you want to choose a specific model? (Y/any key)>");
+                    System.out.println("Do you want to choose a specific model? >");
                     System.out.println("(Enter Y to choose or");
                     System.out.println("Enter any key to skip this step!)");
                     option = sc.nextLine().trim();
@@ -267,14 +266,7 @@ public class MainApp {
                         System.out.print("Enter pick up date/time(dd/MM/yyyy HH:mm:ss)>");
                     }
                 }
-                
-                
-
-                try {
-                    printAvailableOutlet(pickupDateTime);
-                } catch (NoOutletIsOpeningException ex) {
-                    System.out.println(ex.getMessage()+"You cannot make this reservation!");
-                }
+                printAvailableOutlet(pickupDateTime);
                 System.out.print("Please select a pickup outlet>");
                 long selectedPickupOutletId = sc.nextLong();
                 sc.nextLine();
@@ -293,13 +285,8 @@ public class MainApp {
                         System.out.print("Enter pick up date/time(dd/MM/yyyy HH:mm:ss)>");
                     }
                 }
+                printAvailableOutlet(returnDateTime);
 
-
-                try {
-                    printAvailableOutlet(returnDateTime);
-                } catch (NoOutletIsOpeningException ex) {
-                    System.out.println(ex.getMessage()+"You cannot make this reservation!");
-                }
                 System.out.print("Please select a return outlet>");
                 long selectedReturnOutletId = sc.nextLong();
                 sc.nextLine();
@@ -362,7 +349,7 @@ public class MainApp {
         } while (continueConfirmation.equals("Y"));
     }
 
-    private Long doReserveCar(double totalRentalRate, Long selectedModelId, Long selectedCategoryId,
+ private Long doReserveCar(double totalRentalRate, Long selectedModelId, Long selectedCategoryId,
             LocalDateTime pickupDateTime, LocalDateTime returnDateTime, Long selectedPickupOutletId,
             Long selectedReturnOutletId, String ccNumber, double paidAmt) throws UnsuccessfulReservationException {
 
@@ -391,7 +378,8 @@ public class MainApp {
     }
 
     public Boolean searchCar(Long selectedCategoryId, Long selectedModelId, LocalDateTime pickupDateTime,
-            LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId){
+            LocalDateTime returnDateTime, Long selectedPickupOutletId, Long selectedReturnOutletId) {
+
 
         //filter to get cars with specified category and model
         Boolean canReserve = carEntitySessionBeanRemote.checkCarAvailability(pickupDateTime, returnDateTime,
@@ -415,20 +403,20 @@ public class MainApp {
 
         if (selectedCategoryId == -1) {
             List<ModelEntity> models = modelEntitySessionBeanRemote.retrieveAllModel();
-            System.out.printf("%10s%20s%n", "Model ID", "Model Name");
+            System.out.printf("%10s%20s%20s%n", "Make and Model ID", "Make","Model");
             //get list of models under the category
             // <ModelEntity> models = categoryEntitySessionBeanRemote.retrieveAllModelsUnderCategory(category);
             for (ModelEntity model : models) {
-                System.out.printf("%10s%20s%n", model.getModelId(), model.getModelName());
+                System.out.printf("%10s%20s%20s%n", model.getModelId(), model.getMake(),model.getModelName());
             }
         } else {
             try {
                 CategoryEntity category = categoryEntitySessionBeanRemote.retrieveCategoryByCategoryId(selectedCategoryId);
-                System.out.printf("%10s%20s%n", "Model ID", "Model Name");
+                System.out.printf("%10s%20s%20s%n", "Make and Model ID","Make", "Model");
                 //get list of models under the category
                 // <ModelEntity> models = categoryEntitySessionBeanRemote.retrieveAllModelsUnderCategory(category);
-                for (ModelEntity model : category.getModels()) {
-                    System.out.printf("%10s%20s%n", model.getModelId(), model.getModelName());
+                for(ModelEntity model : category.getModels()) {
+                    System.out.printf("%10s%20s%20s%n", model.getModelId(), model.getMake(),model.getModelName());
                 }
 
             } catch (CategoryNotFoundException ex) {
@@ -438,11 +426,11 @@ public class MainApp {
 
     }
 
-    private void printAvailableOutlet(LocalDateTime pickupDateTime) throws NoOutletIsOpeningException{
+    private void printAvailableOutlet(LocalDateTime pickupDateTime) {
 
         List<OutletEntity> outlets = outletEntitySessionBeanRemote.retrieveOutletByPickupDateTime(pickupDateTime);
         if (outlets.isEmpty()) {
-            throw new NoOutletIsOpeningException("No outlet is opening at this hour!");
+            System.out.println("No outlet is opening at this hour!");
         } else {
             System.out.printf("%10s%100s%20s%20s%n", "Outlet ID", "Address", "Open At", "Close At");
             for (OutletEntity outlet : outlets) {
@@ -465,7 +453,7 @@ public class MainApp {
         input = sc.nextLine().trim();
         //if the reservation has already been cancelled, they cannot cancel it again:SOLVED
         //if the reservation is in the past, they cannot be cancelled:
-       
+
         if (input.equals("Y")) {
             try {
                 ReservationRecordEntity reservationToCancel = reservationRecordEntitySessionBeanRemote.cancelReservation(reservationId);

@@ -23,7 +23,10 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.DecimalMax;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -44,6 +47,8 @@ public class RentalRateEntity implements Serializable {
     @Column(nullable = false,precision = 11)
     @NotNull
     @DecimalMin("0.00")
+    @DecimalMax("1000000.00")
+    @Digits(integer=10, fraction=2)
     private Double ratePerDay;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
@@ -166,6 +171,7 @@ public class RentalRateEntity implements Serializable {
     /**
      * @return the category
      */
+    @XmlTransient
     public CategoryEntity getCategory() {
         return category;
     }

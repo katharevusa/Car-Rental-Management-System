@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -115,7 +116,7 @@ public class ModelEntity implements Serializable {
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
     }
-
+    @XmlTransient
     public CategoryEntity getCategoryEntity() {
         return categoryEntity;
     }
@@ -123,7 +124,6 @@ public class ModelEntity implements Serializable {
     public void setCategoryEntity(CategoryEntity categoryEntity) {
         this.categoryEntity = categoryEntity;
     }
-
     public List<CarEntity> getCars() {
         return cars;
     }
