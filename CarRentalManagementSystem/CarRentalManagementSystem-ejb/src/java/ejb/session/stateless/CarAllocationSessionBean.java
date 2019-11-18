@@ -50,7 +50,7 @@ public class CarAllocationSessionBean implements CarAllocationSessionBeanRemote,
     private EntityManager em;
 
     @Override
-    @Schedule(dayOfMonth = "*/1", hour = "2",info = "carAllocationTimer")
+    @Schedule(hour = "2", minute = "0", second = "0", persistent = false,info = "carAllocationTimer")
     public void carAllocationTimer() {
 
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
